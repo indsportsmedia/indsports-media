@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 180" width="580" height="180">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <!-- Play Triangle Badge with iND Logo -->
+    <g transform="translate(15, 10)">
+      <!-- Outer rounded play button triangle -->
+      <path d="M 40 18 L 150 82 C 162 89 162 95 150 102 L 40 166 C 28 173 15 163 15 146 L 15 38 C 15 21 28 11 40 18 Z" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="round"/>
+      
+      <!-- Inner 'iND' monogram inside triangle -->
+      <!-- i dot & stem -->
+      <circle cx="50" cy="62" r="7.5" fill="#FFFFFF"/>
+      <path d="M 44 76 L 56 76 L 50 132 L 38 132 Z" fill="#FFFFFF"/>
+      
+      <!-- N -->
+      <path d="M 62 80 L 74 80 L 68 132 L 56 132 Z" fill="#FFFFFF"/>
+      <path d="M 62 80 L 100 132 L 112 132 L 74 80 Z" fill="#FFFFFF"/>
+      <path d="M 100 80 L 112 80 L 106 132 L 94 132 Z" fill="#FFFFFF"/>
+    </g>
+
+    <!-- IND SPORTS MEDIA Typography -->
+    <g transform="translate(185, 15)">
+      <!-- IND Main Athletic Title -->
+      <text x="0" y="100" font-family="'Montserrat', 'Impact', 'Arial Black', sans-serif" font-size="110" font-weight="900" font-style="italic" fill="#FFFFFF" letter-spacing="-1">IND</text>
+      <!-- SPORTS MEDIA Subtitle -->
+      <text x="4" y="142" font-family="'Montserrat', 'Arial Black', sans-serif" font-size="28" font-weight="900" font-style="italic" fill="#FFFFFF" letter-spacing="8">SPORTS MEDIA</text>
+    </g>
+  </g>
+</svg>
