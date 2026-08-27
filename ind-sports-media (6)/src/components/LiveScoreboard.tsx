@@ -39,7 +39,9 @@ import {
   subscribeToGames, 
   syncGameToFirestore, 
   seedInitialGamesIfEmpty, 
-  testFirestoreConnection 
+  testFirestoreConnection,
+  compressImageFile,
+  uploadPhotoToFirestore 
 } from '../lib/firebase';
 import type { PlayEvent, SocialClip, GameState } from '../types';
 
@@ -256,6 +258,7 @@ export default function LiveScoreboard({ onBack }: LiveScoreboardProps) {
   const [clipFilter, setClipFilter] = useState<'all' | 'home' | 'away'>('all');
   const [previewMediaModal, setPreviewMediaModal] = useState<SocialClip | null>(null);
   const [likedClips, setLikedClips] = useState<Record<string, boolean>>({});
+  const [clipImageFilePreview, setClipImageFilePreview] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -546,7 +549,22 @@ export default function LiveScoreboard({ onBack }: LiveScoreboardProps) {
     setTimeout(() => setCopiedCaption(false), 2500);
   };
 
-  // Publish Social Clip / Highlight live to website
+  // File input change for instant in-game photo upload & compression
+  const handleFileSelectForClip = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const compressedUrl = await compressImageFile(file, 1400, 0.82);
+      setClipImageFilePreview(compressedUrl);
+      setClipMediaUrl(compressedUrl);
+      setClipType('photo');
+      setClipPlatform('upload');
+    } catch (err) {
+      console.error('Error compressing clip image:', err);
+    }
+  };
+
+  // Publish Social Clip / Highlight / Photo live to website
   const handlePublishClip = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!clipTitle.trim()) {
@@ -560,14 +578,16 @@ export default function LiveScoreboard({ onBack }: LiveScoreboardProps) {
         ? 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80'
         : 'https://images.unsplash.com/photo-1519766304817-4f37bda74a29?auto=format&fit=crop&w=1000&q=80';
 
+      const finalMediaUrl = clipImageFilePreview || clipMediaUrl.trim() || defaultMedia;
+
       const newClip: SocialClip = {
         id: `clip-${Date.now()}`,
         platform: clipPlatform,
         type: clipType,
         title: clipTitle.trim(),
         author: clipPlatform === 'x' ? '@INDSportsMedia' : 'Brandon Blume (IND Field Staff)',
-        url: clipUrl.trim(),
-        mediaUrl: clipMediaUrl.trim() || defaultMedia,
+        url: clipUrl.trim() || (clipType === 'photo' ? finalMediaUrl : ''),
+        mediaUrl: finalMediaUrl,
         caption: clipCaption.trim(),
         time: `${activeGame.quarter} • ${activeGame.clock}`,
         team: clipTeam,
@@ -580,16 +600,37 @@ export default function LiveScoreboard({ onBack }: LiveScoreboardProps) {
         socialClips: [newClip, ...(activeGame.socialClips || [])]
       };
 
-      // Push to Firestore & Server
+      // 1. Push to Firestore & Server for the live game
       await broadcastGameUpdate(updatedGame);
+
+      // 2. Also automatically broadcast to the global Photos Gallery if it's a photo!
+      if (clipType === 'photo' || clipImageFilePreview) {
+        try {
+          await uploadPhotoToFirestore({
+            sport: (activeGame.sport.includes('Basketball') ? 'Basketball' : 'Football') as any,
+            title: clipTitle.trim(),
+            match: `${activeGame.homeTeam.name} vs. ${activeGame.awayTeam.name}`,
+            photographer: 'Brandon Blume (IND Sideline)',
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            src: finalMediaUrl,
+            tags: ['Live Game', 'Sideline', activeGame.quarter.replace(' Qtr', '')],
+            isLiveGamePhoto: true,
+            gameId: activeGame.id,
+            createdAt: new Date().toISOString()
+          });
+        } catch (photoErr) {
+          console.warn('Could not sync to global photo gallery:', photoErr);
+        }
+      }
 
       // Reset form
       setClipTitle('');
       setClipUrl('');
       setClipMediaUrl('');
+      setClipImageFilePreview('');
       setClipCaption('');
       setActiveTab('highlights');
-      alert('🎉 Clip published live! Synced across all devices in real-time.');
+      alert('🎉 Published live! Synced to Scoreboard, Highlights & Photos Gallery in real-time.');
     } catch (err) {
       console.error('Error publishing clip:', err);
       alert('Failed to publish clip to live feed.');
@@ -1189,16 +1230,64 @@ export default function LiveScoreboard({ onBack }: LiveScoreboardProps) {
                           />
                         </div>
 
+                        {/* Direct Photo Camera or Image Upload */}
+                        <div>
+                          <label className="text-[11px] font-mono text-white/70 uppercase font-black block mb-1">
+                            📸 Camera Snapshot or Image File
+                          </label>
+                          <input 
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            ref={fileInputRef}
+                            onChange={handleFileSelectForClip}
+                            className="hidden"
+                            id="sideline-photo-capture-input"
+                          />
+                          {clipImageFilePreview ? (
+                            <div className="relative aspect-16/9 rounded-lg overflow-hidden border border-[#00BFFF]/60 bg-black mb-2">
+                              <img 
+                                src={clipImageFilePreview} 
+                                alt="Preview" 
+                                className="w-full h-full object-cover" 
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setClipImageFilePreview('');
+                                  setClipMediaUrl('');
+                                  if (fileInputRef.current) fileInputRef.current.value = '';
+                                }}
+                                className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full text-xs hover:bg-red-700"
+                              >
+                                <X size={14} />
+                              </button>
+                              <div className="absolute bottom-1.5 left-2 bg-black/80 text-[#00BFFF] px-2 py-0.5 rounded text-[10px] font-mono">
+                                ✓ Compressed for Live Broadcast
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => fileInputRef.current?.click()}
+                              className="w-full py-2.5 px-3 bg-white/5 hover:bg-[#00BFFF]/10 border border-dashed border-white/20 hover:border-[#00BFFF]/50 rounded text-xs font-display font-bold text-white flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                            >
+                              <Camera size={16} className="text-[#00BFFF]" />
+                              <span>Take Photo with Phone / Pick File</span>
+                            </button>
+                          )}
+                        </div>
+
                         {/* Direct Photo or Thumbnail link */}
                         <div>
                           <label className="text-[11px] font-mono text-white/70 uppercase font-black block mb-1">
-                            Direct Image / Thumbnail URL (Optional)
+                            Or Direct Image / Thumbnail URL (Optional)
                           </label>
                           <input 
                             type="text"
                             value={clipMediaUrl}
                             onChange={(e) => setClipMediaUrl(e.target.value)}
-                            placeholder="https://... (Leave blank to use dynamic sports thumbnail)"
+                            placeholder="https://... (Or use the camera button above)"
                             className="w-full bg-black border border-white/20 rounded px-3 py-2 text-xs font-mono text-white focus:border-[#00BFFF] outline-none"
                           />
                         </div>

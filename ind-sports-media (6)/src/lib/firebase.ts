@@ -4,13 +4,14 @@ import {
   collection, 
   doc, 
   setDoc, 
+  deleteDoc,
   getDocs,
   getDocFromServer,
   onSnapshot, 
   type Unsubscribe 
 } from 'firebase/firestore';
 import defaultAppletConfig from '../../firebase-applet-config.json';
-import type { GameState } from '../types';
+import type { GameState, PhotoItem } from '../types';
 
 // Allow overriding via custom environment variables (e.g. on Netlify or custom deployment)
 const firebaseConfig = {
@@ -103,18 +104,135 @@ export async function syncGameToFirestore(game: GameState): Promise<void> {
 }
 
 /**
- * Batch seed or initialize games if Firestore is empty on first boot.
+ * Real-time subscription to all photos in the Firestore collection.
+ * Fires automatically on all visitor browsers when a new photo is uploaded.
  */
-export async function seedInitialGamesIfEmpty(defaultGames: GameState[]): Promise<void> {
+export function subscribeToPhotos(
+  onUpdate: (photos: PhotoItem[]) => void,
+  onError?: (err: Error) => void
+): Unsubscribe {
+  const photosCol = collection(db, 'photos');
+
+  return onSnapshot(
+    photosCol,
+    (snapshot) => {
+      if (!snapshot.empty) {
+        const photosList: PhotoItem[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data() as PhotoItem;
+          photosList.push({
+            ...data,
+            id: docSnap.id
+          });
+        });
+        // Sort by createdAt descending if present
+        photosList.sort((a, b) => {
+          const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return timeB - timeA;
+        });
+        onUpdate(photosList);
+      } else {
+        onUpdate([]);
+      }
+    },
+    (err) => {
+      console.error('Firestore photos subscription error:', err);
+      if (onError) onError(err);
+    }
+  );
+}
+
+/**
+ * Upload an in-game photo or match action shot to Firestore.
+ */
+export async function uploadPhotoToFirestore(photo: Omit<PhotoItem, 'id'> & { id?: string }): Promise<string> {
+  const photoId = photo.id || `photo_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+  const photoRef = doc(db, 'photos', photoId);
+
+  const cleanPhoto: PhotoItem = {
+    ...photo,
+    id: photoId,
+    createdAt: photo.createdAt || new Date().toISOString()
+  };
+
+  await setDoc(photoRef, cleanPhoto);
+  return photoId;
+}
+
+/**
+ * Delete a photo from Firestore.
+ */
+export async function deletePhotoFromFirestore(photoId: string): Promise<void> {
+  const photoRef = doc(db, 'photos', photoId);
+  await deleteDoc(photoRef);
+}
+
+/**
+ * Seed initial default games if the games collection is completely empty.
+ */
+export async function seedInitialGamesIfEmpty(initialGames: GameState[]): Promise<void> {
   try {
-    const snapshot = await getDocs(collection(db, 'games'));
-    if (snapshot.empty) {
-      console.log('Seeding initial showcase games to Firestore...');
-      for (const game of defaultGames) {
-        await syncGameToFirestore(game);
+    const gamesCol = collection(db, 'games');
+    const snap = await getDocs(gamesCol);
+    if (snap.empty) {
+      for (const g of initialGames) {
+        await syncGameToFirestore(g);
       }
     }
   } catch (err) {
-    console.warn('Could not check/seed Firestore games:', err);
+    console.warn('Could not auto-seed games in Firestore:', err);
   }
+}
+
+/**
+ * Client-side high performance image compressor.
+ * Takes a raw camera photo (e.g. 10MB iPhone RAW/HEIC/JPEG) and resizes it to a crisp,
+ * lightweight web-ready JPEG (~100-250KB) so it uploads in sub-second time directly into Firestore.
+ */
+export function compressImageFile(file: File, maxDimension = 1400, quality = 0.82): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (readerEvent) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxDimension) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          }
+        } else {
+          if (height > maxDimension) {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas context not available'));
+          return;
+        }
+
+        // Draw with smooth bicubic interpolation
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = () => reject(new Error('Failed to load image for compression'));
+      img.src = readerEvent.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
 }

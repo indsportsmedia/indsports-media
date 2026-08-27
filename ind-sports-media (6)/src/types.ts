@@ -1,3 +1,17 @@
+export interface PhotoItem {
+  id: string;
+  sport: 'Football' | 'Basketball' | 'Volleyball' | 'Wrestling' | 'Flag Football';
+  title: string;
+  match: string;
+  photographer: string;
+  date: string;
+  src: string;
+  tags: string[];
+  isLiveGamePhoto?: boolean;
+  gameId?: string;
+  createdAt?: string;
+}
+
 export interface PlayEvent {
   id: string;
   time: string;
