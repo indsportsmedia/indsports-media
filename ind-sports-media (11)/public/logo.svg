@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 260" width="760" height="260">
+  <defs>
+    <filter id="ind-glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  <g filter="url(#ind-glow)" fill="#FFFFFF">
+    <!-- PLAY BUTTON TRIANGLE MONOGRAM (iND Icon) -->
+    <g transform="translate(18, 12)">
+      <!-- Outer Triangle Frame -->
+      <path d="M 82 28 C 90 28 98 33 103 40 L 228 122 C 238 128 238 140 228 146 L 103 228 C 97 232 90 236 82 236 C 68 236 58 226 58 212 L 58 200 L 78 200 L 78 208 C 78 213 83 216 88 213 L 208 134 L 88 55 C 83 52 78 55 78 60 L 78 72 L 58 72 L 58 52 C 58 38 68 28 82 28 Z" fill="#FFFFFF"/>
+      
+      <!-- 'i' Dot: Slanted parallelogram at top left -->
+      <path d="M 52 68 L 74 68 L 68 96 L 46 96 Z" fill="#FFFFFF"/>
+      
+      <!-- 'i' Stem: Lower left slanted pillar -->
+      <path d="M 43 108 L 65 108 L 44 198 L 22 198 Z" fill="#FFFFFF"/>
+      
+      <!-- 'N' Letter: Athletic nested Monogram inside triangle -->
+      <!-- Left leg of N -->
+      <path d="M 80 84 L 100 84 L 75 198 L 55 198 Z" fill="#FFFFFF"/>
+      <!-- Diagonal connecting bar of N -->
+      <path d="M 80 84 L 138 198 L 160 198 L 102 84 Z" fill="#FFFFFF"/>
+      <!-- Right leg of N -->
+      <path d="M 140 84 L 160 84 L 135 198 L 115 198 Z" fill="#FFFFFF"/>
+    </g>
+
+    <!-- WORDMARK: IND SPORTS MEDIA -->
+    <g transform="translate(275, 4)">
+      <g transform="skewX(-16)">
+        <!-- Letter 'I' -->
+        <path d="M 70 32 L 105 32 C 109 32 112 35 112 39 L 112 143 C 112 147 109 150 105 150 L 70 150 C 66 150 63 147 63 143 L 63 39 C 63 35 66 32 70 32 Z" fill="#FFFFFF"/>
+        
+        <!-- Letter 'N' -->
+        <path d="M 135 32 L 170 32 L 230 115 L 230 39 C 230 35 233 32 237 32 L 268 32 C 272 32 275 35 275 39 L 275 143 C 275 147 272 150 268 150 L 233 150 L 173 67 L 173 143 C 173 147 170 150 166 150 L 135 150 C 131 150 128 147 128 143 L 128 39 C 128 35 131 32 135 32 Z" fill="#FFFFFF"/>
+        
+        <!-- Letter 'D' -->
+        <path d="M 300 32 L 368 32 C 412 32 444 60 444 91 C 444 122 412 150 368 150 L 300 150 C 296 150 293 147 293 143 L 293 39 C 293 35 296 32 300 32 Z M 338 64 L 338 118 L 365 118 C 388 118 403 107 403 91 C 403 75 388 64 365 64 Z" fill="#FFFFFF"/>
+      </g>
+      
+      <!-- 'SPORTS MEDIA' Subtitle -->
+      <text 
+        x="6" 
+        y="198" 
+        font-family="'Montserrat', 'Impact', 'Arial Black', -apple-system, sans-serif" 
+        font-size="36" 
+        font-weight="900" 
+        font-style="italic" 
+        fill="#FFFFFF" 
+        letter-spacing="9"
+      >
+        SPORTS MEDIA
+      </text>
+    </g>
+  </g>
+</svg>
