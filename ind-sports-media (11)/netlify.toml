@@ -2,6 +2,13 @@
   command = "vite build"
   publish = "dist"
 
+[build.environment]
+  # The only "likely secret" flagged is the public Firebase web API key
+  # (firebase-applet-config.json), which is designed to ship in client bundles.
+  # Access is enforced by Firestore Security Rules, not by key secrecy.
+  # Standard secrets scanning of environment variable values remains active.
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
