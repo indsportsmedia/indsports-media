@@ -1,0 +1,63 @@
+{
+  "entities": {
+    "Game": {
+      "title": "Game",
+      "description": "A live or scheduled high school athletic showcase game with scores, clock, down/distance, plays, and highlights.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the game." },
+        "sport": { "type": "string", "description": "Sport name, e.g. Varsity Football." },
+        "title": { "type": "string", "description": "Event showcase title." },
+        "venue": { "type": "string", "description": "Stadium and location." },
+        "dateString": { "type": "string", "description": "Date or status label." },
+        "isLive": { "type": "boolean", "description": "Whether the game is currently live." },
+        "statusText": { "type": "string", "description": "Status text such as SCHEDULED, 1ST QTR, FINAL." },
+        "quarter": { "type": "string", "description": "Current quarter or period." },
+        "clock": { "type": "string", "description": "Current game clock mm:ss." },
+        "homeTeam": { "type": "object", "description": "Home team info, stats, and scores." },
+        "awayTeam": { "type": "object", "description": "Away team info, stats, and scores." },
+        "possession": { "type": "string", "enum": ["home", "away"], "description": "Current team possession." },
+        "down": { "type": "string", "description": "Current down (1st, 2nd, 3rd, 4th)." },
+        "distance": { "type": "string", "description": "Yards to gain." },
+        "ballOn": { "type": "string", "description": "Ball location on field." },
+        "redZone": { "type": "boolean", "description": "Whether ball is in red zone." },
+        "lastPlay": { "type": "string", "description": "Summary description of last play." },
+        "plays": { "type": "array", "description": "Recent play-by-play events." },
+        "socialClips": { "type": "array", "description": "Sideline social clips and photo highlights." },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update." }
+      },
+      "required": ["id", "sport", "title", "isLive", "quarter", "clock", "homeTeam", "awayTeam"]
+    },
+    "SocialClip": {
+      "title": "SocialClip",
+      "description": "Sideline photo, video clip, or social post highlight.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "gameId": { "type": "string" },
+        "platform": { "type": "string" },
+        "type": { "type": "string" },
+        "title": { "type": "string" },
+        "author": { "type": "string" },
+        "url": { "type": "string" },
+        "mediaUrl": { "type": "string" },
+        "caption": { "type": "string" },
+        "time": { "type": "string" },
+        "team": { "type": "string" },
+        "likes": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "title", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/games/{gameId}": {
+      "schema": { "$ref": "#/entities/Game" },
+      "description": "Collection of all live and historic sports gamecasts."
+    },
+    "/games/{gameId}/clips/{clipId}": {
+      "schema": { "$ref": "#/entities/SocialClip" },
+      "description": "Sideline clips and fan highlights for a specific game."
+    }
+  }
+}
