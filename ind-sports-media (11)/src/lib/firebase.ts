@@ -67,15 +67,22 @@ export async function uploadMediaFile(
   });
 
   return new Promise((resolve, reject) => {
-    // 45-second timeout safeguard for weak stadium cellular signals
-    const timeout = setTimeout(() => {
-      uploadTask.cancel();
-      reject(new Error('Upload timed out after 45s. Please check cellular signal.'));
-    }, 45000);
+    // Stall safeguard for weak stadium cell signal: cancel only if no bytes move
+    // for 60 seconds (a fixed 45s limit made longer video uploads impossible).
+    let timeout: ReturnType<typeof setTimeout>;
+    const armStallTimer = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        uploadTask.cancel();
+        reject(new Error('Upload stalled for 60s. Please check your cell signal and try again.'));
+      }, 60000);
+    };
+    armStallTimer();
 
     uploadTask.on(
       'state_changed',
       (snapshot) => {
+        armStallTimer();
         if (snapshot.totalBytes > 0) {
           const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
           if (onProgress) onProgress(progress);
@@ -86,7 +93,7 @@ export async function uploadMediaFile(
         console.error('Firebase Storage upload error:', error);
         let userFriendlyMsg = error.message;
         if ((error as any)?.code === 'storage/unauthorized') {
-          userFriendlyMsg = 'Firebase Storage rejected upload (Permission Denied). Please check your Firebase Storage Rules in the Firebase Console (allow read, write: if true;).';
+          userFriendlyMsg = 'Firebase Storage rejected upload (Permission Denied). Make sure you are signed in with an IND staff account.';
         } else if ((error as any)?.code === 'storage/canceled') {
           userFriendlyMsg = 'Upload was canceled.';
         } else if ((error as any)?.code === 'storage/retry-limit-exceeded') {

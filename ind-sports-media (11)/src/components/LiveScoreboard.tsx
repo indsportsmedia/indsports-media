@@ -54,6 +54,7 @@ import {
   updateHighlightDetails,
   deleteMediaHighlight
 } from '../lib/firebase';
+import { useStaff, signInStaff, signOutStaff } from '../lib/staff';
 import type { PlayEvent, SocialClip, GameState } from '../types';
 
 export type { PlayEvent, SocialClip, GameState };
@@ -1022,11 +1023,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
   const activeGame = games.find(g => g.id === selectedGameId) || games[0] || DEFAULT_GAMES_LIST[0];
 
   // Hidden staff access
-  const [isAuthorized, setIsAuthorized] = useState<boolean>(() => {
-    return window.location.hash.includes('sideline') || 
-           window.location.hash.includes('operator') || 
-           sessionStorage.getItem('ind_operator_auth') === 'true';
-  });
+  // Staff access: Google sign-in + staff allowlist (see src/lib/staff.ts).
+  // The old PIN lived in public code and could be read by anyone.
+  const staffAuth = useStaff();
+  const isAuthorized = staffAuth.isStaff;
+  const setIsAuthorized = (value: boolean) => {
+    if (!value) signOutStaff().catch(console.warn);
+  };
 
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
@@ -1070,9 +1073,8 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
   useEffect(() => {
     const checkHash = () => {
       if (window.location.hash.includes('sideline') || window.location.hash.includes('operator')) {
-        setIsAuthorized(true);
-        setIsAdminOpen(true);
-        sessionStorage.setItem('ind_operator_auth', 'true');
+        // #sideline now just opens the staff sign-in prompt.
+        setPinModalOpen(true);
       }
     };
     checkHash();
@@ -1573,7 +1575,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
           </button>
 
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            {/* Hidden Sideline Operator Access: Only visible when authorized via URL hash #sideline or secret PIN 1802 */}
+            {/* Sideline Operator Access: visible only to signed-in IND staff */}
             {isAuthorized ? (
               <div className="flex items-center gap-2">
                 <button
@@ -3624,41 +3626,33 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 Sideline Operator Access
               </h3>
               <p className="text-white/50 text-xs font-sans mb-5">
-                Enter PIN number to unlock score, clock & sideline media broadcasting.
+                Sign in with your IND staff Google account to run the score, clock & sideline media.
               </p>
+              {staffAuth.user && !staffAuth.isStaff && !staffAuth.loading && (
+                <div className="text-xs text-amber-300 bg-amber-950/40 border border-amber-700/40 rounded px-3 py-2 mb-4">
+                  {staffAuth.user.email} isn't on the IND staff list yet. Ask an admin to add you in the Newsroom.
+                </div>
+              )}
 
               <form 
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (enteredPin === '1802') {
-                    setIsAuthorized(true);
-                    setIsAdminOpen(true);
-                    sessionStorage.setItem('ind_operator_auth', 'true');
-                    setPinModalOpen(false);
-                    setEnteredPin('');
-                    setPinError(false);
-                  } else {
-                    setPinError(true);
-                  }
+                  setPinError(false);
+                  signInStaff()
+                    .then(() => {
+                      setPinModalOpen(false);
+                      setIsAdminOpen(true);
+                    })
+                    .catch((err) => {
+                      console.warn(err);
+                      setPinError(true);
+                    });
                 }} 
                 className="space-y-4"
               >
-                <input
-                  type="password"
-                  maxLength={6}
-                  value={enteredPin}
-                  onChange={(e) => {
-                    setEnteredPin(e.target.value);
-                    setPinError(false);
-                  }}
-                  placeholder="Enter PIN number"
-                  autoFocus
-                  className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-lg px-4 py-3 text-center text-xl font-mono tracking-widest text-white outline-none"
-                />
-
                 {pinError && (
                   <div className="text-xs font-mono text-red-400 bg-red-950/40 py-1.5 px-3 rounded border border-red-800/40">
-                    Incorrect PIN number. Please try again.
+                    Sign-in didn't finish. Please try again.
                   </div>
                 )}
 
@@ -3678,7 +3672,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     type="submit"
                     className="flex-1 py-2.5 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-xs uppercase rounded cursor-pointer font-black"
                   >
-                    Unlock
+                    Sign in with Google
                   </button>
                 </div>
               </form>

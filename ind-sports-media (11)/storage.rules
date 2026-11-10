@@ -1,0 +1,24 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isStaff() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && firestore.exists(/databases/(default)/documents/staff/$(request.auth.token.email.lower()));
+    }
+
+    function isMedia() {
+      return request.resource.contentType.matches('image/.*')
+        || request.resource.contentType.matches('video/.*');
+    }
+
+    // Photos and videos are public to view. Only staff can upload, replace or delete.
+    // Limit: 500 MB per file (enough for a few minutes of 1080p highlight video).
+    match /{allPaths=**} {
+      allow read: if true;
+      allow create, update: if isStaff() && isMedia() && request.resource.size < 500 * 1024 * 1024;
+      allow delete: if isStaff();
+    }
+  }
+}

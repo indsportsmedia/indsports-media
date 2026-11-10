@@ -2,18 +2,73 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ---- Team access -------------------------------------------------------
+    // A signed-in Google user is staff when staff/{their email, lowercase} exists.
+    function signedIn() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email_verified == true;
+    }
+    function staffPath() {
+      return /databases/$(database)/documents/staff/$(request.auth.token.email.lower());
+    }
+    function isStaff() {
+      return signedIn() && exists(staffPath());
+    }
+    function isAdmin() {
+      return isStaff() && get(staffPath()).data.role == 'admin';
+    }
     function isValidId(id) {
       return id is string && id.size() > 0 && id.size() <= 128;
     }
 
+    // ---- Team list ---------------------------------------------------------
+    match /staff/{email} {
+      allow read: if isStaff();
+      allow write: if isAdmin()
+        // Admins can't remove or demote themselves by accident.
+        && email != request.auth.token.email.lower();
+    }
+
+    // ---- Live scoreboard (public to read, staff to change) -----------------
     match /games/{gameId} {
       allow read: if true;
-      allow write: if isValidId(gameId);
+      allow write: if isStaff() && isValidId(gameId);
 
       match /clips/{clipId} {
         allow read: if true;
-        allow write: if isValidId(clipId);
+        allow write: if isStaff() && isValidId(clipId);
       }
+    }
+
+    match /photos/{photoId} {
+      allow read: if true;
+      allow write: if isStaff() && isValidId(photoId);
+    }
+
+    // ---- Articles and live updates ----------------------------------------
+    match /articles/{slug} {
+      allow read: if resource.data.status == 'published' || isStaff();
+      allow create, update: if isStaff()
+        && isValidId(slug)
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.status in ['draft', 'published'];
+      allow delete: if isStaff();
+
+      match /updates/{updateId} {
+        allow read: if true;
+        allow create, update: if isStaff()
+          && isValidId(updateId)
+          && request.resource.data.text is string
+          && request.resource.data.text.size() <= 5000;
+        allow delete: if isStaff();
+      }
+    }
+
+    // ---- Connection health check used by the site --------------------------
+    match /_health/{docId} {
+      allow read: if true;
     }
 
     match /{document=**} {
