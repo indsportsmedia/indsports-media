@@ -1,4 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { subscribeToSchools, logoForTeam } from '../lib/firebase';
+
+/** Team mark: the school's logo from Newsroom → Schools, or a letter on team color. */
+function SchoolMark({ team, className }: { team: { name: string; shortName: string; color?: string; textColor?: string }; className: string }) {
+  const [failed, setFailed] = useState(false);
+  const url = logoForTeam(team);
+  if (url && !failed) {
+    const sizeOnly = className.split(' ').filter((c) => /^(w|h)-/.test(c) || c === 'shrink-0').join(' ');
+    return <img src={url} alt={team.name} onError={() => setFailed(true)} className={`${sizeOnly} object-contain`} />;
+  }
+  return (
+    <div className={className} style={{ backgroundColor: team.color, color: team.textColor }}>
+      {team.shortName.charAt(0)}
+    </div>
+  );
+}
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Trophy, 
@@ -332,6 +348,8 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
   const [activeFilter, setActiveFilter] = useState<'football' | 'volleyball' | 'bracket'>('football');
   const [selectedVbSite, setSelectedVbSite] = useState<string>('huntington-north');
   const [copiedLink, setCopiedLink] = useState(false);
+  const [, setSchoolsVersion] = useState(0);
+  useEffect(() => subscribeToSchools(() => setSchoolsVersion((v) => v + 1)), []);
 
   const activeSiteData = VOLLEYBALL_TOURNAMENT_SITES.find(s => s.id === selectedVbSite) || VOLLEYBALL_TOURNAMENT_SITES[0];
 
@@ -355,29 +373,29 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
         {/* ========================================================================= */}
         {/* 1. HEADER & TOURNAMENT ALERT BANNER */}
         {/* ========================================================================= */}
-        <div className="bg-[#121212]/95 border border-[#00BFFF]/30 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl mb-8 relative overflow-hidden">
+        <div className="bg-[#121212]/95 border border-[#00BFFF]/30 rounded-sm p-6 sm:p-8 shadow-2xl backdrop-blur-xl mb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-[#00BFFF]/20 via-transparent to-transparent pointer-events-none" />
           
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
               {/* Badge Row */}
               <div className="flex items-center gap-2.5 flex-wrap mb-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-600/20 border border-red-500/50 rounded-full text-red-400 text-xs font-black font-display uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-600/20 border border-red-500/50 rounded-full text-red-400 text-xs font-bold font-display uppercase tracking-widest shadow-[0_0_15px_rgba(239,68,68,0.3)]">
                   <Radio size={13} className="text-red-500" />
                   IHSAA Postseason Tournament Central
                 </span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#00BFFF]/10 border border-[#00BFFF]/30 rounded-full text-[#00BFFF] text-xs font-mono font-bold uppercase">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#00BFFF]/10 border border-[#00BFFF]/30 rounded-full text-[#00BFFF] text-xs font-sans tabular font-bold uppercase">
                   <Sparkles size={12} />
                   Live On-Site Coverage
                 </span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-500/10 border border-amber-500/30 rounded-full text-amber-400 text-xs font-mono font-bold uppercase">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-500/10 border border-amber-500/30 rounded-full text-amber-400 text-xs font-sans tabular font-bold uppercase">
                   <Trophy size={12} />
                   Start of Tournaments
                 </span>
               </div>
 
               {/* Headline */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black font-display uppercase tracking-tight text-white">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-display uppercase tracking-tight text-white">
                 TOURNAMENT <span className="text-[#00BFFF]">KICKOFF HUB</span>
               </h1>
               <p className="text-white/70 font-sans text-sm sm:text-base mt-2 max-w-3xl leading-relaxed">
@@ -390,7 +408,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
               {onNavigateToLiveScoreboard && !isScoreboardEmbedded && (
                 <button
                   onClick={onNavigateToLiveScoreboard}
-                  className="px-5 py-3 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(0,191,255,0.4)] flex items-center gap-2 group cursor-pointer"
+                  className="px-5 py-3 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-bold text-xs uppercase tracking-widest rounded-sm transition-all flex items-center gap-2 group cursor-pointer"
                 >
                   <Activity size={16} />
                   <span>Launch Live Scoreboard</span>
@@ -400,7 +418,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
 
               <button
                 onClick={handleShareTournament}
-                className="px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 text-white font-display font-bold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+                className="px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 text-white font-display font-bold text-xs uppercase tracking-wider rounded-sm transition-all flex items-center gap-2 cursor-pointer"
               >
                 <Share2 size={15} className="text-[#00BFFF]" />
                 <span>{copiedLink ? 'Link Copied!' : 'Share Hub'}</span>
@@ -409,9 +427,9 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
           </div>
 
           {/* Quick Schedule Micro Ticker */}
-          <div className="mt-6 pt-5 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs font-mono">
+          <div className="mt-6 pt-5 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs font-sans tabular">
             <div className="flex items-center gap-2.5 bg-black/40 p-2.5 rounded-lg border border-white/5">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-red-500" />
               <div>
                 <span className="text-white/40 block text-[10px] uppercase font-bold">Tonight • 7:00 PM</span>
                 <span className="text-white font-bold">Football: 3 Sectional Openers</span>
@@ -440,44 +458,44 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-3 mb-6">
           <button
             onClick={() => setActiveFilter('football')}
-            className={`px-5 py-3 rounded-xl text-xs sm:text-sm font-display font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2.5 whitespace-nowrap ${
+            className={`px-5 py-3 rounded-sm text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2.5 whitespace-nowrap ${
               activeFilter === 'football'
                 ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)] scale-100 ring-2 ring-red-400'
                 : 'bg-[#151515] hover:bg-[#1a1a1a] text-white/70 hover:text-white border border-white/10'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            <span>🏈 Tonight&apos;s Football Sectionals (7:00 PM)</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/40 font-bold">
+            <span className="w-2 h-2 rounded-full bg-white" />
+            <span>Tonight&apos;s Football Sectionals (7:00 PM)</span>
+            <span className="text-[10px] font-sans tabular px-2 py-0.5 rounded-full bg-black/40 font-bold">
               3 Games
             </span>
           </button>
 
           <button
             onClick={() => setActiveFilter('volleyball')}
-            className={`px-5 py-3 rounded-xl text-xs sm:text-sm font-display font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2.5 whitespace-nowrap ${
+            className={`px-5 py-3 rounded-sm text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2.5 whitespace-nowrap ${
               activeFilter === 'volleyball'
-                ? 'bg-[#00BFFF] text-black shadow-[0_0_20px_rgba(0,191,255,0.4)] scale-100 ring-2 ring-[#00BFFF]'
+                ? 'bg-[#00BFFF] text-black scale-100 ring-2 ring-[#00BFFF]'
                 : 'bg-[#151515] hover:bg-[#1a1a1a] text-white/70 hover:text-white border border-white/10'
             }`}
           >
             <Trophy size={14} />
-            <span>🏐 Saturday Volleyball Tournaments</span>
-            <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${activeFilter === 'volleyball' ? 'bg-black/30 text-black' : 'bg-white/10 text-white/70'}`}>
+            <span>Saturday Volleyball Tournaments</span>
+            <span className={`text-[10px] font-sans tabular px-2 py-0.5 rounded-full font-bold ${activeFilter === 'volleyball' ? 'bg-black/30 text-black' : 'bg-white/10 text-white/70'}`}>
               2 Sites • 6 Matches
             </span>
           </button>
 
           <button
             onClick={() => setActiveFilter('bracket')}
-            className={`px-5 py-3 rounded-xl text-xs sm:text-sm font-display font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2.5 whitespace-nowrap ${
+            className={`px-5 py-3 rounded-sm text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2.5 whitespace-nowrap ${
               activeFilter === 'bracket'
                 ? 'bg-amber-400 text-black shadow-[0_0_20px_rgba(251,191,36,0.4)] scale-100 ring-2 ring-amber-300'
                 : 'bg-[#151515] hover:bg-[#1a1a1a] text-white/70 hover:text-white border border-white/10'
             }`}
           >
             <Sparkles size={14} />
-            <span>📊 Interactive Tournament Bracket View</span>
+            <span>Interactive Tournament Bracket View</span>
           </button>
         </div>
 
@@ -493,12 +511,12 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
           >
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-red-500 animate-ping" />
-                <h2 className="text-xl sm:text-2xl font-black font-display uppercase tracking-tight text-white">
+                <span className="w-3 h-3 rounded-full bg-red-500" />
+                <h2 className="text-xl sm:text-2xl font-bold font-display uppercase tracking-tight text-white">
                   Sectionals Round 1 • Friday Night Primetime
                 </h2>
               </div>
-              <span className="text-xs font-mono text-white/50">
+              <span className="text-xs font-sans tabular text-white/50">
                 Kickoff: 7:00 PM EDT • Single Elimination
               </span>
             </div>
@@ -507,12 +525,12 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
               {TOURNAMENT_FOOTBALL_MATCHUPS.map((matchup) => (
                 <div
                   key={matchup.id}
-                  className="bg-[#141414] border border-white/10 hover:border-[#00BFFF]/60 rounded-2xl p-5 sm:p-6 shadow-2xl relative flex flex-col justify-between transition-all duration-300 group hover:-translate-y-1"
+                  className="bg-[#141414] border border-white/10 hover:border-[#00BFFF]/60 rounded-sm p-5 sm:p-6 shadow-2xl relative flex flex-col justify-between transition-all duration-300 group hover:-translate-y-1"
                 >
                   {/* Card Header */}
                   <div>
-                    <div className="flex items-center justify-between text-[11px] font-mono mb-4 border-b border-white/10 pb-3">
-                      <span className="px-2.5 py-0.5 rounded bg-red-600/20 text-red-400 border border-red-500/30 font-bold uppercase tracking-wider flex items-center gap-1.5 animate-pulse">
+                    <div className="flex items-center justify-between text-[11px] font-sans tabular mb-4 border-b border-white/10 pb-3">
+                      <span className="px-2.5 py-0.5 rounded bg-red-600/20 text-red-400 border border-red-500/30 font-bold uppercase tracking-wider flex items-center gap-1.5">
                         <Clock size={11} />
                         {matchup.time}
                       </span>
@@ -528,27 +546,22 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                     </div>
 
                     {/* Matchup Board */}
-                    <div className="space-y-3 bg-black/50 p-4 rounded-xl border border-white/5">
+                    <div className="space-y-3 bg-black/50 p-4 rounded-sm border border-white/5">
                       
                       {/* Away Team */}
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div 
-                            className="w-9 h-9 rounded-lg flex items-center justify-center font-display font-black text-sm uppercase shadow-md shrink-0"
-                            style={{ backgroundColor: matchup.awayTeam.color, color: matchup.awayTeam.textColor }}
-                          >
-                            {matchup.awayTeam.shortName.charAt(0)}
-                          </div>
+                          <SchoolMark team={matchup.awayTeam} className="w-9 h-9 rounded-lg flex items-center justify-center font-display font-bold text-sm uppercase shadow-md shrink-0" />
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-display font-black text-base text-white">
+                              <span className="font-display font-bold text-base text-white">
                                 {matchup.awayTeam.name}
                               </span>
-                              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/10 text-white/60">
+                              <span className="text-[10px] font-sans tabular px-1.5 py-0.2 rounded bg-white/10 text-white/60">
                                 {matchup.awayTeam.role}
                               </span>
                             </div>
-                            <span className="text-[11px] font-mono text-white/40">
+                            <span className="text-[11px] font-sans tabular text-white/40">
                               Record: {matchup.awayTeam.record} • {matchup.awayTeam.mascot}
                             </span>
                           </div>
@@ -558,7 +571,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                       {/* VS Divider */}
                       <div className="flex items-center justify-center my-1 relative">
                         <div className="h-px w-full bg-white/10" />
-                        <span className="absolute bg-[#1a1a1a] px-3 text-[10px] font-mono text-white/40 uppercase font-black">
+                        <span className="absolute bg-[#1a1a1a] px-3 text-[10px] font-sans tabular text-white/40 uppercase font-bold">
                           AT
                         </span>
                       </div>
@@ -566,22 +579,17 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                       {/* Home Team */}
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div 
-                            className="w-9 h-9 rounded-lg flex items-center justify-center font-display font-black text-sm uppercase shadow-md shrink-0"
-                            style={{ backgroundColor: matchup.homeTeam.color, color: matchup.homeTeam.textColor }}
-                          >
-                            {matchup.homeTeam.shortName.charAt(0)}
-                          </div>
+                          <SchoolMark team={matchup.homeTeam} className="w-9 h-9 rounded-lg flex items-center justify-center font-display font-bold text-sm uppercase shadow-md shrink-0" />
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-display font-black text-base text-white">
+                              <span className="font-display font-bold text-base text-white">
                                 {matchup.homeTeam.name}
                               </span>
-                              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#00BFFF]/20 text-[#00BFFF] font-bold">
+                              <span className="text-[10px] font-sans tabular px-1.5 py-0.2 rounded bg-[#00BFFF]/20 text-[#00BFFF] font-bold">
                                 {matchup.homeTeam.role}
                               </span>
                             </div>
-                            <span className="text-[11px] font-mono text-white/40">
+                            <span className="text-[11px] font-sans tabular text-white/40">
                               Record: {matchup.homeTeam.record} • {matchup.homeTeam.mascot}
                             </span>
                           </div>
@@ -591,14 +599,14 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                     </div>
 
                     {/* Matchup Note */}
-                    <p className="text-white/60 text-xs font-sans mt-3.5 leading-relaxed italic">
+                    <p className="text-white/60 text-xs font-sans mt-3.5 leading-relaxed ">
                       &quot;{matchup.highlightNote}&quot;
                     </p>
                   </div>
 
                   {/* Card Footer / Action */}
                   <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-mono text-white/40 flex items-center gap-1.5">
+                    <span className="text-[11px] font-sans tabular text-white/40 flex items-center gap-1.5">
                       <Tv size={13} className="text-[#00BFFF]" />
                       IND GameCast
                     </span>
@@ -610,7 +618,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                           onNavigateToLiveScoreboard();
                         }
                       }}
-                      className="px-4 py-2 bg-[#00BFFF]/10 hover:bg-[#00BFFF] border border-[#00BFFF]/40 hover:border-[#00BFFF] text-[#00BFFF] hover:text-black font-display font-black text-xs uppercase tracking-wider rounded-lg transition-all flex items-center gap-1.5 cursor-pointer"
+                      className="px-4 py-2 bg-[#00BFFF]/10 hover:bg-[#00BFFF] border border-[#00BFFF]/40 hover:border-[#00BFFF] text-[#00BFFF] hover:text-black font-display font-bold text-xs uppercase tracking-wider rounded-lg transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>Track Live</span>
                       <ArrowRight size={13} />
@@ -633,8 +641,8 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
             className="space-y-6"
           >
             {/* Site Switcher */}
-            <div className="flex items-center justify-between flex-wrap gap-3 bg-[#141414] p-3 rounded-2xl border border-white/10">
-              <span className="text-xs font-mono text-white/60 font-bold uppercase pl-2 flex items-center gap-1.5">
+            <div className="flex items-center justify-between flex-wrap gap-3 bg-[#141414] p-3 rounded-sm border border-white/10">
+              <span className="text-xs font-sans tabular text-white/60 font-bold uppercase pl-2 flex items-center gap-1.5">
                 <MapPin size={14} className="text-[#00BFFF]" />
                 Select Tournament Location:
               </span>
@@ -645,9 +653,9 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                     <button
                       key={site.id}
                       onClick={() => setSelectedVbSite(site.id)}
-                      className={`px-4 py-2 rounded-xl text-xs font-display font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
+                      className={`px-4 py-2 rounded-sm text-xs font-display font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
                         isSelected
-                          ? 'bg-[#00BFFF] text-black shadow-lg shadow-[#00BFFF]/20'
+                          ? 'bg-[#00BFFF] text-black shadow-lg/20'
                           : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white'
                       }`}
                     >
@@ -660,18 +668,18 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
             </div>
 
             {/* Site Details Card */}
-            <div className="bg-[#121212] border border-[#00BFFF]/30 rounded-2xl p-5 sm:p-6 shadow-xl">
+            <div className="bg-[#121212] border border-[#00BFFF]/30 rounded-sm p-5 sm:p-6 shadow-xl">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4 mb-6">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#00BFFF]/20 text-[#00BFFF] font-bold uppercase">
+                    <span className="text-xs font-sans tabular px-2 py-0.5 rounded bg-[#00BFFF]/20 text-[#00BFFF] font-bold uppercase">
                       Saturday Tournament Hub
                     </span>
-                    <span className="text-xs font-mono text-white/40">
+                    <span className="text-xs font-sans tabular text-white/40">
                       Tomorrow • Oct 31
                     </span>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-display font-black uppercase text-white tracking-tight">
+                  <h3 className="text-2xl sm:text-3xl font-display font-bold uppercase text-white tracking-tight">
                     {activeSiteData.siteName}
                   </h3>
                   <p className="text-white/60 font-sans text-xs sm:text-sm mt-1 flex items-center gap-1.5">
@@ -681,7 +689,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-mono px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/70">
+                  <span className="text-xs font-sans tabular px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/70">
                     3 Matches • Semifinals & Championship
                   </span>
                 </div>
@@ -692,7 +700,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                 {activeSiteData.matches.map((match, idx) => (
                   <div
                     key={match.id}
-                    className={`rounded-2xl p-5 border flex flex-col justify-between relative transition-all duration-300 ${
+                    className={`rounded-sm p-5 border flex flex-col justify-between relative transition-all duration-300 ${
                       match.isChampionship
                         ? 'bg-gradient-to-b from-amber-950/30 via-[#181818] to-black border-amber-500/50 shadow-[0_0_25px_rgba(245,158,11,0.2)] md:col-span-1'
                         : 'bg-[#161616] border-white/10 hover:border-white/20'
@@ -700,8 +708,8 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                   >
                     {/* Top Match Tag */}
                     <div>
-                      <div className="flex items-center justify-between text-xs font-mono mb-4 border-b border-white/10 pb-2.5">
-                        <span className={`px-2.5 py-0.5 rounded font-black uppercase tracking-wider flex items-center gap-1 ${
+                      <div className="flex items-center justify-between text-xs font-sans tabular mb-4 border-b border-white/10 pb-2.5">
+                        <span className={`px-2.5 py-0.5 rounded font-bold uppercase tracking-wider flex items-center gap-1 ${
                           match.isChampionship 
                             ? 'bg-amber-400 text-black font-extrabold' 
                             : 'bg-[#00BFFF]/20 text-[#00BFFF]'
@@ -715,27 +723,22 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                         </span>
                       </div>
 
-                      <div className="text-[11px] font-mono text-white/40 mb-3">
+                      <div className="text-[11px] font-sans tabular text-white/40 mb-3">
                         {match.round} • {match.court}
                       </div>
 
                       {/* Teams */}
-                      <div className="space-y-3 bg-black/40 p-3.5 rounded-xl border border-white/5">
+                      <div className="space-y-3 bg-black/40 p-3.5 rounded-sm border border-white/5">
                         {/* Team 1 */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2.5">
-                            <div 
-                              className="w-7 h-7 rounded-md flex items-center justify-center font-display font-black text-xs uppercase"
-                              style={{ backgroundColor: match.team1.color, color: match.team1.textColor }}
-                            >
-                              {match.team1.shortName.charAt(0)}
-                            </div>
+                            <SchoolMark team={match.team1} className="w-7 h-7 rounded-md flex items-center justify-center font-display font-bold text-xs uppercase" />
                             <div>
-                              <span className="font-display font-black text-sm text-white block">
+                              <span className="font-display font-bold text-sm text-white block">
                                 {match.team1.name}
                               </span>
                               {match.team1.record && (
-                                <span className="text-[10px] font-mono text-white/40">
+                                <span className="text-[10px] font-sans tabular text-white/40">
                                   Rec: {match.team1.record}
                                 </span>
                               )}
@@ -744,25 +747,20 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                         </div>
 
                         {/* VS */}
-                        <div className="text-center text-[10px] font-mono text-white/30 uppercase font-bold py-0.5">
+                        <div className="text-center text-[10px] font-sans tabular text-white/30 uppercase font-bold py-0.5">
                           VS
                         </div>
 
                         {/* Team 2 */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2.5">
-                            <div 
-                              className="w-7 h-7 rounded-md flex items-center justify-center font-display font-black text-xs uppercase"
-                              style={{ backgroundColor: match.team2.color, color: match.team2.textColor }}
-                            >
-                              {match.team2.shortName.charAt(0)}
-                            </div>
+                            <SchoolMark team={match.team2} className="w-7 h-7 rounded-md flex items-center justify-center font-display font-bold text-xs uppercase" />
                             <div>
-                              <span className="font-display font-black text-sm text-white block">
+                              <span className="font-display font-bold text-sm text-white block">
                                 {match.team2.name}
                               </span>
                               {match.team2.record && (
-                                <span className="text-[10px] font-mono text-white/40">
+                                <span className="text-[10px] font-sans tabular text-white/40">
                                   Rec: {match.team2.record}
                                 </span>
                               )}
@@ -777,12 +775,12 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                     </div>
 
                     {/* Footer Status */}
-                    <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono">
+                    <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-sans tabular">
                       <span className="text-white/40">
                         Best of 5 Sets
                       </span>
                       <span className={`font-bold ${match.isChampionship ? 'text-amber-400' : 'text-[#00BFFF]'}`}>
-                        {match.isChampionship ? '🏆 Trophy Match' : 'Semifinal'}
+                        {match.isChampionship ? 'Trophy Match' : 'Semifinal'}
                       </span>
                     </div>
                   </div>
@@ -806,17 +804,17 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               
               {/* Bracket 1: Huntington North Site */}
-              <div className="bg-[#131313] border border-white/15 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+              <div className="bg-[#131313] border border-white/15 rounded-sm p-6 shadow-2xl relative overflow-hidden">
                 <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
                   <div>
-                    <span className="text-[10px] font-mono text-[#00BFFF] uppercase font-bold tracking-wider">
+                    <span className="text-[10px] font-sans tabular text-[#00BFFF] uppercase font-bold tracking-wide">
                       Tournament Bracket A
                     </span>
-                    <h3 className="text-xl font-display font-black text-white uppercase">
+                    <h3 className="text-xl font-display font-bold text-white uppercase">
                       Huntington North Site
                     </h3>
                   </div>
-                  <span className="px-2.5 py-1 bg-white/5 rounded-lg text-xs font-mono text-white/60">
+                  <span className="px-2.5 py-1 bg-white/5 rounded-lg text-xs font-sans tabular text-white/60">
                     Saturday • Oct 31
                   </span>
                 </div>
@@ -826,75 +824,75 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                   
                   {/* Semifinals */}
                   <div className="space-y-4">
-                    <span className="text-xs font-mono uppercase tracking-widest text-white/50 font-bold block">
+                    <span className="text-xs font-sans tabular uppercase tracking-wide text-white/50 font-bold block">
                       Round 1: Semifinals
                     </span>
 
                     {/* M1 */}
-                    <div className="bg-black/60 p-3.5 rounded-xl border border-white/10 relative">
-                      <div className="flex items-center justify-between text-[10px] font-mono text-white/40 mb-2">
+                    <div className="bg-black/60 p-3.5 rounded-sm border border-white/10 relative">
+                      <div className="flex items-center justify-between text-[10px] font-sans tabular text-white/40 mb-2">
                         <span className="text-[#00BFFF] font-bold">MATCH 1 • 10:00 AM</span>
                         <span>Court 1</span>
                       </div>
                       <div className="space-y-1.5 text-xs font-display font-bold">
                         <div className="flex items-center justify-between text-white">
                           <span>Carroll (Fort Wayne)</span>
-                          <span className="text-white/40 font-mono text-[10px]">24-4</span>
+                          <span className="text-white/40 font-sans tabular text-[10px]">24-4</span>
                         </div>
                         <div className="flex items-center justify-between text-white/70">
                           <span>Penn</span>
-                          <span className="text-white/40 font-mono text-[10px]">22-6</span>
+                          <span className="text-white/40 font-sans tabular text-[10px]">22-6</span>
                         </div>
                       </div>
                     </div>
 
                     {/* M2 */}
-                    <div className="bg-black/60 p-3.5 rounded-xl border border-white/10 relative">
-                      <div className="flex items-center justify-between text-[10px] font-mono text-white/40 mb-2">
+                    <div className="bg-black/60 p-3.5 rounded-sm border border-white/10 relative">
+                      <div className="flex items-center justify-between text-[10px] font-sans tabular text-white/40 mb-2">
                         <span className="text-[#00BFFF] font-bold">MATCH 2 • 12:00 PM</span>
                         <span>Court 1</span>
                       </div>
                       <div className="space-y-1.5 text-xs font-display font-bold">
                         <div className="flex items-center justify-between text-white">
                           <span>Westfield</span>
-                          <span className="text-white/40 font-mono text-[10px]">23-5</span>
+                          <span className="text-white/40 font-sans tabular text-[10px]">23-5</span>
                         </div>
                         <div className="flex items-center justify-between text-white/70">
                           <span>Crown Point</span>
-                          <span className="text-white/40 font-mono text-[10px]">21-7</span>
+                          <span className="text-white/40 font-sans tabular text-[10px]">21-7</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Flow Arrow */}
-                  <div className="flex items-center justify-center gap-2 text-xs font-mono text-[#00BFFF]">
+                  <div className="flex items-center justify-center gap-2 text-xs font-sans tabular text-[#00BFFF]">
                     <span>Both winners advance to tonight&apos;s title bout</span>
                     <ArrowRight size={14} />
                   </div>
 
                   {/* Championship */}
-                  <div className="bg-gradient-to-r from-amber-950/40 via-[#1a1a1a] to-amber-950/40 p-4 rounded-xl border border-amber-500/40 shadow-xl">
-                    <div className="flex items-center justify-between text-[11px] font-mono mb-2">
-                      <span className="px-2 py-0.5 rounded bg-amber-400 text-black font-black uppercase flex items-center gap-1">
+                  <div className="bg-gradient-to-r from-amber-950/40 via-[#1a1a1a] to-amber-950/40 p-4 rounded-sm border border-amber-500/40 shadow-xl">
+                    <div className="flex items-center justify-between text-[11px] font-sans tabular mb-2">
+                      <span className="px-2 py-0.5 rounded bg-amber-400 text-black font-bold uppercase flex items-center gap-1">
                         <Trophy size={11} /> CHAMPIONSHIP • 7:00 PM
                       </span>
                       <span className="text-amber-400 font-bold">Huntington North Trophy</span>
                     </div>
-                    <div className="space-y-2 text-sm font-display font-black pt-1">
+                    <div className="space-y-2 text-sm font-display font-bold pt-1">
                       <div className="flex items-center justify-between text-white">
                         <span className="flex items-center gap-1.5">
                           <CheckCircle2 size={13} className="text-[#00BFFF]" />
                           Winner Match 1 (Carroll / Penn)
                         </span>
-                        <span className="text-xs font-mono text-[#00BFFF]">M1 Advancer</span>
+                        <span className="text-xs font-sans tabular text-[#00BFFF]">M1 Advancer</span>
                       </div>
                       <div className="flex items-center justify-between text-white">
                         <span className="flex items-center gap-1.5">
                           <CheckCircle2 size={13} className="text-[#00BFFF]" />
                           Winner Match 2 (Westfield / Crown Point)
                         </span>
-                        <span className="text-xs font-mono text-[#00BFFF]">M2 Advancer</span>
+                        <span className="text-xs font-sans tabular text-[#00BFFF]">M2 Advancer</span>
                       </div>
                     </div>
                   </div>
@@ -902,17 +900,17 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
               </div>
 
               {/* Bracket 2: Jennings County Site */}
-              <div className="bg-[#131313] border border-white/15 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+              <div className="bg-[#131313] border border-white/15 rounded-sm p-6 shadow-2xl relative overflow-hidden">
                 <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
                   <div>
-                    <span className="text-[10px] font-mono text-amber-400 uppercase font-bold tracking-wider">
+                    <span className="text-[10px] font-sans tabular text-amber-400 uppercase font-bold tracking-wide">
                       Tournament Bracket B
                     </span>
-                    <h3 className="text-xl font-display font-black text-white uppercase">
+                    <h3 className="text-xl font-display font-bold text-white uppercase">
                       Jennings County Site
                     </h3>
                   </div>
-                  <span className="px-2.5 py-1 bg-white/5 rounded-lg text-xs font-mono text-white/60">
+                  <span className="px-2.5 py-1 bg-white/5 rounded-lg text-xs font-sans tabular text-white/60">
                     Saturday • Oct 31
                   </span>
                 </div>
@@ -922,75 +920,75 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                   
                   {/* Semifinals */}
                   <div className="space-y-4">
-                    <span className="text-xs font-mono uppercase tracking-widest text-white/50 font-bold block">
+                    <span className="text-xs font-sans tabular uppercase tracking-wide text-white/50 font-bold block">
                       Round 1: Semifinals
                     </span>
 
                     {/* M1 */}
-                    <div className="bg-black/60 p-3.5 rounded-xl border border-white/10 relative">
-                      <div className="flex items-center justify-between text-[10px] font-mono text-white/40 mb-2">
+                    <div className="bg-black/60 p-3.5 rounded-sm border border-white/10 relative">
+                      <div className="flex items-center justify-between text-[10px] font-sans tabular text-white/40 mb-2">
                         <span className="text-amber-400 font-bold">MATCH 1 • 10:30 AM</span>
                         <span>Main Gym</span>
                       </div>
                       <div className="space-y-1.5 text-xs font-display font-bold">
                         <div className="flex items-center justify-between text-white">
                           <span>Floyd Central</span>
-                          <span className="text-white/40 font-mono text-[10px]">25-3</span>
+                          <span className="text-white/40 font-sans tabular text-[10px]">25-3</span>
                         </div>
                         <div className="flex items-center justify-between text-white/70">
                           <span>Yorktown</span>
-                          <span className="text-white/40 font-mono text-[10px]">23-6</span>
+                          <span className="text-white/40 font-sans tabular text-[10px]">23-6</span>
                         </div>
                       </div>
                     </div>
 
                     {/* M2 */}
-                    <div className="bg-black/60 p-3.5 rounded-xl border border-white/10 relative">
-                      <div className="flex items-center justify-between text-[10px] font-mono text-white/40 mb-2">
+                    <div className="bg-black/60 p-3.5 rounded-sm border border-white/10 relative">
+                      <div className="flex items-center justify-between text-[10px] font-sans tabular text-white/40 mb-2">
                         <span className="text-amber-400 font-bold">MATCH 2 • 12:30 PM</span>
                         <span>Main Gym</span>
                       </div>
                       <div className="space-y-1.5 text-xs font-display font-bold">
                         <div className="flex items-center justify-between text-white">
                           <span>Bloomington South</span>
-                          <span className="text-white/40 font-mono text-[10px]">20-7</span>
+                          <span className="text-white/40 font-sans tabular text-[10px]">20-7</span>
                         </div>
                         <div className="flex items-center justify-between text-white/70">
                           <span>Center Grove</span>
-                          <span className="text-white/40 font-mono text-[10px]">26-4</span>
+                          <span className="text-white/40 font-sans tabular text-[10px]">26-4</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Flow Arrow */}
-                  <div className="flex items-center justify-center gap-2 text-xs font-mono text-amber-400">
+                  <div className="flex items-center justify-center gap-2 text-xs font-sans tabular text-amber-400">
                     <span>Both winners advance to tonight&apos;s title bout</span>
                     <ArrowRight size={14} />
                   </div>
 
                   {/* Championship */}
-                  <div className="bg-gradient-to-r from-amber-950/40 via-[#1a1a1a] to-amber-950/40 p-4 rounded-xl border border-amber-500/40 shadow-xl">
-                    <div className="flex items-center justify-between text-[11px] font-mono mb-2">
-                      <span className="px-2 py-0.5 rounded bg-amber-400 text-black font-black uppercase flex items-center gap-1">
+                  <div className="bg-gradient-to-r from-amber-950/40 via-[#1a1a1a] to-amber-950/40 p-4 rounded-sm border border-amber-500/40 shadow-xl">
+                    <div className="flex items-center justify-between text-[11px] font-sans tabular mb-2">
+                      <span className="px-2 py-0.5 rounded bg-amber-400 text-black font-bold uppercase flex items-center gap-1">
                         <Trophy size={11} /> CHAMPIONSHIP • 6:30 PM
                       </span>
                       <span className="text-amber-400 font-bold">Jennings County Trophy</span>
                     </div>
-                    <div className="space-y-2 text-sm font-display font-black pt-1">
+                    <div className="space-y-2 text-sm font-display font-bold pt-1">
                       <div className="flex items-center justify-between text-white">
                         <span className="flex items-center gap-1.5">
                           <CheckCircle2 size={13} className="text-amber-400" />
                           Winner Match 1 (Floyd Central / Yorktown)
                         </span>
-                        <span className="text-xs font-mono text-amber-400">M1 Advancer</span>
+                        <span className="text-xs font-sans tabular text-amber-400">M1 Advancer</span>
                       </div>
                       <div className="flex items-center justify-between text-white">
                         <span className="flex items-center gap-1.5">
                           <CheckCircle2 size={13} className="text-amber-400" />
                           Winner Match 2 (Bloomington South / Center Grove)
                         </span>
-                        <span className="text-xs font-mono text-amber-400">M2 Advancer</span>
+                        <span className="text-xs font-sans tabular text-amber-400">M2 Advancer</span>
                       </div>
                     </div>
                   </div>

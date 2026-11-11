@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { sendSiteForm, readFormFields } from '../lib/forms';
 import { motion, AnimatePresence } from 'motion/react';
 import { Megaphone, TrendingUp, Users, Video, CheckCircle2, X, Send, Award, Target, Flame } from 'lucide-react';
 
@@ -19,9 +20,16 @@ export const AdvertiseWithUsModal: React.FC<AdvertiseWithUsModalProps> = ({ isOp
     details: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [sendError, setSendError] = useState('');
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSendError('');
+    try {
+      await sendSiteForm('advertise', readFormFields(e.currentTarget));
+      setSubmitted(true);
+    } catch {
+      setSendError("Your message didn't send. Check your connection and try again, or email admin@indsports.media.");
+    }
   };
 
   if (!isOpen) return null;
@@ -33,7 +41,7 @@ export const AdvertiseWithUsModal: React.FC<AdvertiseWithUsModalProps> = ({ isOp
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-[#111111] border border-white/10 rounded-xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative my-8"
+          className="bg-[#111111] border border-white/10 rounded-sm max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative my-8"
         >
           <button 
             onClick={onClose}
@@ -49,7 +57,7 @@ export const AdvertiseWithUsModal: React.FC<AdvertiseWithUsModalProps> = ({ isOp
                   <Megaphone size={22} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-display font-black text-white uppercase tracking-tight">
+                  <h3 className="text-2xl font-display font-bold text-white uppercase tracking-tight">
                     Advertise <span className="text-[#00BFFF]">With Us</span>
                   </h3>
                   <p className="text-xs text-white/50 font-sans">
@@ -61,15 +69,15 @@ export const AdvertiseWithUsModal: React.FC<AdvertiseWithUsModalProps> = ({ isOp
               {/* Metrics Highlights */}
               <div className="grid grid-cols-3 gap-2.5 mb-6">
                 <div className="bg-black/50 border border-white/10 p-3 rounded text-center">
-                  <div className="text-lg font-display font-black text-[#00BFFF]">15M+</div>
+                  <div className="text-lg font-display font-bold text-[#00BFFF]">15M+</div>
                   <div className="text-[10px] text-white/40 uppercase font-bold">Monthly Views</div>
                 </div>
                 <div className="bg-black/50 border border-white/10 p-3 rounded text-center">
-                  <div className="text-lg font-display font-black text-[#00BFFF]">84%</div>
+                  <div className="text-lg font-display font-bold text-[#00BFFF]">84%</div>
                   <div className="text-[10px] text-white/40 uppercase font-bold">Gen-Z / Family Reach</div>
                 </div>
                 <div className="bg-black/50 border border-white/10 p-3 rounded text-center">
-                  <div className="text-lg font-display font-black text-[#00BFFF]">500+</div>
+                  <div className="text-lg font-display font-bold text-[#00BFFF]">500+</div>
                   <div className="text-[10px] text-white/40 uppercase font-bold">Varsity Programs</div>
                 </div>
               </div>
@@ -184,16 +192,17 @@ export const AdvertiseWithUsModal: React.FC<AdvertiseWithUsModalProps> = ({ isOp
 
                 <button 
                   type="submit"
-                  className="w-full mt-4 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-xs uppercase tracking-widest py-3.5 rounded transition-all cursor-pointer shadow-lg shadow-[#00BFFF]/20 flex items-center justify-center gap-2"
+                  className="w-full mt-4 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-bold text-xs uppercase tracking-widest py-3.5 rounded transition-all cursor-pointer shadow-lg/20 flex items-center justify-center gap-2"
                 >
                   <Send size={16} /> Request Media Kit & Rate Card
                 </button>
+                {sendError && <p className="text-red-400 text-sm">{sendError}</p>}
               </form>
             </div>
           ) : (
             <div className="text-center py-8">
               <CheckCircle2 size={56} className="text-[#00BFFF] mx-auto mb-4" />
-              <h3 className="text-2xl font-display font-black text-white uppercase mb-2">
+              <h3 className="text-2xl font-display font-bold text-white uppercase mb-2">
                 Media Kit on the Way!
               </h3>
               <p className="text-white/70 text-sm max-w-md mx-auto mb-6 leading-relaxed font-sans">

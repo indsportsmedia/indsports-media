@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { sendSiteForm, readFormFields } from '../lib/forms';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShieldCheck, X, CheckCircle2, Camera, AlertCircle, FileText, Send } from 'lucide-react';
 
@@ -21,9 +22,16 @@ export const MediaCredentialsModal: React.FC<MediaCredentialsModalProps> = ({ is
     termsAgreed: false
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [sendError, setSendError] = useState('');
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSendError('');
+    try {
+      await sendSiteForm('media-credentials', readFormFields(e.currentTarget));
+      setSubmitted(true);
+    } catch {
+      setSendError("Your message didn't send. Check your connection and try again, or email admin@indsports.media.");
+    }
   };
 
   if (!isOpen) return null;
@@ -35,7 +43,7 @@ export const MediaCredentialsModal: React.FC<MediaCredentialsModalProps> = ({ is
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-[#111111] border border-white/10 rounded-xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative my-8"
+          className="bg-[#111111] border border-white/10 rounded-sm max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative my-8"
         >
           <button 
             onClick={onClose}
@@ -51,7 +59,7 @@ export const MediaCredentialsModal: React.FC<MediaCredentialsModalProps> = ({ is
                   <ShieldCheck size={24} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-display font-black text-white uppercase tracking-tight">
+                  <h3 className="text-2xl font-display font-bold text-white uppercase tracking-tight">
                     Media <span className="text-[#00BFFF]">Credentials</span>
                   </h3>
                   <p className="text-xs text-white/50 font-sans">
@@ -186,16 +194,17 @@ export const MediaCredentialsModal: React.FC<MediaCredentialsModalProps> = ({ is
 
                 <button 
                   type="submit"
-                  className="w-full mt-4 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-xs uppercase tracking-widest py-3.5 rounded transition-all cursor-pointer shadow-lg shadow-[#00BFFF]/20 flex items-center justify-center gap-2"
+                  className="w-full mt-4 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-bold text-xs uppercase tracking-widest py-3.5 rounded transition-all cursor-pointer shadow-lg/20 flex items-center justify-center gap-2"
                 >
                   <Send size={16} /> Submit Credential Application
                 </button>
+                {sendError && <p className="text-red-400 text-sm">{sendError}</p>}
               </form>
             </div>
           ) : (
             <div className="text-center py-8">
               <CheckCircle2 size={56} className="text-[#00BFFF] mx-auto mb-4" />
-              <h3 className="text-2xl font-display font-black text-white uppercase mb-2">
+              <h3 className="text-2xl font-display font-bold text-white uppercase mb-2">
                 Application Received!
               </h3>
               <p className="text-white/70 text-sm max-w-md mx-auto mb-6 leading-relaxed font-sans">

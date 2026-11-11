@@ -83,4 +83,21 @@ export interface GameState {
   plays: PlayEvent[];
   socialClips?: SocialClip[];
   updatedAt?: string;
+  // ---- Scorekeeper (/score) fields ----
+  /** Basketball: clock runs on every viewer's screen from these, no constant saving. */
+  clockRunning?: boolean;
+  clockSeconds?: number; // seconds left when the clock was last started/stopped
+  clockStartedAt?: number; // ms since epoch when started
+  /** Volleyball */
+  vbSet?: number; // current set number
+  vbSets?: { home: number; away: number }[]; // finished sets
+  homeSetsWon?: number;
+  awaySetsWon?: number;
+  /** Team fouls this half (basketball) */
+  homeFouls?: number;
+  awayFouls?: number;
+  createdBy?: string;
+  /** Live story this game auto-posts to */
+  articleSlug?: string;
+  autoPost?: boolean;
 }

@@ -113,10 +113,10 @@ export const SportCoveragePage: React.FC<SportCoveragePageProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40" />
 
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00BFFF]/20 border border-[#00BFFF]/40 rounded-full text-[#00BFFF] text-xs font-black uppercase tracking-widest mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00BFFF]/20 border border-[#00BFFF]/40 rounded-full text-[#00BFFF] text-xs font-bold uppercase tracking-widest mb-4">
             <Trophy size={14} /> IND Sports Media • Official Coverage
           </div>
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-display font-black uppercase text-white tracking-tight mb-4 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-display font-bold uppercase text-white tracking-tight mb-4 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]">
             {sportName} <span className="text-[#00BFFF]">Coverage</span>
           </h1>
           <p className="text-white/80 font-sans text-base sm:text-lg max-w-2xl mx-auto mb-8 font-medium">
@@ -126,13 +126,13 @@ export const SportCoveragePage: React.FC<SportCoveragePageProps> = ({
           <div className="flex flex-wrap justify-center gap-4">
             <button
               onClick={onBookReel}
-              className="bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-xs uppercase tracking-widest px-8 py-3.5 rounded-sm transition-all shadow-xl shadow-[#00BFFF]/25 cursor-pointer"
+              className="bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-bold text-xs uppercase tracking-widest px-8 py-3.5 rounded-sm transition-all shadow-xl/25 cursor-pointer"
             >
               Book {sportName} Video Package
             </button>
             <button
               onClick={() => onNavigateToPhotos(sportName)}
-              className="bg-white/10 hover:bg-white/20 text-white font-display font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-sm border border-white/20 transition-all flex items-center gap-2 cursor-pointer"
+              className="bg-white/10 hover:bg-white/20 text-white font-display font-bold text-xs uppercase tracking-widest px-6 py-3.5 rounded-sm border border-white/20 transition-all flex items-center gap-2 cursor-pointer"
             >
               <Camera size={16} /> View {sportName} Photos
             </button>
@@ -145,7 +145,7 @@ export const SportCoveragePage: React.FC<SportCoveragePageProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {sport.stats.map((st) => (
             <div key={st.label} className="bg-[#111111]/95 backdrop-blur-md border border-white/10 p-6 rounded-lg text-center shadow-xl">
-              <div className="text-3xl sm:text-4xl font-display font-black text-[#00BFFF] mb-1">{st.value}</div>
+              <div className="text-3xl sm:text-4xl font-display font-bold text-[#00BFFF] mb-1">{st.value}</div>
               <div className="text-white/50 text-xs uppercase font-bold tracking-widest">{st.label}</div>
             </div>
           ))}
@@ -156,10 +156,10 @@ export const SportCoveragePage: React.FC<SportCoveragePageProps> = ({
       <div className="max-w-7xl mx-auto px-6 mt-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
-            <div className="text-[#00BFFF] font-black text-xs uppercase tracking-widest mb-2 flex items-center gap-2">
+            <div className="text-[#00BFFF] font-bold text-xs uppercase tracking-widest mb-2 flex items-center gap-2">
               <Flame size={16} /> Pro-Tier Media Standard
             </div>
-            <h2 className="text-3xl sm:text-4xl font-display font-black uppercase text-white mb-6">
+            <h2 className="text-3xl sm:text-4xl font-display font-bold uppercase text-white mb-6">
               How IND Covers {sportName}
             </h2>
             <p className="text-white/70 font-sans text-base leading-relaxed mb-8">
@@ -185,9 +185,9 @@ export const SportCoveragePage: React.FC<SportCoveragePageProps> = ({
             </div>
           </div>
 
-          <div className="bg-[#111111] border border-white/10 rounded-xl p-8 shadow-2xl relative overflow-hidden">
+          <div className="bg-[#111111] border border-white/10 rounded-sm p-8 shadow-2xl relative overflow-hidden">
             <div className="absolute -top-10 -right-10 w-48 h-48 bg-[#00BFFF]/10 rounded-full blur-3xl pointer-events-none" />
-            <h3 className="text-2xl font-display font-black uppercase text-white mb-4">
+            <h3 className="text-2xl font-display font-bold uppercase text-white mb-4">
               Get Your Program Covered
             </h3>
             <p className="text-white/60 text-sm font-sans mb-6">
@@ -197,21 +197,21 @@ export const SportCoveragePage: React.FC<SportCoveragePageProps> = ({
             <div className="space-y-3">
               <div className="p-3 bg-black/60 border border-white/10 rounded flex justify-between items-center text-xs">
                 <span className="text-white font-bold">Individual Athlete Highlight Package</span>
-                <span className="text-[#00BFFF] font-black">4K Edits Included</span>
+                <span className="text-[#00BFFF] font-bold">4K Edits Included</span>
               </div>
               <div className="p-3 bg-black/60 border border-white/10 rounded flex justify-between items-center text-xs">
                 <span className="text-white font-bold">Full Varsity Season Pass Coverage</span>
-                <span className="text-[#00BFFF] font-black">Photo + Video</span>
+                <span className="text-[#00BFFF] font-bold">Photo + Video</span>
               </div>
               <div className="p-3 bg-black/60 border border-white/10 rounded flex justify-between items-center text-xs">
                 <span className="text-white font-bold">High-Definition Live Stream Broadcast</span>
-                <span className="text-[#00BFFF] font-black">Play-by-Play</span>
+                <span className="text-[#00BFFF] font-bold">Play-by-Play</span>
               </div>
             </div>
 
             <button
               onClick={onBookReel}
-              className="w-full mt-6 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-xs uppercase tracking-widest py-3.5 rounded transition-all cursor-pointer shadow-lg shadow-[#00BFFF]/20"
+              className="w-full mt-6 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-bold text-xs uppercase tracking-widest py-3.5 rounded transition-all cursor-pointer shadow-lg/20"
             >
               Submit Coverage Request
             </button>

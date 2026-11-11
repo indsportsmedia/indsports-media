@@ -299,7 +299,7 @@ export default function LiveBroadcastHub() {
         <div className="text-center mb-16 relative">
           <div className="flex items-center justify-center gap-3 mb-4">
             <span className="relative flex h-4 w-4">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+              <span className=" absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-4 w-4 bg-red-600"></span>
             </span>
             <span className="font-display font-black tracking-widest text-sm uppercase text-red-500">IND SPORTS BROADCAST NETWORK</span>
@@ -358,10 +358,10 @@ export default function LiveBroadcastHub() {
                   />
 
                   {/* FOX Sports / ESPN inspired dynamic broadcast ScoreBug overlay */}
-                  <div className="absolute top-4 left-4 z-20 flex items-center bg-black/90 backdrop-blur-md rounded-md overflow-hidden text-sm border border-neutral-800 shadow-2xl font-mono text-white select-none">
+                  <div className="absolute top-4 left-4 z-20 flex items-center bg-black/90 backdrop-blur-md rounded-md overflow-hidden text-sm border border-neutral-800 shadow-2xl font-sans tabular text-white select-none">
                     <div className="bg-neutral-900 border-r border-neutral-800 px-3 py-2 flex items-center gap-1.5 font-sans font-black text-xs uppercase tracking-wider text-red-500">
                       <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                        <span className=" absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
                       </span>
                       {activeGame.isLive ? 'LIVE' : 'REPLAY'}
@@ -397,7 +397,7 @@ export default function LiveBroadcastHub() {
                       <Tv className="w-8 h-8 opacity-80" />
                     </div>
 
-                    <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[10px] font-mono tracking-widest text-neutral-400 uppercase mb-3">
+                    <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[10px] font-sans tabular tracking-wide text-neutral-400 uppercase mb-3">
                       <span className="w-2 h-2 rounded-full bg-neutral-600" />
                       OFFLINE • STANDBY MODE
                     </div>
@@ -431,7 +431,7 @@ export default function LiveBroadcastHub() {
                     <span className="bg-red-600/10 text-red-500 border border-red-500/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-widest font-black rounded-sm">
                       {activeGame ? activeGame.sport : 'IND BROADCAST NETWORK'}
                     </span>
-                    <span className="text-neutral-400 text-xs font-mono">
+                    <span className="text-neutral-400 text-xs font-sans tabular">
                       {activeGame ? activeGame.venue : 'Indiana High School Sports'}
                     </span>
                   </div>
@@ -451,7 +451,7 @@ export default function LiveBroadcastHub() {
               <div className="grid sm:grid-cols-3 gap-4 text-xs font-sans">
                 <div className="bg-neutral-950 p-4 border border-white/5 rounded">
                   <p className="text-neutral-500 uppercase tracking-widest text-[9px] font-black mb-1 font-display">Video Quality</p>
-                  <p className="text-white font-semibold flex items-center gap-1.5 font-mono">
+                  <p className="text-white font-semibold flex items-center gap-1.5 font-sans tabular">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
                     Ultra HD 4K (60fps)
                   </p>
@@ -461,7 +461,7 @@ export default function LiveBroadcastHub() {
                     <p className="text-neutral-500 uppercase tracking-widest text-[9px] font-black font-display">Sideline Audio</p>
                     <span className="text-[8px] bg-red-600/10 text-red-500 border border-red-500/20 px-1 uppercase font-bold tracking-widest">Dolby Mix</span>
                   </div>
-                  <p className="text-white font-semibold flex items-center gap-1.5 font-mono">
+                  <p className="text-white font-semibold flex items-center gap-1.5 font-sans tabular">
                     Multi-Mic Sound
                   </p>
                 </div>
@@ -546,13 +546,13 @@ export default function LiveBroadcastHub() {
                             className="space-y-0.5 border-l-2 border-neutral-800 pl-2.5"
                           >
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="font-bold text-white tracking-wide font-mono">{msg.user}</span>
+                              <span className="font-bold text-white tracking-wide font-sans tabular">{msg.user}</span>
                               {msg.badge && (
                                 <span className="bg-red-600/10 text-red-400 border border-red-500/20 text-[8px] px-1 font-display uppercase font-extrabold tracking-widest rounded-sm scale-90">
                                   {msg.badge}
                                 </span>
                               )}
-                              <span className="text-[9px] text-neutral-500 ml-auto font-mono">{msg.time}</span>
+                              <span className="text-[9px] text-neutral-500 ml-auto font-sans tabular">{msg.time}</span>
                             </div>
                             <p className="text-neutral-300 leading-relaxed font-sans">{msg.text}</p>
                           </motion.div>
@@ -605,12 +605,12 @@ export default function LiveBroadcastHub() {
                     <>
                       <div className="text-center bg-black/40 py-2.5 rounded border border-white/5 mb-3">
                         <p className="text-[10px] font-display uppercase tracking-widest text-neutral-400 font-bold mb-0.5">TEAM COMPREHENSIVE OVERVIEW</p>
-                        <p className="text-xs font-mono text-neutral-500 font-semibold">{activeGame.venue}</p>
+                        <p className="text-xs font-sans tabular text-neutral-500 font-semibold">{activeGame.venue}</p>
                       </div>
 
                       <div className="space-y-4">
                         <div className="space-y-1.5">
-                          <div className="flex justify-between text-xs font-mono text-neutral-300">
+                          <div className="flex justify-between text-xs font-sans tabular text-neutral-300">
                             <span>{activeGame.stats.passingYds.home} YDS</span>
                             <span className="font-display uppercase tracking-widest text-[9px] font-black text-neutral-500">PASSING YARDS</span>
                             <span>{activeGame.stats.passingYds.away} YDS</span>
@@ -649,11 +649,11 @@ export default function LiveBroadcastHub() {
                         <div className="space-y-2">
                           {activeGame.roster.home.map((p) => (
                             <div key={p.number} className="flex justify-between items-center py-2 bg-black/20 px-3 rounded text-neutral-300">
-                              <span className="font-mono bg-red-600/10 text-red-400 border border-red-500/20 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                              <span className="font-sans tabular bg-red-600/10 text-red-400 border border-red-500/20 px-1.5 py-0.5 rounded text-[10px] font-bold">
                                 #{p.number}
                               </span>
                               <span className="font-semibold text-white ml-2 text-left flex-1">{p.name}</span>
-                              <span className="font-mono text-[10px] font-bold tracking-widest uppercase bg-neutral-800 text-neutral-400 px-1.5 py-0.5 rounded">
+                              <span className="font-sans tabular text-[10px] font-bold tracking-wide uppercase bg-neutral-800 text-neutral-400 px-1.5 py-0.5 rounded">
                                 {p.pos}
                               </span>
                             </div>
@@ -711,10 +711,10 @@ export default function LiveBroadcastHub() {
 
                     <div className="space-y-2 max-w-xl">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="bg-neutral-800 text-neutral-100 font-mono text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-sm">
+                        <span className="bg-neutral-800 text-neutral-100 font-sans tabular text-[9px] uppercase tracking-wide px-2 py-0.5 rounded-sm">
                           {sched.sport}
                         </span>
-                        <span className="text-red-500 font-mono text-[10px] font-bold flex items-center gap-1">
+                        <span className="text-red-500 font-sans tabular text-[10px] font-bold flex items-center gap-1">
                           <Clock className="w-3 h-3" /> {sched.time}
                         </span>
                       </div>
@@ -725,7 +725,7 @@ export default function LiveBroadcastHub() {
                       <p className="text-xs text-neutral-400 font-sans leading-relaxed">
                         {sched.description} Stream will load cleanly with high-speed 60fps framerates.
                       </p>
-                      <p className="text-[10px] text-neutral-500 font-mono uppercase">🏟️ {sched.venue}</p>
+                      <p className="text-[10px] text-neutral-500 font-sans tabular uppercase">🏟️ {sched.venue}</p>
                     </div>
 
                     <button
@@ -815,7 +815,7 @@ export default function LiveBroadcastHub() {
               </form>
             )}
 
-            <div className="border-t border-white/5 pt-4 mt-4 flex justify-between items-center text-[10px] text-neutral-550 font-mono text-neutral-500 uppercase tracking-wide">
+            <div className="border-t border-white/5 pt-4 mt-4 flex justify-between items-center text-[10px] text-neutral-550 font-sans tabular text-neutral-500 uppercase tracking-wide">
               <span>RATES START AT $150/GAME</span>
               <a href="#booking" className="text-red-400 hover:underline flex items-center gap-0.5 font-bold font-display tracking-widest text-[9px] uppercase">
                 PRODUCTION INFO <ExternalLink className="w-2.5 h-2.5" />

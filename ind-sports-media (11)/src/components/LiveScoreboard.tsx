@@ -54,6 +54,9 @@ import {
   updateHighlightDetails,
   deleteMediaHighlight
 } from '../lib/firebase';
+import { useStaff, signInStaff, signOutStaff } from '../lib/staff';
+import TeamLogo from './TeamLogo';
+import { displayClock } from '../lib/scorekeeper';
 import type { PlayEvent, SocialClip, GameState } from '../types';
 
 export type { PlayEvent, SocialClip, GameState };
@@ -123,7 +126,7 @@ export const DEFAULT_GAMES_LIST: GameState[] = [
         id: 'clip-wst-carmel-pre',
         platform: 'upload',
         type: 'photo',
-        title: '🔥 Sectionals R1 Pregame Warmups: Westfield vs Carmel',
+        title: 'Sectionals R1 Pregame Warmups: Westfield vs Carmel',
         author: 'Brandon Blume (IND Field Staff)',
         mediaUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80',
         url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80',
@@ -196,7 +199,7 @@ export const DEFAULT_GAMES_LIST: GameState[] = [
         id: 'clip-avon-bd-pre',
         platform: 'upload',
         type: 'photo',
-        title: '📸 Avon vs Ben Davis Sectional Spotlight',
+        title: 'Avon vs Ben Davis Sectional Spotlight',
         author: 'IND Sideline Crew',
         mediaUrl: 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&w=1000&q=80',
         url: 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&w=1000&q=80',
@@ -638,7 +641,7 @@ export const DEFAULT_GAMES_LIST: GameState[] = [
         id: 'clip-roncalli-1',
         platform: 'upload',
         type: 'photo',
-        title: '📸 Bob Tully Field Packed Student Section & Coin Toss',
+        title: 'Bob Tully Field Packed Student Section & Coin Toss',
         author: 'Brandon Blume (IND Field Staff)',
         mediaUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80',
         url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80',
@@ -883,7 +886,7 @@ export const DEFAULT_GAMES_LIST: GameState[] = [
         id: 'clip-ln-1',
         platform: 'x',
         type: 'video',
-        title: '🔥 Pregame Tunnel Walkout & Student Section',
+        title: 'Pregame Tunnel Walkout & Student Section',
         author: '@INDSportsMedia',
         url: 'https://x.com/INDSportsMedia/status/178923019',
         mediaUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80',
@@ -897,7 +900,7 @@ export const DEFAULT_GAMES_LIST: GameState[] = [
         id: 'clip-bb-1',
         platform: 'instagram',
         type: 'photo',
-        title: '📸 Bulldogs Warmups Under the Friday Night Lights',
+        title: 'Bulldogs Warmups Under the Friday Night Lights',
         author: 'Brandon Blume (IND Field Team)',
         url: 'https://instagram.com/p/C99238jkl',
         mediaUrl: 'https://images.unsplash.com/photo-1519766304817-4f37bda74a29?auto=format&fit=crop&w=1000&q=80',
@@ -970,7 +973,7 @@ export const DEFAULT_GAMES_LIST: GameState[] = [
         id: 'clip-fw-1',
         platform: 'tiktok',
         type: 'video',
-        title: '⚡ Archers Marching Band Entrance',
+        title: 'Archers Marching Band Entrance',
         author: '@IND_Sideline',
         url: 'https://tiktok.com/@IND_Sideline/video/7391823901',
         mediaUrl: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1000&q=80',
@@ -997,9 +1000,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const savedIds = new Set(parsed.map((g: GameState) => g.id));
-          const missing = DEFAULT_GAMES_LIST.filter(g => !savedIds.has(g.id));
-          return [...parsed, ...missing];
+          return parsed;
         }
       }
     } catch {
@@ -1021,12 +1022,22 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
   // Currently active game
   const activeGame = games.find(g => g.id === selectedGameId) || games[0] || DEFAULT_GAMES_LIST[0];
 
+  // Basketball clock counts down on each viewer's screen (set by /score).
+  const [, setClockTick] = useState(0);
+  useEffect(() => {
+    if (!activeGame?.clockRunning) return;
+    const t = setInterval(() => setClockTick((n) => n + 1), 250);
+    return () => clearInterval(t);
+  }, [activeGame?.clockRunning, activeGame?.id]);
+
   // Hidden staff access
-  const [isAuthorized, setIsAuthorized] = useState<boolean>(() => {
-    return window.location.hash.includes('sideline') || 
-           window.location.hash.includes('operator') || 
-           sessionStorage.getItem('ind_operator_auth') === 'true';
-  });
+  // Staff access: Google sign-in + staff allowlist (see src/lib/staff.ts).
+  // The old PIN lived in public code and could be read by anyone.
+  const staffAuth = useStaff();
+  const isAuthorized = staffAuth.isStaff;
+  const setIsAuthorized = (value: boolean) => {
+    if (!value) signOutStaff().catch(console.warn);
+  };
 
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
@@ -1070,9 +1081,8 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
   useEffect(() => {
     const checkHash = () => {
       if (window.location.hash.includes('sideline') || window.location.hash.includes('operator')) {
-        setIsAuthorized(true);
-        setIsAdminOpen(true);
-        sessionStorage.setItem('ind_operator_auth', 'true');
+        // #sideline now just opens the staff sign-in prompt.
+        setPinModalOpen(true);
       }
     };
     checkHash();
@@ -1106,8 +1116,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               };
             });
             const existingIds = new Set(firestoreGames.map((f: GameState) => f.id));
-            const missing = DEFAULT_GAMES_LIST.filter(d => !existingIds.has(d.id));
-            const combined = [...updated, ...missing];
+            // Deleted games stay deleted (sample games are no longer re-added).
+            void existingIds;
+            const combined = [...updated];
             localStorage.setItem('ind_live_scoreboard_games_v4', JSON.stringify(combined));
             return combined;
           });
@@ -1149,8 +1160,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               };
             });
             const existingIds = new Set(data.games.map((s: GameState) => s.id));
-            const missing = DEFAULT_GAMES_LIST.filter(d => !existingIds.has(d.id));
-            const combined = [...updated, ...missing];
+            // Deleted games stay deleted (sample games are no longer re-added).
+            void existingIds;
+            const combined = [...updated];
             localStorage.setItem('ind_live_scoreboard_games_v4', JSON.stringify(combined));
             return combined;
           });
@@ -1249,10 +1261,10 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
     // Auto Play description if not provided
     let playDesc = description;
     if (!playDesc) {
-      if (delta === 6) playDesc = `🏈 TOUCHDOWN ${targetTeam.shortName}! (+6 pts)`;
-      else if (delta === 1) playDesc = `👟 Extra Point (PAT) GOOD for ${targetTeam.shortName}. (+1 pt)`;
-      else if (delta === 2) playDesc = `⚡ 2-Point Conversion SUCCESSFUL for ${targetTeam.shortName}! (+2 pts)`;
-      else if (delta === 3) playDesc = `🎯 Field Goal GOOD for ${targetTeam.shortName}! (+3 pts)`;
+      if (delta === 6) playDesc = `TOUCHDOWN ${targetTeam.shortName}! (+6 pts)`;
+      else if (delta === 1) playDesc = `Extra Point (PAT) GOOD for ${targetTeam.shortName}. (+1 pt)`;
+      else if (delta === 2) playDesc = `2-Point Conversion SUCCESSFUL for ${targetTeam.shortName}! (+2 pts)`;
+      else if (delta === 3) playDesc = `Field Goal GOOD for ${targetTeam.shortName}! (+3 pts)`;
       else if (delta < 0) playDesc = `Score adjustment: ${delta} point for ${targetTeam.shortName}`;
       else playDesc = `${targetTeam.shortName} scores +${delta} points.`;
     }
@@ -1403,7 +1415,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
       const fullCaption = userText ? `${userText}\n\n${autoTags}` : autoTags;
       const headline = userText.length > 0 
         ? (userText.length > 40 ? userText.slice(0, 40) + '...' : userText)
-        : (storyMedia.type === 'video' ? '⚡ Sideline Game Highlight' : '📸 Sideline Photo');
+        : (storyMedia.type === 'video' ? 'Sideline Game Highlight' : 'Sideline Photo');
 
       // Lightweight clip metadata (storing strictly the short public download URL)
       const newClip: SocialClip = {
@@ -1459,13 +1471,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
         setStoryTeam('neutral');
         setUploadProgress(null);
         setActiveTab('highlights');
-        alert('🎉 Posted! Your highlight is live across all scoreboards.');
+        alert('Posted! Your highlight is live across all scoreboards.');
       }, 300);
 
     } catch (err: any) {
       console.error('Error publishing story highlight:', err);
       const msg = err?.message || 'Check stadium cellular connection and Firebase Storage permissions.';
-      alert(`⚠️ Upload Error:\n${msg}`);
+      alert(`Upload Error:\n${msg}`);
     } finally {
       setIsPostingStory(false);
       setUploadProgress(null);
@@ -1522,7 +1534,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
       setEditingClip(null);
     } catch (err: any) {
       console.error('Failed to update highlight details:', err);
-      alert(`⚠️ Failed to update highlight:\n${err?.message || 'Please check network connection.'}`);
+      alert(`Failed to update highlight:\n${err?.message || 'Please check network connection.'}`);
     } finally {
       setIsSavingEdit(false);
     }
@@ -1560,25 +1572,31 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
   });
 
   return (
-    <div className="min-h-screen bg-[#070707] text-white pt-24 pb-24 font-sans selection:bg-[#00BFFF] selection:text-black">
+    <div className="min-h-screen bg-black text-white pt-20 pb-24 font-sans selection:bg-[#00BFFF] selection:text-black">
       {/* Top Breadcrumb & Actions Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-6">
         <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/10 pb-4">
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-xs font-display font-black uppercase tracking-wider group cursor-pointer"
+            className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-xs font-display font-bold uppercase tracking-wider group cursor-pointer"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform text-[#00BFFF]" />
             Back to Home
           </button>
 
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            {/* Hidden Sideline Operator Access: Only visible when authorized via URL hash #sideline or secret PIN 1802 */}
+            {/* Sideline Operator Access: visible only to signed-in IND staff */}
             {isAuthorized ? (
               <div className="flex items-center gap-2">
+                <a
+                  href={`/score?game=${encodeURIComponent(activeGame.id)}`}
+                  className="px-4 py-1.5 rounded-md text-xs font-display font-semibold uppercase tracking-wide bg-white text-black"
+                >
+                  Scorekeeper
+                </a>
                 <button
                   onClick={() => setIsAdminOpen(!isAdminOpen)}
-                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-xs font-display font-black uppercase tracking-wider transition-all cursor-pointer shadow-lg ${
+                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-xs font-display font-bold uppercase tracking-wider transition-all cursor-pointer shadow-lg ${
                     isAdminOpen 
                       ? 'bg-amber-400 text-black border border-amber-300' 
                       : 'bg-[#00BFFF] hover:bg-[#00A3D9] text-black border border-[#00BFFF]'
@@ -1619,516 +1637,6 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
         {/* ========================================================================= */}
-        {/* SEASON & WEEK ARCHIVE NAVIGATION BAR */}
-        {/* ========================================================================= */}
-        <div className="mb-6 bg-[#121212] border border-[#00BFFF]/30 rounded-2xl p-4 sm:p-5 shadow-2xl relative overflow-hidden">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-            <div>
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-red-400 flex items-center gap-2">
-                <Radio size={14} className="text-red-500 animate-pulse" />
-                2026 IHSAA Postseason Tournament Central • Live Sectionals &amp; Regionals Hub
-              </span>
-              <h2 className="text-base sm:text-lg font-black font-display uppercase tracking-tight text-white mt-0.5">
-                Tonight&apos;s Football Sectionals R1 &amp; Saturday Volleyball Tournaments
-              </h2>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-mono text-white/50 flex items-center gap-1">
-                <RefreshCw size={11} className={isSyncing ? 'animate-spin text-[#00BFFF]' : ''} />
-                Live Sync: {lastSyncTime}
-              </span>
-            </div>
-          </div>
-
-          {/* Week & Tournament Filter Chips */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-            {[
-              { id: 'Sectionals', label: '🏆 Tonight: Football Sectionals R1', count: games.filter(g => (g.week || '').includes('Sectional') || g.title.includes('Sectional')).length },
-              { id: 'Volleyball', label: '🏐 Saturday: Volleyball Tournaments', count: games.filter(g => g.sport.includes('Volleyball')).length },
-              { id: 'Tournaments-Hub', label: '📊 Brackets & Site Hub', count: 2 },
-              { id: 'Regular-Season', label: '📁 Regular Season Archives', count: games.filter(g => !(g.week || '').includes('Sectional') && !g.title.includes('Sectional') && !g.sport.includes('Volleyball')).length },
-              { id: 'ALL', label: 'All Matchups', count: games.length },
-            ].map(tab => {
-              const isActive = selectedWeekFilter === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setSelectedWeekFilter(tab.id)}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-display font-black uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
-                    isActive
-                      ? tab.id === 'Sectionals' 
-                        ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.5)] scale-100'
-                        : 'bg-[#00BFFF] text-black shadow-[0_0_15px_rgba(0,191,255,0.4)] scale-100'
-                      : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10'
-                  }`}
-                >
-                  <span>{tab.label}</span>
-                  <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${isActive ? 'bg-black/30 text-white font-bold' : 'bg-white/10 text-white/60'}`}>
-                    {tab.count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Embedded Interactive Tournament Central Brackets */}
-          {selectedWeekFilter === 'Tournaments-Hub' && (
-            <div className="mt-4 pt-4 border-t border-white/10">
-              <TournamentCentral 
-                isScoreboardEmbedded={true}
-                onNavigateToGame={(gameId) => {
-                  setSelectedGameId(gameId);
-                  setSelectedWeekFilter('ALL');
-                }}
-              />
-            </div>
-          )}
-
-          {/* Volleyball Specific View: Dual Site Tournaments */}
-          {selectedWeekFilter === 'Volleyball' && (
-            <div className="mt-4 space-y-6">
-              {/* Informational Header */}
-              <div className="bg-gradient-to-r from-blue-950/40 via-[#101010] to-emerald-950/30 border border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#00BFFF]/15 border border-[#00BFFF]/30 text-[#00BFFF] text-xs font-mono font-bold uppercase tracking-wider mb-1.5">
-                    <Sparkles size={13} className="text-[#00BFFF]" />
-                    Saturday: Volleyball Tournaments • Dual Site Centers
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-display font-black text-white uppercase tracking-wide">
-                    Saturday Regional Volleyball Tournaments
-                  </h3>
-                  <p className="text-xs sm:text-sm text-white/60 font-sans mt-0.5">
-                    Official schedule and live tracking for both Huntington North and Jennings County tournament sites.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setSelectedWeekFilter('Tournaments-Hub')}
-                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/40 hover:border-amber-400 text-amber-300 font-display font-black text-xs uppercase tracking-wider flex items-center gap-2 transition cursor-pointer shrink-0"
-                >
-                  <Trophy size={15} className="text-amber-400" />
-                  <span>View Bracket Hub</span>
-                  <ChevronRight size={14} />
-                </button>
-              </div>
-
-              {/* Dual Site Columns */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
-                {/* 1. HUNTINGTON NORTH */}
-                <div className="bg-[#121212] border border-cyan-500/30 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-4">
-                  {/* Site Header */}
-                  <div className="flex items-start justify-between border-b border-white/10 pb-3.5">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#00BFFF] shadow-[0_0_8px_#00BFFF]" />
-                        <h4 className="text-lg sm:text-xl font-display font-black text-white uppercase tracking-wider">
-                          For Huntington North:
-                        </h4>
-                      </div>
-                      <p className="text-xs text-white/50 font-sans flex items-center gap-1.5 mt-1">
-                        <MapPin size={13} className="text-[#00BFFF]" />
-                        Huntington North Arena • Huntington, IN
-                      </p>
-                    </div>
-                    <span className="bg-[#00BFFF]/10 border border-[#00BFFF]/30 text-[#00BFFF] text-[10px] font-mono font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
-                      3 Matches
-                    </span>
-                  </div>
-
-                  {/* Matches List: M1, M2, Championship */}
-                  <div className="space-y-3">
-                    {[
-                      {
-                        id: 'vb-huntington-m1-carroll-vs-penn',
-                        matchTag: 'M1',
-                        title: 'M1: Carroll (Fort Wayne) vs Penn',
-                        team1: 'Carroll (Fort Wayne)',
-                        team2: 'Penn',
-                        time: '10:00 AM',
-                        round: 'Semifinal 1',
-                        court: 'Court 1 - North Gym',
-                        isChamp: false
-                      },
-                      {
-                        id: 'vb-huntington-m2-westfield-vs-crownpoint',
-                        matchTag: 'M2',
-                        title: 'M2: Westfield vs Crown Point',
-                        team1: 'Westfield',
-                        team2: 'Crown Point',
-                        time: '12:00 PM',
-                        round: 'Semifinal 2',
-                        court: 'Court 1 - North Gym',
-                        isChamp: false
-                      },
-                      {
-                        id: 'vb-huntington-champ',
-                        matchTag: 'Championship',
-                        title: 'Championship: M1 Winner vs M2 Winner',
-                        team1: 'M1 Winner',
-                        team2: 'M2 Winner',
-                        subNote: 'Winner M1 (Carroll / Penn) vs Winner M2 (Westfield / Crown Point)',
-                        time: '7:00 PM',
-                        round: 'Championship Final',
-                        court: 'Main Arena Court',
-                        isChamp: true
-                      }
-                    ].map((m) => {
-                      const gameObj = games.find(g => g.id === m.id) || DEFAULT_GAMES_LIST.find(g => g.id === m.id);
-                      if (!gameObj) return null;
-                      const isSelected = gameObj.id === activeGame.id;
-                      const isFinal = gameObj.isArchived || gameObj.statusText === 'FINAL';
-
-                      return (
-                        <button
-                          key={m.id}
-                          onClick={() => setSelectedGameId(gameObj.id)}
-                          className={`w-full text-left p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer relative ${
-                            isSelected
-                              ? 'bg-[#181818] border-[#00BFFF] shadow-[0_0_20px_rgba(0,191,255,0.25)] ring-2 ring-[#00BFFF]'
-                              : m.isChamp
-                                ? 'bg-gradient-to-r from-amber-950/25 to-black/80 border-amber-500/35 hover:border-amber-400 hover:bg-amber-950/35'
-                                : 'bg-[#151515] border-white/10 hover:border-white/25 hover:bg-[#1c1c1c]'
-                          }`}
-                        >
-                          {/* Top Badges */}
-                          <div className="flex items-center justify-between gap-2 mb-2.5">
-                            <div className="flex items-center gap-2">
-                              <span className={`text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded ${
-                                m.isChamp 
-                                  ? 'bg-amber-500 text-black shadow-sm' 
-                                  : 'bg-[#00BFFF]/20 border border-[#00BFFF]/40 text-[#00BFFF]'
-                              }`}>
-                                {m.matchTag}
-                              </span>
-                              <span className="text-[11px] font-mono text-white/50">
-                                {m.time} • {m.court}
-                              </span>
-                            </div>
-
-                            {isSelected ? (
-                              <span className="bg-[#00BFFF] text-black text-[10px] font-mono font-black px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1 shadow-[0_0_8px_#00BFFF]">
-                                <Radio size={10} className="animate-pulse" />
-                                Active Scoreboard
-                              </span>
-                            ) : isFinal ? (
-                              <span className="bg-white/10 text-white/70 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
-                                Final
-                              </span>
-                            ) : (
-                              <span className="text-[10px] font-mono text-white/40 group-hover:text-white/70 flex items-center gap-1">
-                                <span>Track Score</span>
-                                <ChevronRight size={12} />
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Matchup Title Line requested by user */}
-                          <div className="font-display font-black text-sm sm:text-base text-white tracking-wide mb-2 flex items-center justify-between">
-                            <span className={m.isChamp ? 'text-amber-300' : 'text-white'}>
-                              {m.title}
-                            </span>
-                            <span className="font-mono text-sm font-bold text-white/80">
-                              {gameObj.homeTeam.score} - {gameObj.awayTeam.score}
-                            </span>
-                          </div>
-
-                          {/* Teams Display with Logos */}
-                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
-                            <div className="flex items-center gap-2">
-                              <img 
-                                src={gameObj.homeTeam.logoUrl} 
-                                alt={gameObj.homeTeam.name} 
-                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
-                              />
-                              <div className="min-w-0">
-                                <div className="text-xs font-sans font-bold text-white truncate">
-                                  {m.team1}
-                                </div>
-                                <div className="text-[10px] text-white/40 truncate">
-                                  {gameObj.homeTeam.record}
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <img 
-                                src={gameObj.awayTeam.logoUrl} 
-                                alt={gameObj.awayTeam.name} 
-                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
-                              />
-                              <div className="min-w-0">
-                                <div className="text-xs font-sans font-bold text-white truncate">
-                                  {m.team2}
-                                </div>
-                                <div className="text-[10px] text-white/40 truncate">
-                                  {gameObj.awayTeam.record}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {m.subNote && (
-                            <div className="text-[10px] text-amber-300/70 font-sans mt-2 pt-1 border-t border-amber-500/10 italic">
-                              {m.subNote}
-                            </div>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 2. JENNINGS COUNTY */}
-                <div className="bg-[#121212] border border-amber-500/30 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-4">
-                  {/* Site Header */}
-                  <div className="flex items-start justify-between border-b border-white/10 pb-3.5">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#F59E0B]" />
-                        <h4 className="text-lg sm:text-xl font-display font-black text-white uppercase tracking-wider">
-                          For Jennings County:
-                        </h4>
-                      </div>
-                      <p className="text-xs text-white/50 font-sans flex items-center gap-1.5 mt-1">
-                        <MapPin size={13} className="text-amber-400" />
-                        Jennings County Gymnasium • North Vernon, IN
-                      </p>
-                    </div>
-                    <span className="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
-                      3 Matches
-                    </span>
-                  </div>
-
-                  {/* Matches List: M1, M2, Championship */}
-                  <div className="space-y-3">
-                    {[
-                      {
-                        id: 'vb-jennings-m1-floydcentral-vs-yorktown',
-                        matchTag: 'M1',
-                        title: 'M1: Floyd Central vs Yorktown',
-                        team1: 'Floyd Central',
-                        team2: 'Yorktown',
-                        time: '10:30 AM',
-                        round: 'Semifinal 1',
-                        court: 'Main Gymnasium',
-                        isChamp: false
-                      },
-                      {
-                        id: 'vb-jennings-m2-bloomingtonsouth-vs-centergrove',
-                        matchTag: 'M2',
-                        title: 'M2: Bloomington South vs Center Grove',
-                        team1: 'Bloomington South',
-                        team2: 'Center Grove',
-                        time: '12:30 PM',
-                        round: 'Semifinal 2',
-                        court: 'Main Gymnasium',
-                        isChamp: false
-                      },
-                      {
-                        id: 'vb-jennings-champ',
-                        matchTag: 'Championship',
-                        title: 'Championship: M1 Winner vs M2 Winner',
-                        team1: 'M1 Winner',
-                        team2: 'M2 Winner',
-                        subNote: 'Winner M1 (Floyd Central / Yorktown) vs Winner M2 (Bloomington South / Center Grove)',
-                        time: '6:30 PM',
-                        round: 'Championship Final',
-                        court: 'Championship Arena Court',
-                        isChamp: true
-                      }
-                    ].map((m) => {
-                      const gameObj = games.find(g => g.id === m.id) || DEFAULT_GAMES_LIST.find(g => g.id === m.id);
-                      if (!gameObj) return null;
-                      const isSelected = gameObj.id === activeGame.id;
-                      const isFinal = gameObj.isArchived || gameObj.statusText === 'FINAL';
-
-                      return (
-                        <button
-                          key={m.id}
-                          onClick={() => setSelectedGameId(gameObj.id)}
-                          className={`w-full text-left p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer relative ${
-                            isSelected
-                              ? 'bg-[#181818] border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.25)] ring-2 ring-amber-400'
-                              : m.isChamp
-                                ? 'bg-gradient-to-r from-amber-950/25 to-black/80 border-amber-500/35 hover:border-amber-400 hover:bg-amber-950/35'
-                                : 'bg-[#151515] border-white/10 hover:border-white/25 hover:bg-[#1c1c1c]'
-                          }`}
-                        >
-                          {/* Top Badges */}
-                          <div className="flex items-center justify-between gap-2 mb-2.5">
-                            <div className="flex items-center gap-2">
-                              <span className={`text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded ${
-                                m.isChamp 
-                                  ? 'bg-amber-500 text-black shadow-sm' 
-                                  : 'bg-amber-500/20 border border-amber-500/40 text-amber-300'
-                              }`}>
-                                {m.matchTag}
-                              </span>
-                              <span className="text-[11px] font-mono text-white/50">
-                                {m.time} • {m.court}
-                              </span>
-                            </div>
-
-                            {isSelected ? (
-                              <span className="bg-amber-400 text-black text-[10px] font-mono font-black px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1 shadow-[0_0_8px_#F59E0B]">
-                                <Radio size={10} className="animate-pulse" />
-                                Active Scoreboard
-                              </span>
-                            ) : isFinal ? (
-                              <span className="bg-white/10 text-white/70 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
-                                Final
-                              </span>
-                            ) : (
-                              <span className="text-[10px] font-mono text-white/40 group-hover:text-white/70 flex items-center gap-1">
-                                <span>Track Score</span>
-                                <ChevronRight size={12} />
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Matchup Title Line requested by user */}
-                          <div className="font-display font-black text-sm sm:text-base text-white tracking-wide mb-2 flex items-center justify-between">
-                            <span className={m.isChamp ? 'text-amber-300' : 'text-white'}>
-                              {m.title}
-                            </span>
-                            <span className="font-mono text-sm font-bold text-white/80">
-                              {gameObj.homeTeam.score} - {gameObj.awayTeam.score}
-                            </span>
-                          </div>
-
-                          {/* Teams Display with Logos */}
-                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
-                            <div className="flex items-center gap-2">
-                              <img 
-                                src={gameObj.homeTeam.logoUrl} 
-                                alt={gameObj.homeTeam.name} 
-                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
-                              />
-                              <div className="min-w-0">
-                                <div className="text-xs font-sans font-bold text-white truncate">
-                                  {m.team1}
-                                </div>
-                                <div className="text-[10px] text-white/40 truncate">
-                                  {gameObj.homeTeam.record}
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <img 
-                                src={gameObj.awayTeam.logoUrl} 
-                                alt={gameObj.awayTeam.name} 
-                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
-                              />
-                              <div className="min-w-0">
-                                <div className="text-xs font-sans font-bold text-white truncate">
-                                  {m.team2}
-                                </div>
-                                <div className="text-[10px] text-white/40 truncate">
-                                  {gameObj.awayTeam.record}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {m.subNote && (
-                            <div className="text-[10px] text-amber-300/70 font-sans mt-2 pt-1 border-t border-amber-500/10 italic">
-                              {m.subNote}
-                            </div>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          )}
-
-          {/* Filtered Games Grid for ALL, Sectionals, Regular-Season */}
-          {selectedWeekFilter !== 'Tournaments-Hub' && selectedWeekFilter !== 'Volleyball' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
-              {games
-                .filter(g => {
-                  if (selectedWeekFilter === 'ALL') return true;
-                  if (selectedWeekFilter === 'Sectionals') return (g.week || '').includes('Sectional') || g.title.includes('Sectional');
-                  if (selectedWeekFilter === 'Volleyball') return g.sport.includes('Volleyball');
-                  if (selectedWeekFilter === 'Regular-Season') return !(g.week || '').includes('Sectional') && !g.title.includes('Sectional') && !g.sport.includes('Volleyball');
-                  return true;
-                })
-              .map((g) => {
-                const isSelected = g.id === activeGame.id;
-                const isFinal = g.isArchived || g.statusText === 'FINAL' || g.quarter === 'Final';
-                return (
-                  <button
-                    key={g.id}
-                    onClick={() => setSelectedGameId(g.id)}
-                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-3 ${
-                      isSelected
-                        ? 'bg-[#181818] border-[#00BFFF] shadow-lg shadow-[#00BFFF]/15 ring-2 ring-[#00BFFF]'
-                        : 'bg-[#101010] border-white/10 hover:border-white/25 hover:bg-[#141414]'
-                    }`}
-                  >
-                    {/* Top Row: Week Badge & Live/Final Status */}
-                    <div className="flex items-center justify-between text-[10px] font-mono">
-                      <span className="bg-white/10 text-white/70 px-2 py-0.5 rounded font-bold uppercase">
-                        {g.week || 'Week 3'}
-                      </span>
-                      {isFinal ? (
-                        <span className="bg-white/10 text-white/70 px-2 py-0.5 rounded font-black tracking-wider uppercase">
-                          FINAL
-                        </span>
-                      ) : (
-                        <span className="bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded font-black tracking-wider uppercase flex items-center gap-1 animate-pulse">
-                          <Radio size={10} className="text-red-500" />
-                          {g.quarter || 'LIVE'}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Middle: Teams & Matchup */}
-                    <div className="flex items-center gap-3">
-                      <div className="flex -space-x-2 overflow-hidden shrink-0">
-                        <img 
-                          src={g.homeTeam.logoUrl} 
-                          alt={g.homeTeam.name} 
-                          className="inline-block h-8 w-8 rounded-full object-contain bg-black/60 border border-white/20 p-0.5" 
-                        />
-                        <img 
-                          src={g.awayTeam.logoUrl} 
-                          alt={g.awayTeam.name} 
-                          className="inline-block h-8 w-8 rounded-full object-contain bg-black/60 border border-white/20 p-0.5" 
-                        />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-display font-black text-xs sm:text-sm text-white tracking-wide truncate">
-                          {g.homeTeam.shortName} vs {g.awayTeam.shortName}
-                        </div>
-                        <div className="text-[10px] font-sans text-white/50 truncate">
-                          {g.venue}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Bottom: Score & Clock */}
-                    <div className="flex items-center justify-between border-t border-white/5 pt-2 mt-0.5">
-                      <div className="text-[11px] font-sans text-white/60">
-                        {g.dateString}
-                      </div>
-                      <div className="font-mono font-black text-sm text-white">
-                        {g.homeTeam.score} - {g.awayTeam.score}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* ========================================================================= */}
         {/* OPERATOR / SIDELINE CONTROL CONSOLE (Strictly Mobile-First & Focused) */}
         {/* ========================================================================= */}
         <AnimatePresence>
@@ -2139,20 +1647,20 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               exit={{ opacity: 0, height: 0 }}
               className="mb-8 overflow-hidden"
             >
-              <div className="bg-[#101010] border-2 border-amber-400/90 rounded-2xl p-4 sm:p-6 shadow-2xl relative space-y-4 text-white">
+              <div className="bg-[#101010] border-2 border-amber-400/90 rounded-sm p-4 sm:p-6 shadow-2xl relative space-y-4 text-white">
                 
                 {/* Operator Header Bar */}
                 <div className="flex items-center justify-between border-b border-white/10 pb-3.5 flex-wrap gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-amber-400 text-black flex items-center justify-center font-black shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-amber-400 text-black flex items-center justify-center font-bold shrink-0">
                       <Sliders size={18} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-display font-black uppercase text-sm sm:text-base text-white tracking-wide">
+                        <h3 className="font-display font-bold uppercase text-sm sm:text-base text-white tracking-wide">
                           SIDELINE OPERATOR CONTROLLER
                         </h3>
-                        <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded font-bold uppercase animate-pulse">
+                        <span className="text-[10px] font-sans tabular bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded font-bold uppercase">
                           LIVE CLOUD SYNC
                         </span>
                       </div>
@@ -2170,14 +1678,14 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         try {
                           await broadcastGameUpdate({
                             ...activeGame,
-                            lastPlay: `⚡ Firebase live sync ping verified at ${testTime}`
+                            lastPlay: `Firebase live sync ping verified at ${testTime}`
                           });
-                          alert(`✅ Firebase test successful!\n\nConnected to project:\npelagic-airline-s1ttq (IND Sports Media)\n\nLive ping synced to all devices!`);
+                          alert(`Firebase test successful!\n\nConnected to project:\npelagic-airline-s1ttq (IND Sports Media)\n\nLive ping synced to all devices!`);
                         } catch (e) {
-                          alert(`⚠️ Firebase sync error: ${e}`);
+                          alert(`Firebase sync error: ${e}`);
                         }
                       }}
-                      className="text-[11px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-mono uppercase bg-emerald-950/40 border border-emerald-500/40 px-2.5 py-1.5 rounded cursor-pointer"
+                      className="text-[11px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-sans tabular uppercase bg-emerald-950/40 border border-emerald-500/40 px-2.5 py-1.5 rounded cursor-pointer"
                       title="Test cloud ping"
                     >
                       <CloudLightning size={12} /> Ping Live Cloud
@@ -2185,7 +1693,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                     <button
                       onClick={resetCurrentGame}
-                      className="text-[11px] text-red-400 hover:text-red-300 flex items-center gap-1 font-mono uppercase bg-red-950/40 border border-red-800/40 px-2.5 py-1.5 rounded cursor-pointer"
+                      className="text-[11px] text-red-400 hover:text-red-300 flex items-center gap-1 font-sans tabular uppercase bg-red-950/40 border border-red-800/40 px-2.5 py-1.5 rounded cursor-pointer"
                       title="Reset game to 0-0"
                     >
                       <RotateCcw size={12} /> Reset 0-0
@@ -2199,7 +1707,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                   
                   {/* Home Team Card */}
-                  <div className="bg-[#181818] border-2 border-emerald-500/50 rounded-xl p-4 relative overflow-hidden flex flex-col justify-between gap-3 shadow-lg">
+                  <div className="bg-[#181818] border-2 border-emerald-500/50 rounded-sm p-4 relative overflow-hidden flex flex-col justify-between gap-3 shadow-lg">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 min-w-0">
                         <img 
@@ -2208,21 +1716,21 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           className="w-12 h-12 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0"
                         />
                         <div className="min-w-0">
-                          <span className="font-display font-black uppercase text-base text-white block truncate">
+                          <span className="font-display font-bold uppercase text-base text-white block truncate">
                             {activeGame.homeTeam.name}
                           </span>
-                          <span className="text-[11px] font-mono text-emerald-400 uppercase font-bold">
+                          <span className="text-[11px] font-sans tabular text-emerald-400 uppercase font-bold">
                             HOME TEAM
                           </span>
                         </div>
                       </div>
 
                       {/* Big Score Digit Display */}
-                      <div className="text-right px-4 py-1.5 bg-black/80 border-2 border-emerald-500/60 rounded-xl min-w-[70px]">
-                        <span className="font-mono font-black text-4xl text-white block leading-none">
+                      <div className="text-right px-4 py-1.5 bg-black/80 border-2 border-emerald-500/60 rounded-sm min-w-[70px]">
+                        <span className="font-sans tabular font-bold text-4xl text-white block leading-none">
                           {activeGame.homeTeam.score}
                         </span>
-                        <span className="text-[9px] font-mono uppercase text-emerald-400 font-bold block mt-0.5">
+                        <span className="text-[9px] font-sans tabular uppercase text-emerald-400 font-bold block mt-0.5">
                           PTS
                         </span>
                       </div>
@@ -2234,28 +1742,28 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         <button
                           type="button"
                           onClick={() => adjustScore('home', 6, `Touchdown ${activeGame.homeTeam.shortName} (+6)`)}
-                          className="py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-display font-black text-xs uppercase rounded-lg border border-emerald-400/50 shadow-md cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-display font-bold text-xs uppercase rounded-lg border border-emerald-400/50 shadow-md cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +6 TD
                         </button>
                         <button
                           type="button"
                           onClick={() => adjustScore('home', 1, `Extra Point ${activeGame.homeTeam.shortName} (+1)`)}
-                          className="py-2.5 bg-white/10 hover:bg-emerald-700 text-white font-display font-black text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-white/10 hover:bg-emerald-700 text-white font-display font-bold text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +1 PAT
                         </button>
                         <button
                           type="button"
                           onClick={() => adjustScore('home', 2, `2-Pt Conversion ${activeGame.homeTeam.shortName} (+2)`)}
-                          className="py-2.5 bg-white/10 hover:bg-emerald-700 text-white font-display font-black text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-white/10 hover:bg-emerald-700 text-white font-display font-bold text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +2 2PT
                         </button>
                         <button
                           type="button"
                           onClick={() => adjustScore('home', 3, `Field Goal ${activeGame.homeTeam.shortName} (+3)`)}
-                          className="py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-display font-black text-xs uppercase rounded-lg border border-emerald-400/30 cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-display font-bold text-xs uppercase rounded-lg border border-emerald-400/30 cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +3 FG
                         </button>
@@ -2288,7 +1796,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   </div>
 
                   {/* Away Team Card */}
-                  <div className="bg-[#181818] border-2 border-purple-500/50 rounded-xl p-4 relative overflow-hidden flex flex-col justify-between gap-3 shadow-lg">
+                  <div className="bg-[#181818] border-2 border-purple-500/50 rounded-sm p-4 relative overflow-hidden flex flex-col justify-between gap-3 shadow-lg">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 min-w-0">
                         <img 
@@ -2297,21 +1805,21 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           className="w-12 h-12 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0"
                         />
                         <div className="min-w-0">
-                          <span className="font-display font-black uppercase text-base text-white block truncate">
+                          <span className="font-display font-bold uppercase text-base text-white block truncate">
                             {activeGame.awayTeam.name}
                           </span>
-                          <span className="text-[11px] font-mono text-purple-400 uppercase font-bold">
+                          <span className="text-[11px] font-sans tabular text-purple-400 uppercase font-bold">
                             AWAY TEAM
                           </span>
                         </div>
                       </div>
 
                       {/* Big Score Digit Display */}
-                      <div className="text-right px-4 py-1.5 bg-black/80 border-2 border-purple-500/60 rounded-xl min-w-[70px]">
-                        <span className="font-mono font-black text-4xl text-white block leading-none">
+                      <div className="text-right px-4 py-1.5 bg-black/80 border-2 border-purple-500/60 rounded-sm min-w-[70px]">
+                        <span className="font-sans tabular font-bold text-4xl text-white block leading-none">
                           {activeGame.awayTeam.score}
                         </span>
-                        <span className="text-[9px] font-mono uppercase text-purple-400 font-bold block mt-0.5">
+                        <span className="text-[9px] font-sans tabular uppercase text-purple-400 font-bold block mt-0.5">
                           PTS
                         </span>
                       </div>
@@ -2323,28 +1831,28 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         <button
                           type="button"
                           onClick={() => adjustScore('away', 6, `Touchdown ${activeGame.awayTeam.shortName} (+6)`)}
-                          className="py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-display font-black text-xs uppercase rounded-lg border border-purple-400/50 shadow-md cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-display font-bold text-xs uppercase rounded-lg border border-purple-400/50 shadow-md cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +6 TD
                         </button>
                         <button
                           type="button"
                           onClick={() => adjustScore('away', 1, `Extra Point ${activeGame.awayTeam.shortName} (+1)`)}
-                          className="py-2.5 bg-white/10 hover:bg-purple-700 text-white font-display font-black text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-white/10 hover:bg-purple-700 text-white font-display font-bold text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +1 PAT
                         </button>
                         <button
                           type="button"
                           onClick={() => adjustScore('away', 2, `2-Pt Conversion ${activeGame.awayTeam.shortName} (+2)`)}
-                          className="py-2.5 bg-white/10 hover:bg-purple-700 text-white font-display font-black text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-white/10 hover:bg-purple-700 text-white font-display font-bold text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +2 2PT
                         </button>
                         <button
                           type="button"
                           onClick={() => adjustScore('away', 3, `Field Goal ${activeGame.awayTeam.shortName} (+3)`)}
-                          className="py-2.5 bg-purple-700 hover:bg-purple-600 text-white font-display font-black text-xs uppercase rounded-lg border border-purple-400/30 cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-purple-700 hover:bg-purple-600 text-white font-display font-bold text-xs uppercase rounded-lg border border-purple-400/30 cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +3 FG
                         </button>
@@ -2381,19 +1889,19 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 {/* ========================================================================= */}
                 {/* 2. GAME CLOCK & PERIOD CONTROLLER (CENTRAL FOCUS) */}
                 {/* ========================================================================= */}
-                <div className="bg-[#161616] p-4 rounded-xl border border-white/10 space-y-3">
+                <div className="bg-[#161616] p-4 rounded-sm border border-white/10 space-y-3">
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                     
                     {/* Big Digital Game Clock & Start/Stop Button */}
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-[11px] font-mono text-white/60 uppercase font-black flex items-center gap-1.5">
+                        <label className="text-[11px] font-sans tabular text-white/60 uppercase font-bold flex items-center gap-1.5">
                           <Clock size={13} className="text-[#00BFFF]" />
                           Game Clock
                         </label>
-                        <span className="text-[10px] font-mono text-white/40">
-                          {isClockRunning ? '⏱️ Running' : '⏸️ Paused'}
+                        <span className="text-[10px] font-sans tabular text-white/40">
+                          {isClockRunning ? '⏱Running' : '⏸Paused'}
                         </span>
                       </div>
 
@@ -2402,7 +1910,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           type="text" 
                           value={activeGame.clock}
                           onChange={(e) => updateGameField({ clock: e.target.value })}
-                          className="w-28 bg-black border-2 border-white/20 rounded-xl px-3 py-2.5 text-center font-mono font-black text-white text-xl focus:border-[#00BFFF] outline-none shadow-inner"
+                          className="w-28 bg-black border-2 border-white/20 rounded-sm px-3 py-2.5 text-center font-sans tabular font-bold text-white text-xl focus:border-[#00BFFF] outline-none shadow-inner"
                         />
 
                         <button
@@ -2411,7 +1919,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             setIsClockRunning(nextState);
                             if (nextState) updateGameField({ isLive: true });
                           }}
-                          className={`flex-1 py-3 px-4 rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg active:scale-95 flex items-center justify-center gap-2 ${
+                          className={`flex-1 py-3 px-4 rounded-sm font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg active:scale-95 flex items-center justify-center gap-2 ${
                             isClockRunning 
                               ? 'bg-amber-400 hover:bg-amber-300 text-black shadow-amber-900/30' 
                               : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/40'
@@ -2450,7 +1958,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                                 clock: `${String(newM).padStart(2, '0')}:${String(newS).padStart(2, '0')}` 
                               });
                             }}
-                            className="flex-1 py-1 text-[11px] font-mono font-bold bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded border border-white/10 cursor-pointer active:scale-95 transition-colors text-center"
+                            className="flex-1 py-1 text-[11px] font-sans tabular font-bold bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded border border-white/10 cursor-pointer active:scale-95 transition-colors text-center"
                           >
                             {btn.label}
                           </button>
@@ -2460,7 +1968,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                     {/* Quarter / Period Selector */}
                     <div>
-                      <label className="text-[11px] font-mono text-white/60 uppercase font-black block mb-1.5">
+                      <label className="text-[11px] font-sans tabular text-white/60 uppercase font-bold block mb-1.5">
                         Quarter / Period
                       </label>
                       <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
@@ -2468,9 +1976,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           <button
                             key={q}
                             onClick={() => updateGameField({ quarter: q, statusText: q.toUpperCase(), isLive: q !== 'Final' && q !== 'Pre-Game' })}
-                            className={`py-2 text-xs font-display font-black rounded-lg uppercase transition-all cursor-pointer ${
+                            className={`py-2 text-xs font-display font-bold rounded-lg uppercase transition-all cursor-pointer ${
                               activeGame.quarter === q 
-                                ? 'bg-[#00BFFF] text-black shadow-md shadow-[#00BFFF]/30 scale-100' 
+                                ? 'bg-[#00BFFF] text-black shadow-md/30 scale-100' 
                                 : 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/5'
                             }`}
                           >
@@ -2481,31 +1989,31 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                       {/* Possession Toggle */}
                       <div className="mt-3">
-                        <label className="text-[11px] font-mono text-white/60 uppercase font-black block mb-1">
+                        <label className="text-[11px] font-sans tabular text-white/60 uppercase font-bold block mb-1">
                           Possession (Ball in Hand)
                         </label>
                         <div className="grid grid-cols-2 gap-2">
                           <button
                             type="button"
                             onClick={() => updateGameField({ possession: 'home' })}
-                            className={`py-2 px-3 rounded-lg text-xs font-display font-black uppercase transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                            className={`py-2 px-3 rounded-lg text-xs font-display font-bold uppercase transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                               activeGame.possession === 'home' 
                                 ? 'bg-emerald-500 text-black shadow-md shadow-emerald-500/30' 
                                 : 'bg-white/5 text-white/50 hover:bg-white/10'
                             }`}
                           >
-                            <span>🏈 {activeGame.homeTeam.shortName} (Home)</span>
+                            <span>{activeGame.homeTeam.shortName} (Home)</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => updateGameField({ possession: 'away' })}
-                            className={`py-2 px-3 rounded-lg text-xs font-display font-black uppercase transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                            className={`py-2 px-3 rounded-lg text-xs font-display font-bold uppercase transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                               activeGame.possession === 'away' 
                                 ? 'bg-purple-500 text-white shadow-md shadow-purple-500/30' 
                                 : 'bg-white/5 text-white/50 hover:bg-white/10'
                             }`}
                           >
-                            <span>🏈 {activeGame.awayTeam.shortName} (Away)</span>
+                            <span>{activeGame.awayTeam.shortName} (Away)</span>
                           </button>
                         </div>
                       </div>
@@ -2519,12 +2027,12 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 {/* ========================================================================= */}
                 {/* 3. DOWN & DISTANCE & BALL SPOT (COMPACT 1-TOUCH ROW) */}
                 {/* ========================================================================= */}
-                <div className="bg-[#161616] p-3.5 rounded-xl border border-white/10">
+                <div className="bg-[#161616] p-3.5 rounded-sm border border-white/10">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     
                     {/* Down */}
                     <div>
-                      <label className="text-[11px] font-mono text-white/60 uppercase font-black block mb-1">
+                      <label className="text-[11px] font-sans tabular text-white/60 uppercase font-bold block mb-1">
                         Down
                       </label>
                       <div className="grid grid-cols-4 gap-1">
@@ -2532,9 +2040,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           <button
                             key={d}
                             onClick={() => updateGameField({ down: d })}
-                            className={`py-1.5 text-xs font-display font-black rounded-lg cursor-pointer transition-all ${
+                            className={`py-1.5 text-xs font-display font-bold rounded-lg cursor-pointer transition-all ${
                               activeGame.down === d 
-                                ? 'bg-[#00BFFF] text-black shadow-md shadow-[#00BFFF]/20' 
+                                ? 'bg-[#00BFFF] text-black shadow-md/20' 
                                 : 'bg-white/5 text-white/70 hover:bg-white/10'
                             }`}
                           >
@@ -2546,7 +2054,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                     {/* Distance */}
                     <div>
-                      <label className="text-[11px] font-mono text-white/60 uppercase font-black block mb-1">
+                      <label className="text-[11px] font-sans tabular text-white/60 uppercase font-bold block mb-1">
                         Distance
                       </label>
                       <div className="grid grid-cols-4 gap-1">
@@ -2554,9 +2062,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           <button
                             key={dist}
                             onClick={() => updateGameField({ distance: dist })}
-                            className={`py-1.5 text-xs font-display font-black rounded-lg cursor-pointer transition-all ${
+                            className={`py-1.5 text-xs font-display font-bold rounded-lg cursor-pointer transition-all ${
                               activeGame.distance === dist 
-                                ? 'bg-[#00BFFF] text-black shadow-md shadow-[#00BFFF]/20' 
+                                ? 'bg-[#00BFFF] text-black shadow-md/20' 
                                 : 'bg-white/5 text-white/70 hover:bg-white/10'
                             }`}
                           >
@@ -2568,7 +2076,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                     {/* Ball Spot */}
                     <div>
-                      <label className="text-[11px] font-mono text-white/60 uppercase font-black block mb-1">
+                      <label className="text-[11px] font-sans tabular text-white/60 uppercase font-bold block mb-1">
                         Ball Spot (Yard Line)
                       </label>
                       <div className="flex items-center gap-1.5">
@@ -2577,19 +2085,19 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           value={activeGame.ballOn}
                           onChange={(e) => updateGameField({ ballOn: e.target.value })}
                           placeholder="e.g. LN 35"
-                          className="w-full bg-black border border-white/20 rounded-lg px-3 py-1.5 text-xs font-mono font-bold text-white uppercase focus:border-[#00BFFF] outline-none"
+                          className="w-full bg-black border border-white/20 rounded-lg px-3 py-1.5 text-xs font-sans tabular font-bold text-white uppercase focus:border-[#00BFFF] outline-none"
                         />
                         <button
                           type="button"
                           onClick={() => updateGameField({ ballOn: '50 YD' })}
-                          className="px-2 py-1.5 bg-white/10 hover:bg-white/20 text-white/80 font-mono text-xs rounded uppercase font-bold"
+                          className="px-2 py-1.5 bg-white/10 hover:bg-white/20 text-white/80 font-sans tabular text-xs rounded uppercase font-bold"
                         >
                           50
                         </button>
                         <button
                           type="button"
                           onClick={() => updateGameField({ ballOn: 'Red Zone (15 YD)' })}
-                          className="px-2 py-1.5 bg-red-950/60 hover:bg-red-900 border border-red-500/40 text-red-300 font-mono text-xs rounded uppercase font-bold"
+                          className="px-2 py-1.5 bg-red-950/60 hover:bg-red-900 border border-red-500/40 text-red-300 font-sans tabular text-xs rounded uppercase font-bold"
                         >
                           RedZone
                         </button>
@@ -2602,12 +2110,12 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 {/* ========================================================================= */}
                 {/* 4. FAST PLAY LOGGER (1-LINE STATUS UPDATE) */}
                 {/* ========================================================================= */}
-                <div className="bg-[#161616] p-3.5 rounded-xl border border-white/10 space-y-2">
+                <div className="bg-[#161616] p-3.5 rounded-sm border border-white/10 space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-[11px] font-mono text-white/60 uppercase font-black">
-                      ⚡ Quick Playcast Log (Broadcasted to Live Feed)
+                    <label className="text-[11px] font-sans tabular text-white/60 uppercase font-bold">
+                      Quick Playcast Log (Broadcasted to Live Feed)
                     </label>
-                    <span className="text-[10px] font-mono text-white/40">
+                    <span className="text-[10px] font-sans tabular text-white/40">
                       Current: {activeGame.lastPlay ? activeGame.lastPlay.slice(0, 45) + '...' : 'None'}
                     </span>
                   </div>
@@ -2635,10 +2143,10 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             downInfo: `${activeGame.down} & ${activeGame.distance}`
                           };
                           updateGameField({ plays: [newPlay, ...(activeGame.plays || [])] });
-                          alert('✓ Play logged to live play-by-play stream!');
+                          alert('Play logged to live play-by-play stream!');
                         }
                       }}
-                      className="px-4 py-2 bg-white/10 hover:bg-[#00BFFF] hover:text-black text-white font-display font-black text-xs uppercase rounded-lg transition-colors cursor-pointer"
+                      className="px-4 py-2 bg-white/10 hover:bg-[#00BFFF] hover:text-black text-white font-display font-bold text-xs uppercase rounded-lg transition-colors cursor-pointer"
                     >
                       Log Play
                     </button>
@@ -2647,20 +2155,20 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   {/* 1-Tap Situation Presets */}
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {[
-                      '🏈 Touchdown!',
-                      '🛑 Turnover on Downs',
-                      '⚡ Interception!',
-                      '💥 Fumble Turnover!',
-                      '👟 Field Goal Good!',
-                      '⏱️ Timeout LN',
-                      '⏱️ Timeout BB',
-                      '🏁 End of Quarter'
+                      'Touchdown!',
+                      'Turnover on Downs',
+                      'Interception!',
+                      'Fumble Turnover!',
+                      'Field Goal Good!',
+                      '⏱Timeout LN',
+                      '⏱Timeout BB',
+                      'End of Quarter'
                     ].map((preset) => (
                       <button
                         key={preset}
                         type="button"
                         onClick={() => updateGameField({ lastPlay: `${preset} (${activeGame.quarter} • ${activeGame.clock})` })}
-                        className="text-[10px] font-mono bg-white/5 hover:bg-white/15 text-white/70 hover:text-white px-2 py-0.5 rounded border border-white/10 transition-colors cursor-pointer"
+                        className="text-[10px] font-sans tabular bg-white/5 hover:bg-white/15 text-white/70 hover:text-white px-2 py-0.5 rounded border border-white/10 transition-colors cursor-pointer"
                       >
                         + {preset}
                       </button>
@@ -2671,16 +2179,16 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 {/* ========================================================================= */}
                 {/* 5. IN-STANDS SOCIAL & HIGHLIGHTS BROADCASTER (FRICTIONLESS 2-STEP STORY UPLOAD) */}
                 {/* ========================================================================= */}
-                <div className="bg-[#141414] p-4 sm:p-5 rounded-xl border border-[#00BFFF]/30 shadow-2xl relative overflow-hidden">
+                <div className="bg-[#141414] p-4 sm:p-5 rounded-sm border border-[#00BFFF]/30 shadow-2xl relative overflow-hidden">
                   <div className="flex items-center justify-between gap-3 mb-4">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center shadow-md">
                         <Camera size={16} className="text-white" />
                       </div>
                       <div>
-                        <h4 className="text-xs sm:text-sm font-display font-black uppercase text-white tracking-wide flex items-center gap-2">
+                        <h4 className="text-xs sm:text-sm font-display font-bold uppercase text-white tracking-wide flex items-center gap-2">
                           <span>In-Stands Highlights Story Broadcaster</span>
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#00BFFF]/20 text-[#00BFFF] border border-[#00BFFF]/40">
+                          <span className="text-[10px] font-sans tabular px-2 py-0.5 rounded bg-[#00BFFF]/20 text-[#00BFFF] border border-[#00BFFF]/40">
                             2-STEP INSTANT POST
                           </span>
                         </h4>
@@ -2710,13 +2218,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                   {/* STEP 1: Direct Native Device Camera Trigger */}
                   {!storyMedia ? (
-                    <div className="bg-black/60 border-2 border-dashed border-white/20 hover:border-[#00BFFF]/60 rounded-2xl p-6 sm:p-8 text-center transition-all group">
+                    <div className="bg-black/60 border-2 border-dashed border-white/20 hover:border-[#00BFFF]/60 rounded-sm p-6 sm:p-8 text-center transition-all group">
                       <div className="max-w-md mx-auto space-y-4">
                         <div className="flex justify-center gap-3">
                           <button
                             type="button"
                             onClick={() => nativeCameraInputRef.current?.click()}
-                            className="flex-1 py-4 px-6 rounded-xl bg-gradient-to-r from-[#00BFFF] to-[#0090D0] hover:from-[#33c9ff] hover:to-[#00BFFF] text-black font-display font-black text-sm uppercase tracking-wider shadow-lg shadow-[#00BFFF]/30 flex items-center justify-center gap-3 cursor-pointer active:scale-95 transition-all"
+                            className="flex-1 py-4 px-6 rounded-sm bg-gradient-to-r from-[#00BFFF] to-[#0090D0] hover:from-[#33c9ff] hover:to-[#00BFFF] text-black font-display font-bold text-sm uppercase tracking-wider shadow-lg/30 flex items-center justify-center gap-3 cursor-pointer active:scale-95 transition-all"
                           >
                             <Camera size={22} className="shrink-0" />
                             <span>Take Photo / Video</span>
@@ -2726,16 +2234,16 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             type="button"
                             onClick={() => galleryInputRef.current?.click()}
                             title="Upload from photo library"
-                            className="px-4 py-4 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 flex items-center justify-center cursor-pointer active:scale-95 transition-all"
+                            className="px-4 py-4 rounded-sm bg-white/10 hover:bg-white/20 text-white border border-white/15 flex items-center justify-center cursor-pointer active:scale-95 transition-all"
                           >
                             <UploadCloud size={20} />
                           </button>
                         </div>
 
-                        <div className="flex items-center justify-center gap-4 text-[11px] font-mono text-white/50">
-                          <span className="flex items-center gap-1">📸 Opens Native Rear Camera</span>
+                        <div className="flex items-center justify-center gap-4 text-[11px] font-sans tabular text-white/50">
+                          <span className="flex items-center gap-1">Opens Native Rear Camera</span>
                           <span>•</span>
-                          <span className="flex items-center gap-1">⚡ Auto-Compacts for Stadium Data</span>
+                          <span className="flex items-center gap-1">Auto-Compacts for Stadium Data</span>
                         </div>
                       </div>
                     </div>
@@ -2744,7 +2252,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     <div className="space-y-4 animate-fadeIn">
                       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
                         {/* Media Preview Thumbnail */}
-                        <div className="md:col-span-4 relative aspect-video md:aspect-[4/3] bg-black rounded-xl overflow-hidden border border-white/20 shadow-inner group">
+                        <div className="md:col-span-4 relative aspect-video md:aspect-[4/3] bg-black rounded-sm overflow-hidden border border-white/20 shadow-inner group">
                           {storyMedia.type === 'video' ? (
                             <video 
                               src={storyMedia.url} 
@@ -2768,8 +2276,8 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             <X size={14} />
                           </button>
 
-                          <div className="absolute bottom-2 left-2 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-mono text-emerald-400 font-bold border border-white/10">
-                            ✓ {storyMedia.type === 'video' ? 'Video Ready' : 'Compressed & Ready'}
+                          <div className="absolute bottom-2 left-2 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-sans tabular text-emerald-400 font-bold border border-white/10">
+                            {storyMedia.type === 'video' ? 'Video Ready' : 'Compressed & Ready'}
                           </div>
                         </div>
 
@@ -2777,12 +2285,12 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         <div className="md:col-span-8 space-y-3">
                           {/* Team Attribution Selector */}
                           <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-mono text-white/60 uppercase font-black">Tag:</span>
+                            <span className="text-[11px] font-sans tabular text-white/60 uppercase font-bold">Tag:</span>
                             <div className="flex gap-1.5 flex-1">
                               <button
                                 type="button"
                                 onClick={() => setStoryTeam('home')}
-                                className={`px-2.5 py-1 rounded text-xs font-display font-black uppercase transition-all cursor-pointer ${
+                                className={`px-2.5 py-1 rounded text-xs font-display font-bold uppercase transition-all cursor-pointer ${
                                   storyTeam === 'home' ? 'bg-emerald-500 text-black shadow-md' : 'bg-white/5 text-white/60 hover:bg-white/10'
                                 }`}
                               >
@@ -2791,7 +2299,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                               <button
                                 type="button"
                                 onClick={() => setStoryTeam('away')}
-                                className={`px-2.5 py-1 rounded text-xs font-display font-black uppercase transition-all cursor-pointer ${
+                                className={`px-2.5 py-1 rounded text-xs font-display font-bold uppercase transition-all cursor-pointer ${
                                   storyTeam === 'away' ? 'bg-purple-500 text-white shadow-md' : 'bg-white/5 text-white/60 hover:bg-white/10'
                                 }`}
                               >
@@ -2800,7 +2308,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                               <button
                                 type="button"
                                 onClick={() => setStoryTeam('neutral')}
-                                className={`px-2.5 py-1 rounded text-xs font-display font-black uppercase transition-all cursor-pointer ${
+                                className={`px-2.5 py-1 rounded text-xs font-display font-bold uppercase transition-all cursor-pointer ${
                                   storyTeam === 'neutral' ? 'bg-[#00BFFF] text-black shadow-md' : 'bg-white/5 text-white/60 hover:bg-white/10'
                                 }`}
                               >
@@ -2817,16 +2325,16 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                               onChange={(e) => setStoryCaption(e.target.value)}
                               placeholder="Write a quick caption (e.g. 45-yard bomb to the endzone!)..."
                               autoFocus
-                              className="w-full bg-black border border-white/25 rounded-xl px-4 py-3 text-sm text-white focus:border-[#00BFFF] focus:ring-1 focus:ring-[#00BFFF] outline-none shadow-inner"
+                              className="w-full bg-black border border-white/25 rounded-sm px-4 py-3 text-sm text-white focus:border-[#00BFFF] focus:ring-1 focus:ring-[#00BFFF] outline-none shadow-inner"
                             />
                           </div>
 
                           {/* Auto-Appended Hashtags Preview */}
                           <div className="bg-black/50 border border-white/10 rounded-lg p-2.5">
-                            <span className="text-[10px] font-mono text-white/40 block mb-0.5 uppercase tracking-wider">
+                            <span className="text-[10px] font-sans tabular text-white/40 block mb-0.5 uppercase tracking-wide">
                               Auto-Appended Matchup Hashtags:
                             </span>
-                            <p className="text-xs font-mono text-[#00BFFF] font-semibold tracking-tight">
+                            <p className="text-xs font-sans tabular text-[#00BFFF] font-semibold tracking-tight">
                               {getMatchupHashtags()}
                             </p>
                           </div>
@@ -2836,7 +2344,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             <button
                               type="button"
                               onClick={() => setStoryMedia(null)}
-                              className="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 font-display font-black text-xs uppercase cursor-pointer"
+                              className="px-4 py-3 rounded-sm bg-white/5 hover:bg-white/10 text-white/70 font-display font-bold text-xs uppercase cursor-pointer"
                             >
                               Retake
                             </button>
@@ -2845,7 +2353,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                               type="button"
                               onClick={handlePublishStory}
                               disabled={isPostingStory}
-                              className="flex-1 py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-display font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all disabled:opacity-50"
+                              className="flex-1 py-3 px-6 rounded-sm bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-display font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all disabled:opacity-50"
                             >
                               <Sparkles size={16} />
                               <span>{isPostingStory ? `Posting Story ${uploadProgress ? `(${uploadProgress}%)` : '...'}` : 'Post Story to Live Stream'}</span>
@@ -2870,16 +2378,16 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 {/* ========================================================================= */}
                 {/* 6. REAL-TIME MEDIA & HIGHLIGHTS MANAGER (FULL EDIT & DELETE CONTROL) */}
                 {/* ========================================================================= */}
-                <div className="bg-[#141414] p-4 sm:p-5 rounded-xl border border-white/15 shadow-2xl">
+                <div className="bg-[#141414] p-4 sm:p-5 rounded-sm border border-white/15 shadow-2xl">
                   <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-white/10">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-[#00BFFF]/20 border border-[#00BFFF]/40 flex items-center justify-center text-[#00BFFF]">
                         <Film size={16} />
                       </div>
                       <div>
-                        <h4 className="text-xs sm:text-sm font-display font-black uppercase text-white tracking-wide flex items-center gap-2">
+                        <h4 className="text-xs sm:text-sm font-display font-bold uppercase text-white tracking-wide flex items-center gap-2">
                           <span>Live Game Highlights & Media Manager</span>
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white/80">
+                          <span className="text-[10px] font-sans tabular px-2 py-0.5 rounded bg-white/10 text-white/80">
                             {activeGame.socialClips?.length || 0} ITEMS
                           </span>
                         </h4>
@@ -2891,7 +2399,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   </div>
 
                   {(!activeGame.socialClips || activeGame.socialClips.length === 0) ? (
-                    <div className="bg-black/40 border border-white/10 rounded-xl p-6 text-center">
+                    <div className="bg-black/40 border border-white/10 rounded-sm p-6 text-center">
                       <Camera size={28} className="text-white/20 mx-auto mb-2" />
                       <p className="text-xs font-display uppercase font-bold text-white/60">No Highlights Posted For This Game Yet</p>
                       <p className="text-[11px] text-white/40 mt-1">Use the Broadcaster above to snap sideline photos or post video clips.</p>
@@ -2906,7 +2414,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         return (
                           <div 
                             key={clip.id} 
-                            className="bg-black/60 border border-white/15 hover:border-[#00BFFF]/50 rounded-xl overflow-hidden flex flex-col justify-between transition-all group"
+                            className="bg-black/60 border border-white/15 hover:border-[#00BFFF]/50 rounded-sm overflow-hidden flex flex-col justify-between transition-all group"
                           >
                             <div className="relative aspect-video bg-black overflow-hidden">
                               {clip.type === 'video' ? (
@@ -2930,18 +2438,18 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                               )}
                               
                               <div className="absolute top-2 left-2 flex items-center gap-1">
-                                <span className={`text-[9px] font-mono font-black uppercase px-2 py-0.5 rounded shadow ${
+                                <span className={`text-[9px] font-sans tabular font-bold uppercase px-2 py-0.5 rounded shadow ${
                                   isHome ? 'bg-emerald-600 text-black' : isAway ? 'bg-purple-600 text-white' : 'bg-[#00BFFF] text-black'
                                 }`}>
                                   {teamLabel}
                                 </span>
-                                <span className="text-[9px] font-mono bg-black/80 text-white/80 px-1.5 py-0.5 rounded border border-white/20">
+                                <span className="text-[9px] font-sans tabular bg-black/80 text-white/80 px-1.5 py-0.5 rounded border border-white/20">
                                   {clip.type.toUpperCase()}
                                 </span>
                               </div>
 
                               <div className="absolute top-2 right-2">
-                                <span className="text-[9px] font-mono bg-black/80 text-white/80 px-1.5 py-0.5 rounded border border-white/20">
+                                <span className="text-[9px] font-sans tabular bg-black/80 text-white/80 px-1.5 py-0.5 rounded border border-white/20">
                                   {clip.time}
                                 </span>
                               </div>
@@ -2949,7 +2457,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                             <div className="p-3 flex-1 flex flex-col justify-between space-y-2">
                               <div>
-                                <h5 className="text-xs font-display font-black uppercase text-white truncate group-hover:text-[#00BFFF] transition-colors">
+                                <h5 className="text-xs font-display font-bold uppercase text-white truncate group-hover:text-[#00BFFF] transition-colors">
                                   {clip.title}
                                 </h5>
                                 {clip.caption && (
@@ -2964,7 +2472,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                                 <button
                                   type="button"
                                   onClick={() => handleOpenEditClip(clip)}
-                                  className="flex-1 py-1.5 px-2.5 rounded-lg bg-white/10 hover:bg-[#00BFFF] hover:text-black text-white text-[11px] font-display font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                                  className="flex-1 py-1.5 px-2.5 rounded-lg bg-white/10 hover:bg-[#00BFFF] hover:text-black text-white text-[11px] font-display font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                                   title="Edit title, caption & team attribution"
                                 >
                                   <Edit3 size={13} />
@@ -2974,7 +2482,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteClip(clip.id, clip.mediaUrl || clip.url)}
-                                  className="py-1.5 px-2.5 rounded-lg bg-red-950/50 hover:bg-red-600 text-red-300 hover:text-white border border-red-800/40 text-[11px] font-display font-black uppercase flex items-center justify-center gap-1 transition-all cursor-pointer"
+                                  className="py-1.5 px-2.5 rounded-lg bg-red-950/50 hover:bg-red-600 text-red-300 hover:text-white border border-red-800/40 text-[11px] font-display font-bold uppercase flex items-center justify-center gap-1 transition-all cursor-pointer"
                                   title="Delete highlight and remove storage file"
                                 >
                                   <Trash2 size={13} />
@@ -2995,162 +2503,141 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
         </AnimatePresence>
 
         {/* ========================================================================= */}
-        {/* MAIN PUBLIC SCOREBOARD DISPLAY (Broadcast Grade) */}
+        {/* MAIN PUBLIC SCOREBOARD DISPLAY (game header, broadcast style) */}
         {/* ========================================================================= */}
-        <div className="bg-gradient-to-b from-[#141414] to-[#0d0d0d] border border-white/15 rounded-2xl p-6 sm:p-10 shadow-2xl mb-8 relative overflow-hidden">
-          
-          {/* Subtle Ambient Background Gradients */}
-          <div className="absolute top-0 left-0 w-1/3 h-full bg-emerald-900/10 blur-3xl pointer-events-none" />
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-purple-900/10 blur-3xl pointer-events-none" />
-
-          {/* Matchup Header Details */}
-          <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/10 pb-6 mb-8">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00BFFF]/10 border border-[#00BFFF]/30 rounded-full text-[#00BFFF] text-xs font-display font-black tracking-widest uppercase mb-2">
-                <Flame size={14} /> {activeGame.sport} • {activeGame.title}
-              </div>
-              <h2 className="text-sm sm:text-base font-display font-bold text-white/60 flex items-center gap-2">
-                <span>{activeGame.venue}</span>
-                <span>•</span>
-                <span className="text-[#00BFFF] font-mono">{activeGame.dateString}</span>
-              </h2>
-            </div>
-
-            {/* Quarter & Game Clock Badge */}
-            <div className="bg-black/80 border border-white/15 px-5 py-2.5 rounded-xl flex items-center gap-4 shadow-inner">
-              <div className="text-right">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-white/50 block">PERIOD</span>
-                <span className="text-base sm:text-lg font-display font-black text-white uppercase">{activeGame.quarter}</span>
-              </div>
-              <div className="h-8 w-px bg-white/15" />
-              <div>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-white/50 block">GAME CLOCK</span>
-                <span className="text-base sm:text-lg font-mono font-black text-[#00BFFF] flex items-center gap-1.5">
-                  <Clock size={16} /> {activeGame.clock}
-                </span>
-              </div>
-            </div>
+        <section className="mb-6 bg-panel border border-rule rounded-sm overflow-hidden" aria-label="Scoreboard">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 sm:px-6 py-2.5 border-b border-rule text-[14px]">
+            <p className="text-white/85 min-w-0">
+              <span className="text-ind font-semibold mr-2">{activeGame.sport}</span>
+              {activeGame.title}
+            </p>
+            <p className="text-mute">
+              {activeGame.venue}
+              {activeGame.dateString && <span className="ml-3">{activeGame.dateString}</span>}
+            </p>
           </div>
 
-          {/* Big Scoreboard Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-11 gap-6 items-center">
-            
-            {/* Team 1: HOME (Left) */}
-            <div className="md:col-span-4 bg-[#181818]/95 border-2 border-white/20 rounded-xl p-6 sm:p-8 flex items-center justify-between relative group hover:border-[#00BFFF]/60 transition-all shadow-xl overflow-hidden min-h-[140px]">
-              {/* Mascot Logo in the Background */}
-              <div 
-                className="absolute inset-y-0 left-0 w-3/4 pointer-events-none opacity-20 group-hover:opacity-30 transition-opacity duration-300 bg-no-repeat bg-contain bg-left-center mix-blend-screen"
-                style={{ 
-                  backgroundImage: `url(${activeGame.homeTeam.logoUrl})`,
-                  maskImage: 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%)',
-                  WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%)'
-                }}
-              />
+          {(() => {
+            const away = activeGame.awayTeam;
+            const home = activeGame.homeTeam;
+            const isFinal = !activeGame.isLive && /final/i.test(activeGame.statusText || activeGame.quarter || '');
+            const awayLeads = away.score > home.score;
+            const homeLeads = home.score > away.score;
+            const scoreClass = (leading: boolean) =>
+              `font-display font-bold tabular leading-none text-[72px] lg:text-[88px] ${isFinal && !leading ? 'text-white/45' : 'text-white'}`;
+            const statusBlock = (big: boolean) =>
+              activeGame.isLive ? (
+                <div className={big ? 'text-center' : 'flex items-center gap-3'}>
+                  <span className="inline-flex items-center gap-1.5 bg-[#E4002B] text-white font-display font-semibold text-[13px] px-2 py-0.5 rounded-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" aria-hidden />
+                    LIVE
+                  </span>
+                  <p className={`${big ? 'mt-2 text-lg' : 'text-[15px]'} font-display font-semibold uppercase text-white`}>{activeGame.quarter}</p>
+                  {/volley/i.test(activeGame.sport) ? (
+                    <p className={`${big ? 'text-base' : 'text-[14px]'} text-white/75 tabular`}>
+                      Sets {activeGame.awaySetsWon || 0}-{activeGame.homeSetsWon || 0}
+                    </p>
+                  ) : /basket/i.test(activeGame.sport) || /:/.test(activeGame.clock || '') ? (
+                    <p className={`${big ? 'text-2xl' : 'text-[15px]'} font-display text-ind tabular`}>{displayClock(activeGame)}</p>
+                  ) : null}
+                </div>
+              ) : (
+                <p className={`font-display font-semibold uppercase text-white ${big ? 'text-xl text-center' : 'text-[15px]'}`}>
+                  {activeGame.statusText || activeGame.quarter}
+                </p>
+              );
 
-              {activeGame.possession === 'home' && (
-                <div className="absolute -top-3 left-6 bg-[#00BFFF] text-black font-display font-black text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-md shadow-[#00BFFF]/30 z-10">
-                  <Zap size={12} /> POSSESSION
+            // Phones: stacked rows so full school names fit.
+            const Row = ({ team, side, leading }: { team: typeof home; side: 'home' | 'away'; leading: boolean }) => (
+              <div className="flex items-center gap-3 py-3">
+                <TeamLogo name={team.name} url={team.logoUrl} color={team.color} className="w-11 h-11" textClass="text-sm" />
+                <div className="min-w-0 flex-1">
+                  <p className="font-display font-semibold uppercase text-white text-[19px] leading-tight break-words">
+                    {team.name}
+                    {activeGame.isLive && activeGame.possession === side && (
+                      <span className="ml-2 align-middle inline-block w-2 h-2 rounded-full bg-ind" title="Has the ball" />
+                    )}
+                  </p>
+                  <p className="text-mute text-[13px]">
+                    {team.mascot}
+                    {team.record && <span className="ml-2 tabular">({team.record})</span>}
+                  </p>
                 </div>
-              )}
-              
-              <div className="relative z-10 flex items-center gap-4">
-                <img 
-                  src={activeGame.homeTeam.logoUrl} 
-                  alt={activeGame.homeTeam.name}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-contain bg-black/60 border-2 border-white/30 p-1 shrink-0 shadow-lg"
-                />
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-mono text-emerald-400 font-bold">HOME</span>
-                    <span className="text-xs text-white/40">({activeGame.homeTeam.record})</span>
-                  </div>
-                  <h3 className="text-2xl sm:text-3xl font-display font-black uppercase text-white tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                    {activeGame.homeTeam.name}
-                  </h3>
-                  <span className="text-xs text-white/70 font-sans font-medium">{activeGame.homeTeam.mascot}</span>
-                </div>
-              </div>
-              
-              <div className="text-center pl-4 border-l border-white/10 relative z-10">
-                <span className="text-5xl sm:text-7xl font-display font-black text-white tracking-tighter drop-shadow-[0_4px_16px_rgba(255,255,255,0.2)]">
-                  {activeGame.homeTeam.score}
+                <span className={`font-display font-bold tabular text-[44px] leading-none ${isFinal && !leading ? 'text-white/45' : 'text-white'}`}>
+                  {team.score}
                 </span>
               </div>
-            </div>
+            );
 
-            {/* Middle Game Situation / Down & Distance (Center) */}
-            <div className="md:col-span-3 text-center bg-black/60 border border-white/10 rounded-xl p-4 sm:p-5 flex flex-col justify-center">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#00BFFF] font-black block mb-1">
-                CURRENT SITUATION
+            // Tablets and up: side-by-side broadcast layout.
+            const Side = ({ team, side }: { team: typeof home; side: 'home' | 'away' }) => (
+              <div className={`flex items-center gap-5 min-w-0 ${side === 'home' ? 'flex-row-reverse text-right' : ''}`}>
+                <TeamLogo name={team.name} url={team.logoUrl} color={team.color} className="w-16 h-16 lg:w-20 lg:h-20" textClass="text-xl" />
+                <div className="min-w-0">
+                  <p className="font-display font-semibold uppercase text-white text-2xl lg:text-3xl leading-tight">{team.name}</p>
+                  <p className="text-mute text-sm">
+                    {team.mascot}
+                    {team.record && <span className="ml-2 tabular">({team.record})</span>}
+                  </p>
+                  {activeGame.isLive && activeGame.possession === side && (
+                    <p className="mt-1 text-ind text-[13px] font-semibold">Ball</p>
+                  )}
+                </div>
+              </div>
+            );
+            return (
+              <>
+                <div className="sm:hidden px-4 pt-3 pb-1">
+                  {statusBlock(false)}
+                  <div className="divide-y divide-rule">
+                    <Row team={away} side="away" leading={awayLeads} />
+                    <Row team={home} side="home" leading={homeLeads} />
+                  </div>
+                </div>
+                <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto_1fr] items-center gap-6 px-8 py-9">
+                  <Side team={away} side="away" />
+                  <span className={scoreClass(awayLeads)}>{away.score}</span>
+                  <div className="px-4 min-w-[96px]">{statusBlock(true)}</div>
+                  <span className={scoreClass(homeLeads)}>{home.score}</span>
+                  <Side team={home} side="home" />
+                </div>
+              </>
+            );
+          })()}
+
+          {activeGame.isLive && /football/i.test(activeGame.sport) && activeGame.down && (
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1 px-4 sm:px-6 py-2.5 border-t border-rule text-[14px]">
+              <span className="font-display font-semibold uppercase text-white">
+                {activeGame.down} &amp; {activeGame.distance}
               </span>
-              <div className="text-xl sm:text-2xl font-display font-black text-white uppercase tracking-tight mb-2">
-                {activeGame.down} & {activeGame.distance}
-              </div>
-              <div className="text-xs font-mono text-white/70 bg-white/5 py-1 px-2.5 rounded border border-white/5 inline-block mx-auto mb-2">
-                BALL ON <span className="text-white font-bold">{activeGame.ballOn}</span>
-              </div>
-              <div className="text-[11px] font-sans text-white/50 italic line-clamp-1">
-                {activeGame.possession === 'home' ? `${activeGame.homeTeam.shortName} offense` : `${activeGame.awayTeam.shortName} offense`}
-              </div>
-            </div>
-
-            {/* Team 2: AWAY (Right) */}
-            <div className="md:col-span-4 bg-[#181818]/95 border-2 border-white/20 rounded-xl p-6 sm:p-8 flex items-center justify-between relative group hover:border-[#00BFFF]/60 transition-all shadow-xl overflow-hidden min-h-[140px]">
-              {/* Mascot Logo in the Background */}
-              <div 
-                className="absolute inset-y-0 right-0 w-3/4 pointer-events-none opacity-20 group-hover:opacity-30 transition-opacity duration-300 bg-no-repeat bg-contain bg-right-center mix-blend-screen"
-                style={{ 
-                  backgroundImage: `url(${activeGame.awayTeam.logoUrl})`,
-                  maskImage: 'linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%)',
-                  WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%)'
-                }}
-              />
-
-              {activeGame.possession === 'away' && (
-                <div className="absolute -top-3 right-6 bg-[#00BFFF] text-black font-display font-black text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-md shadow-[#00BFFF]/30 z-10">
-                  <Zap size={12} /> POSSESSION
-                </div>
+              {activeGame.ballOn && <span className="text-white/75">Ball on {activeGame.ballOn}</span>}
+              <span className="text-white/75">
+                {(activeGame.possession === 'home' ? activeGame.homeTeam : activeGame.awayTeam).shortName} ball
+              </span>
+              {activeGame.redZone && (
+                <span className="bg-[#E4002B] text-white font-display font-semibold text-[12px] px-2 py-0.5 rounded-sm">RED ZONE</span>
               )}
-              
-              <div className="text-center pr-4 border-r border-white/10 order-2 md:order-1 relative z-10">
-                <span className="text-5xl sm:text-7xl font-display font-black text-white tracking-tighter drop-shadow-[0_4px_16px_rgba(255,255,255,0.2)]">
-                  {activeGame.awayTeam.score}
-                </span>
-              </div>
-
-              <div className="order-1 md:order-2 text-right relative z-10 flex items-center gap-4 flex-row-reverse">
-                <img 
-                  src={activeGame.awayTeam.logoUrl} 
-                  alt={activeGame.awayTeam.name}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-contain bg-black/60 border-2 border-white/30 p-1 shrink-0 shadow-lg"
-                />
-                <div>
-                  <div className="flex items-center justify-end gap-2 mb-1">
-                    <span className="text-xs text-white/40">({activeGame.awayTeam.record})</span>
-                    <span className="text-xs font-mono text-amber-400 font-bold">AWAY</span>
-                  </div>
-                  <h3 className="text-2xl sm:text-3xl font-display font-black uppercase text-white tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                    {activeGame.awayTeam.name}
-                  </h3>
-                  <span className="text-xs text-white/70 font-sans font-medium">{activeGame.awayTeam.mascot}</span>
-                </div>
-              </div>
             </div>
+          )}
 
-          </div>
-
-        </div>
+          {activeGame.lastPlay && (
+            <div className="px-4 sm:px-6 py-3 border-t border-rule bg-black/40 text-[15px]">
+              <span className="text-mute mr-2">Last play</span>
+              <span className="text-white">{activeGame.lastPlay}</span>
+            </div>
+          )}
+        </section>
 
         {/* ========================================================================= */}
         {/* TABBED INTERFACE: LIVE HIGHLIGHTS / BOX SCORE / STATS */}
         {/* ========================================================================= */}
-        <div className="bg-[#121212] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
+        <div className="bg-[#121212] border border-white/10 rounded-sm overflow-hidden shadow-2xl">
           
           {/* Tab Navigation */}
           <div className="flex border-b border-white/10 bg-[#161616]">
             <button
               onClick={() => setActiveTab('highlights')}
-              className={`flex-1 py-4 text-xs sm:text-sm font-display font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              className={`flex-1 py-4 text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeTab === 'highlights' 
                   ? 'bg-[#121212] text-[#00BFFF] border-b-2 border-[#00BFFF]' 
                   : 'text-white/50 hover:text-white hover:bg-white/5'
@@ -3158,13 +2645,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
             >
               <Sparkles size={16} /> 
               <span>LIVE CLIPS & SOCIAL STREAM</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-[#00BFFF]/20 text-[#00BFFF]">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-sans tabular bg-[#00BFFF]/20 text-[#00BFFF]">
                 {currentClips.length}
               </span>
             </button>
             <button
               onClick={() => setActiveTab('boxscore')}
-              className={`flex-1 py-4 text-xs sm:text-sm font-display font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              className={`flex-1 py-4 text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeTab === 'boxscore' 
                   ? 'bg-[#121212] text-[#00BFFF] border-b-2 border-[#00BFFF]' 
                   : 'text-white/50 hover:text-white hover:bg-white/5'
@@ -3174,7 +2661,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
             </button>
             <button
               onClick={() => setActiveTab('stats')}
-              className={`flex-1 py-4 text-xs sm:text-sm font-display font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              className={`flex-1 py-4 text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeTab === 'stats' 
                   ? 'bg-[#121212] text-[#00BFFF] border-b-2 border-[#00BFFF]' 
                   : 'text-white/50 hover:text-white hover:bg-white/5'
@@ -3192,7 +2679,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               <div>
                 <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
                   <div>
-                    <h4 className="text-xs font-mono font-black uppercase tracking-widest text-[#00BFFF] flex items-center gap-2 mb-1">
+                    <h4 className="text-xs font-sans tabular font-bold uppercase tracking-wide text-[#00BFFF] flex items-center gap-2 mb-1">
                       <Film size={14} /> REAL-TIME SIDELINE HIGHLIGHTS & REELS
                     </h4>
                     <p className="text-white/50 text-xs font-sans">
@@ -3204,7 +2691,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   <div className="flex items-center gap-1.5 bg-black/60 p-1 rounded-lg border border-white/10">
                     <button
                       onClick={() => setClipFilter('all')}
-                      className={`px-3 py-1 rounded text-xs font-display font-black uppercase transition-all cursor-pointer ${
+                      className={`px-3 py-1 rounded text-xs font-display font-bold uppercase transition-all cursor-pointer ${
                         clipFilter === 'all' ? 'bg-[#00BFFF] text-black' : 'text-white/50 hover:text-white'
                       }`}
                     >
@@ -3212,7 +2699,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     </button>
                     <button
                       onClick={() => setClipFilter('home')}
-                      className={`px-3 py-1 rounded text-xs font-display font-black uppercase transition-all cursor-pointer ${
+                      className={`px-3 py-1 rounded text-xs font-display font-bold uppercase transition-all cursor-pointer ${
                         clipFilter === 'home' ? 'bg-[#00BFFF] text-black' : 'text-white/50 hover:text-white'
                       }`}
                     >
@@ -3220,7 +2707,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     </button>
                     <button
                       onClick={() => setClipFilter('away')}
-                      className={`px-3 py-1 rounded text-xs font-display font-black uppercase transition-all cursor-pointer ${
+                      className={`px-3 py-1 rounded text-xs font-display font-bold uppercase transition-all cursor-pointer ${
                         clipFilter === 'away' ? 'bg-[#00BFFF] text-black' : 'text-white/50 hover:text-white'
                       }`}
                     >
@@ -3230,9 +2717,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 </div>
 
                 {filteredClips.length === 0 ? (
-                  <div className="text-center py-16 bg-white/[0.02] border border-dashed border-white/10 rounded-xl">
+                  <div className="text-center py-16 bg-white/[0.02] border border-dashed border-white/10 rounded-sm">
                     <Video size={36} className="text-white/20 mx-auto mb-3" />
-                    <h5 className="font-display font-black uppercase text-sm text-white/60 mb-1">No highlights uploaded for this filter yet</h5>
+                    <h5 className="font-display font-bold uppercase text-sm text-white/60 mb-1">No highlights uploaded for this filter yet</h5>
                     <p className="text-xs text-white/40 max-w-sm mx-auto">
                       Sideline staff will post live video clips, photos, and social reels during game action.
                     </p>
@@ -3247,7 +2734,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                       return (
                         <div 
                           key={clip.id}
-                          className="bg-[#181818] border border-white/10 hover:border-[#00BFFF]/40 rounded-xl overflow-hidden shadow-xl transition-all flex flex-col group"
+                          className="bg-[#181818] border border-white/10 hover:border-[#00BFFF]/40 rounded-sm overflow-hidden shadow-xl transition-all flex flex-col group"
                         >
                           {/* Media Preview Area */}
                           <div className="relative aspect-video bg-black overflow-hidden cursor-pointer" onClick={() => setPreviewMediaModal(clip)}>
@@ -3261,7 +2748,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             {/* Play Button Overlay for Videos */}
                             {clip.type === 'video' && (
                               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <div className="w-12 h-12 rounded-full bg-[#00BFFF]/90 text-black flex items-center justify-center shadow-lg shadow-[#00BFFF]/50 group-hover:scale-110 transition-transform">
+                                <div className="w-12 h-12 rounded-full bg-[#00BFFF]/90 text-black flex items-center justify-center shadow-lg/50 group-hover:scale-110 transition-transform">
                                   <Play size={20} className="fill-black ml-0.5" />
                                 </div>
                               </div>
@@ -3269,23 +2756,23 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                             {/* Top Badges */}
                             <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10">
-                              <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded font-black tracking-wider shadow ${
+                              <span className={`text-[10px] font-sans tabular uppercase px-2 py-0.5 rounded font-bold tracking-wide shadow ${
                                 isHome ? 'bg-red-600 text-white' : isAway ? 'bg-purple-600 text-white' : 'bg-[#00BFFF] text-black'
                               }`}>
                                 {teamTag}
                               </span>
-                              <span className="text-[10px] font-mono bg-black/80 text-white/80 px-2 py-0.5 rounded border border-white/20">
+                              <span className="text-[10px] font-sans tabular bg-black/80 text-white/80 px-2 py-0.5 rounded border border-white/20">
                                 {clip.time}
                               </span>
                             </div>
 
                             <div className="absolute top-3 right-3 z-10">
-                              <span className="text-[10px] font-display font-black uppercase tracking-wider px-2 py-0.5 rounded bg-black/80 text-white/90 border border-white/20 flex items-center gap-1">
+                              <span className="text-[10px] font-display font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-black/80 text-white/90 border border-white/20 flex items-center gap-1">
                                 {clip.platform === 'x' && '𝕏 Post'}
-                                {clip.platform === 'instagram' && '📸 IG Reel'}
-                                {clip.platform === 'tiktok' && '🎵 TikTok'}
-                                {clip.platform === 'youtube' && '▶️ YT Short'}
-                                {clip.platform === 'upload' && '⚡ 4K Sideline'}
+                                {clip.platform === 'instagram' && 'IG Reel'}
+                                {clip.platform === 'tiktok' && 'TikTok'}
+                                {clip.platform === 'youtube' && '▶YT Short'}
+                                {clip.platform === 'upload' && '4K Sideline'}
                               </span>
                             </div>
                           </div>
@@ -3293,7 +2780,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           {/* Info Area */}
                           <div className="p-4 flex-1 flex flex-col justify-between">
                             <div>
-                              <h5 className="font-display font-black uppercase text-sm text-white tracking-wide mb-1.5 group-hover:text-[#00BFFF] transition-colors line-clamp-2">
+                              <h5 className="font-display font-bold uppercase text-sm text-white tracking-wide mb-1.5 group-hover:text-[#00BFFF] transition-colors line-clamp-2">
                                 {clip.title}
                               </h5>
                               <p className="text-white/60 text-xs font-sans line-clamp-2 mb-3">
@@ -3307,7 +2794,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                                 {/* Like / Fire Reaction */}
                                 <button
                                   onClick={() => handleLikeClip(clip.id)}
-                                  className={`flex items-center gap-1 font-mono cursor-pointer transition-colors ${
+                                  className={`flex items-center gap-1 font-sans tabular cursor-pointer transition-colors ${
                                     likedClips[clip.id] ? 'text-red-400 font-bold' : 'text-white/60 hover:text-red-400'
                                   }`}
                                 >
@@ -3316,7 +2803,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                                 </button>
 
                                 {/* Staff author */}
-                                <span className="text-[11px] font-mono text-white/40 truncate max-w-[110px]">
+                                <span className="text-[11px] font-sans tabular text-white/40 truncate max-w-[110px]">
                                   {clip.author}
                                 </span>
                               </div>
@@ -3380,26 +2867,26 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
             {/* 2. BOX SCORE BREAKDOWN */}
             {activeTab === 'boxscore' && (
               <div>
-                <h4 className="text-xs font-mono font-black uppercase tracking-widest text-white/50 mb-6">
+                <h4 className="text-xs font-sans tabular font-bold uppercase tracking-wide text-white/50 mb-6">
                   QUARTER-BY-QUARTER SCORING TABLE
                 </h4>
                 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left font-mono text-sm border-collapse">
+                  <table className="w-full text-left font-sans tabular text-sm border-collapse">
                     <thead>
                       <tr className="border-b border-white/10 text-white/50 text-xs">
-                        <th className="py-3 px-4 font-black">TEAM</th>
+                        <th className="py-3 px-4 font-bold">TEAM</th>
                         <th className="py-3 px-4 text-center">Q1</th>
                         <th className="py-3 px-4 text-center">Q2</th>
                         <th className="py-3 px-4 text-center">Q3</th>
                         <th className="py-3 px-4 text-center">Q4</th>
                         <th className="py-3 px-4 text-center">OT</th>
-                        <th className="py-3 px-4 text-center font-black text-white">TOTAL</th>
+                        <th className="py-3 px-4 text-center font-bold text-white">TOTAL</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr className="border-b border-white/5 bg-white/5">
-                        <td className="py-4 px-4 font-display font-black text-white flex items-center gap-3">
+                        <td className="py-4 px-4 font-display font-bold text-white flex items-center gap-3">
                           <img 
                             src={activeGame.homeTeam.logoUrl} 
                             alt={activeGame.homeTeam.name}
@@ -3412,10 +2899,10 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         <td className="py-4 px-4 text-center text-white/80">{activeGame.homeTeam.qScores[2]}</td>
                         <td className="py-4 px-4 text-center text-white/80">{activeGame.homeTeam.qScores[3]}</td>
                         <td className="py-4 px-4 text-center text-white/80">{activeGame.homeTeam.qScores[4]}</td>
-                        <td className="py-4 px-4 text-center font-display font-black text-xl text-white">{activeGame.homeTeam.score}</td>
+                        <td className="py-4 px-4 text-center font-display font-bold text-xl text-white">{activeGame.homeTeam.score}</td>
                       </tr>
                       <tr className="border-b border-white/5 bg-black/40">
-                        <td className="py-4 px-4 font-display font-black text-white flex items-center gap-3">
+                        <td className="py-4 px-4 font-display font-bold text-white flex items-center gap-3">
                           <img 
                             src={activeGame.awayTeam.logoUrl} 
                             alt={activeGame.awayTeam.name}
@@ -3428,7 +2915,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         <td className="py-4 px-4 text-center text-white/80">{activeGame.awayTeam.qScores[2]}</td>
                         <td className="py-4 px-4 text-center text-white/80">{activeGame.awayTeam.qScores[3]}</td>
                         <td className="py-4 px-4 text-center text-white/80">{activeGame.awayTeam.qScores[4]}</td>
-                        <td className="py-4 px-4 text-center font-display font-black text-xl text-white">{activeGame.awayTeam.score}</td>
+                        <td className="py-4 px-4 text-center font-display font-bold text-xl text-white">{activeGame.awayTeam.score}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -3439,7 +2926,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
             {/* 3. TEAM STAT COMPARISON */}
             {activeTab === 'stats' && (
               <div>
-                <h4 className="text-xs font-mono font-black uppercase tracking-widest text-white/50 mb-6">
+                <h4 className="text-xs font-sans tabular font-bold uppercase tracking-wide text-white/50 mb-6">
                   IN-GAME METRIC COMPARISON
                 </h4>
 
@@ -3447,9 +2934,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   
                   {/* Passing Yards */}
                   <div>
-                    <div className="flex justify-between text-xs font-mono mb-1.5">
+                    <div className="flex justify-between text-xs font-sans tabular mb-1.5">
                       <span className="text-emerald-400 font-bold">{activeGame.homeTeam.stats.passingYds} YDS</span>
-                      <span className="text-white/60 uppercase font-black">Passing Yards</span>
+                      <span className="text-white/60 uppercase font-bold">Passing Yards</span>
                       <span className="text-amber-400 font-bold">{activeGame.awayTeam.stats.passingYds} YDS</span>
                     </div>
                     <div className="h-2 bg-white/10 rounded-full flex overflow-hidden">
@@ -3466,9 +2953,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                   {/* Rushing Yards */}
                   <div>
-                    <div className="flex justify-between text-xs font-mono mb-1.5">
+                    <div className="flex justify-between text-xs font-sans tabular mb-1.5">
                       <span className="text-emerald-400 font-bold">{activeGame.homeTeam.stats.rushingYds} YDS</span>
-                      <span className="text-white/60 uppercase font-black">Rushing Yards</span>
+                      <span className="text-white/60 uppercase font-bold">Rushing Yards</span>
                       <span className="text-amber-400 font-bold">{activeGame.awayTeam.stats.rushingYds} YDS</span>
                     </div>
                     <div className="h-2 bg-white/10 rounded-full flex overflow-hidden">
@@ -3485,9 +2972,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                   {/* First Downs */}
                   <div>
-                    <div className="flex justify-between text-xs font-mono mb-1.5">
+                    <div className="flex justify-between text-xs font-sans tabular mb-1.5">
                       <span className="text-emerald-400 font-bold">{activeGame.homeTeam.stats.firstDowns}</span>
-                      <span className="text-white/60 uppercase font-black">1st Downs</span>
+                      <span className="text-white/60 uppercase font-bold">1st Downs</span>
                       <span className="text-amber-400 font-bold">{activeGame.awayTeam.stats.firstDowns}</span>
                     </div>
                     <div className="h-2 bg-white/10 rounded-full flex overflow-hidden">
@@ -3503,16 +2990,16 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   </div>
 
                   {/* Turnovers */}
-                  <div className="pt-2 border-t border-white/5 flex justify-between items-center text-xs font-mono">
+                  <div className="pt-2 border-t border-white/5 flex justify-between items-center text-xs font-sans tabular">
                     <span className="text-emerald-400 font-bold">{activeGame.homeTeam.stats.turnovers}</span>
-                    <span className="text-white/60 uppercase font-black">Turnovers</span>
+                    <span className="text-white/60 uppercase font-bold">Turnovers</span>
                     <span className="text-amber-400 font-bold">{activeGame.awayTeam.stats.turnovers}</span>
                   </div>
 
                   {/* Penalties */}
-                  <div className="pt-2 border-t border-white/5 flex justify-between items-center text-xs font-mono">
+                  <div className="pt-2 border-t border-white/5 flex justify-between items-center text-xs font-sans tabular">
                     <span className="text-emerald-400 font-bold">{activeGame.homeTeam.stats.penalties}</span>
-                    <span className="text-white/60 uppercase font-black">Penalties (No.-Yds)</span>
+                    <span className="text-white/60 uppercase font-bold">Penalties (No.-Yds)</span>
                     <span className="text-amber-400 font-bold">{activeGame.awayTeam.stats.penalties}</span>
                   </div>
 
@@ -3521,6 +3008,520 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
             )}
 
           </div>
+
+        </div>
+
+        {/* More games */}
+        <div className="mt-10">
+        {/* ========================================================================= */}
+        {/* SEASON & WEEK ARCHIVE NAVIGATION BAR */}
+        {/* ========================================================================= */}
+        <div className="mb-6 bg-[#121212] border border-[#00BFFF]/30 rounded-sm p-4 sm:p-5 shadow-2xl relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+            <div>
+              <span className="text-xs font-sans tabular font-bold uppercase tracking-wide text-red-400 flex items-center gap-2">
+                <Radio size={14} className="text-red-500" />
+                2026 IHSAA Postseason Tournament Central • Live Sectionals &amp; Regionals Hub
+              </span>
+              <h2 className="text-base sm:text-lg font-bold font-display uppercase tracking-tight text-white mt-0.5">
+                Tonight&apos;s Football Sectionals R1 &amp; Saturday Volleyball Tournaments
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-sans tabular text-white/50 flex items-center gap-1">
+                <RefreshCw size={11} className={isSyncing ? 'animate-spin text-[#00BFFF]' : ''} />
+                Live Sync: {lastSyncTime}
+              </span>
+            </div>
+          </div>
+
+          {/* Week & Tournament Filter Chips */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+            {[
+              { id: 'Sectionals', label: 'Tonight: Football Sectionals R1', count: games.filter(g => (g.week || '').includes('Sectional') || g.title.includes('Sectional')).length },
+              { id: 'Volleyball', label: 'Saturday: Volleyball Tournaments', count: games.filter(g => g.sport.includes('Volleyball')).length },
+              { id: 'Tournaments-Hub', label: 'Brackets & Site Hub', count: 2 },
+              { id: 'Regular-Season', label: 'Regular Season Archives', count: games.filter(g => !(g.week || '').includes('Sectional') && !g.title.includes('Sectional') && !g.sport.includes('Volleyball')).length },
+              { id: 'ALL', label: 'All Matchups', count: games.length },
+            ].map(tab => {
+              const isActive = selectedWeekFilter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setSelectedWeekFilter(tab.id)}
+                  className={`px-3.5 py-2 rounded-sm text-xs font-display font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+                    isActive
+                      ? tab.id === 'Sectionals' 
+                        ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.5)] scale-100'
+                        : 'bg-[#00BFFF] text-black scale-100'
+                      : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10'
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span className={`text-[10px] font-sans tabular px-1.5 py-0.2 rounded-full ${isActive ? 'bg-black/30 text-white font-bold' : 'bg-white/10 text-white/60'}`}>
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Embedded Interactive Tournament Central Brackets */}
+          {selectedWeekFilter === 'Tournaments-Hub' && (
+            <div className="mt-4 pt-4 border-t border-white/10">
+              <TournamentCentral 
+                isScoreboardEmbedded={true}
+                onNavigateToGame={(gameId) => {
+                  setSelectedGameId(gameId);
+                  setSelectedWeekFilter('ALL');
+                }}
+              />
+            </div>
+          )}
+
+          {/* Volleyball Specific View: Dual Site Tournaments */}
+          {selectedWeekFilter === 'Volleyball' && (
+            <div className="mt-4 space-y-6">
+              {/* Informational Header */}
+              <div className="bg-gradient-to-r from-blue-950/40 via-[#101010] to-emerald-950/30 border border-white/10 rounded-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#00BFFF]/15 border border-[#00BFFF]/30 text-[#00BFFF] text-xs font-sans tabular font-bold uppercase tracking-wide mb-1.5">
+                    <Sparkles size={13} className="text-[#00BFFF]" />
+                    Saturday: Volleyball Tournaments • Dual Site Centers
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-display font-bold text-white uppercase tracking-wide">
+                    Saturday Regional Volleyball Tournaments
+                  </h3>
+                  <p className="text-xs sm:text-sm text-white/60 font-sans mt-0.5">
+                    Official schedule and live tracking for both Huntington North and Jennings County tournament sites.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedWeekFilter('Tournaments-Hub')}
+                  className="px-4 py-2.5 rounded-sm bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/40 hover:border-amber-400 text-amber-300 font-display font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition cursor-pointer shrink-0"
+                >
+                  <Trophy size={15} className="text-amber-400" />
+                  <span>View Bracket Hub</span>
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+
+              {/* Dual Site Columns */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* 1. HUNTINGTON NORTH */}
+                <div className="bg-[#121212] border border-cyan-500/30 rounded-sm p-4 sm:p-5 shadow-2xl space-y-4">
+                  {/* Site Header */}
+                  <div className="flex items-start justify-between border-b border-white/10 pb-3.5">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#00BFFF]" />
+                        <h4 className="text-lg sm:text-xl font-display font-bold text-white uppercase tracking-wider">
+                          For Huntington North:
+                        </h4>
+                      </div>
+                      <p className="text-xs text-white/50 font-sans flex items-center gap-1.5 mt-1">
+                        <MapPin size={13} className="text-[#00BFFF]" />
+                        Huntington North Arena • Huntington, IN
+                      </p>
+                    </div>
+                    <span className="bg-[#00BFFF]/10 border border-[#00BFFF]/30 text-[#00BFFF] text-[10px] font-sans tabular font-bold px-2.5 py-1 rounded-full uppercase tracking-wide shrink-0">
+                      3 Matches
+                    </span>
+                  </div>
+
+                  {/* Matches List: M1, M2, Championship */}
+                  <div className="space-y-3">
+                    {[
+                      {
+                        id: 'vb-huntington-m1-carroll-vs-penn',
+                        matchTag: 'M1',
+                        title: 'M1: Carroll (Fort Wayne) vs Penn',
+                        team1: 'Carroll (Fort Wayne)',
+                        team2: 'Penn',
+                        time: '10:00 AM',
+                        round: 'Semifinal 1',
+                        court: 'Court 1 - North Gym',
+                        isChamp: false
+                      },
+                      {
+                        id: 'vb-huntington-m2-westfield-vs-crownpoint',
+                        matchTag: 'M2',
+                        title: 'M2: Westfield vs Crown Point',
+                        team1: 'Westfield',
+                        team2: 'Crown Point',
+                        time: '12:00 PM',
+                        round: 'Semifinal 2',
+                        court: 'Court 1 - North Gym',
+                        isChamp: false
+                      },
+                      {
+                        id: 'vb-huntington-champ',
+                        matchTag: 'Championship',
+                        title: 'Championship: M1 Winner vs M2 Winner',
+                        team1: 'M1 Winner',
+                        team2: 'M2 Winner',
+                        subNote: 'Winner M1 (Carroll / Penn) vs Winner M2 (Westfield / Crown Point)',
+                        time: '7:00 PM',
+                        round: 'Championship Final',
+                        court: 'Main Arena Court',
+                        isChamp: true
+                      }
+                    ].map((m) => {
+                      const gameObj = games.find(g => g.id === m.id) || DEFAULT_GAMES_LIST.find(g => g.id === m.id);
+                      if (!gameObj) return null;
+                      const isSelected = gameObj.id === activeGame.id;
+                      const isFinal = gameObj.isArchived || gameObj.statusText === 'FINAL';
+
+                      return (
+                        <button
+                          key={m.id}
+                          onClick={() => setSelectedGameId(gameObj.id)}
+                          className={`w-full text-left p-3.5 sm:p-4 rounded-sm border transition-all cursor-pointer relative ${
+                            isSelected
+                              ? 'bg-[#181818] border-[#00BFFF] ring-2 ring-[#00BFFF]'
+                              : m.isChamp
+                                ? 'bg-gradient-to-r from-amber-950/25 to-black/80 border-amber-500/35 hover:border-amber-400 hover:bg-amber-950/35'
+                                : 'bg-[#151515] border-white/10 hover:border-white/25 hover:bg-[#1c1c1c]'
+                          }`}
+                        >
+                          {/* Top Badges */}
+                          <div className="flex items-center justify-between gap-2 mb-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-[10px] font-sans tabular font-bold uppercase px-2 py-0.5 rounded ${
+                                m.isChamp 
+                                  ? 'bg-amber-500 text-black shadow-sm' 
+                                  : 'bg-[#00BFFF]/20 border border-[#00BFFF]/40 text-[#00BFFF]'
+                              }`}>
+                                {m.matchTag}
+                              </span>
+                              <span className="text-[11px] font-sans tabular text-white/50">
+                                {m.time} • {m.court}
+                              </span>
+                            </div>
+
+                            {isSelected ? (
+                              <span className="bg-[#00BFFF] text-black text-[10px] font-sans tabular font-bold px-2 py-0.5 rounded uppercase tracking-wide flex items-center gap-1">
+                                <Radio size={10} className="" />
+                                Active Scoreboard
+                              </span>
+                            ) : isFinal ? (
+                              <span className="bg-white/10 text-white/70 text-[10px] font-sans tabular font-bold px-2 py-0.5 rounded uppercase">
+                                Final
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-sans tabular text-white/40 group-hover:text-white/70 flex items-center gap-1">
+                                <span>Track Score</span>
+                                <ChevronRight size={12} />
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Matchup Title Line requested by user */}
+                          <div className="font-display font-bold text-sm sm:text-base text-white tracking-wide mb-2 flex items-center justify-between">
+                            <span className={m.isChamp ? 'text-amber-300' : 'text-white'}>
+                              {m.title}
+                            </span>
+                            <span className="font-sans tabular text-sm font-bold text-white/80">
+                              {gameObj.homeTeam.score} - {gameObj.awayTeam.score}
+                            </span>
+                          </div>
+
+                          {/* Teams Display with Logos */}
+                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={gameObj.homeTeam.logoUrl} 
+                                alt={gameObj.homeTeam.name} 
+                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
+                              />
+                              <div className="min-w-0">
+                                <div className="text-xs font-sans font-bold text-white truncate">
+                                  {m.team1}
+                                </div>
+                                <div className="text-[10px] text-white/40 truncate">
+                                  {gameObj.homeTeam.record}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={gameObj.awayTeam.logoUrl} 
+                                alt={gameObj.awayTeam.name} 
+                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
+                              />
+                              <div className="min-w-0">
+                                <div className="text-xs font-sans font-bold text-white truncate">
+                                  {m.team2}
+                                </div>
+                                <div className="text-[10px] text-white/40 truncate">
+                                  {gameObj.awayTeam.record}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {m.subNote && (
+                            <div className="text-[10px] text-amber-300/70 font-sans mt-2 pt-1 border-t border-amber-500/10 ">
+                              {m.subNote}
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2. JENNINGS COUNTY */}
+                <div className="bg-[#121212] border border-amber-500/30 rounded-sm p-4 sm:p-5 shadow-2xl space-y-4">
+                  {/* Site Header */}
+                  <div className="flex items-start justify-between border-b border-white/10 pb-3.5">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#F59E0B]" />
+                        <h4 className="text-lg sm:text-xl font-display font-bold text-white uppercase tracking-wider">
+                          For Jennings County:
+                        </h4>
+                      </div>
+                      <p className="text-xs text-white/50 font-sans flex items-center gap-1.5 mt-1">
+                        <MapPin size={13} className="text-amber-400" />
+                        Jennings County Gymnasium • North Vernon, IN
+                      </p>
+                    </div>
+                    <span className="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-sans tabular font-bold px-2.5 py-1 rounded-full uppercase tracking-wide shrink-0">
+                      3 Matches
+                    </span>
+                  </div>
+
+                  {/* Matches List: M1, M2, Championship */}
+                  <div className="space-y-3">
+                    {[
+                      {
+                        id: 'vb-jennings-m1-floydcentral-vs-yorktown',
+                        matchTag: 'M1',
+                        title: 'M1: Floyd Central vs Yorktown',
+                        team1: 'Floyd Central',
+                        team2: 'Yorktown',
+                        time: '10:30 AM',
+                        round: 'Semifinal 1',
+                        court: 'Main Gymnasium',
+                        isChamp: false
+                      },
+                      {
+                        id: 'vb-jennings-m2-bloomingtonsouth-vs-centergrove',
+                        matchTag: 'M2',
+                        title: 'M2: Bloomington South vs Center Grove',
+                        team1: 'Bloomington South',
+                        team2: 'Center Grove',
+                        time: '12:30 PM',
+                        round: 'Semifinal 2',
+                        court: 'Main Gymnasium',
+                        isChamp: false
+                      },
+                      {
+                        id: 'vb-jennings-champ',
+                        matchTag: 'Championship',
+                        title: 'Championship: M1 Winner vs M2 Winner',
+                        team1: 'M1 Winner',
+                        team2: 'M2 Winner',
+                        subNote: 'Winner M1 (Floyd Central / Yorktown) vs Winner M2 (Bloomington South / Center Grove)',
+                        time: '6:30 PM',
+                        round: 'Championship Final',
+                        court: 'Championship Arena Court',
+                        isChamp: true
+                      }
+                    ].map((m) => {
+                      const gameObj = games.find(g => g.id === m.id) || DEFAULT_GAMES_LIST.find(g => g.id === m.id);
+                      if (!gameObj) return null;
+                      const isSelected = gameObj.id === activeGame.id;
+                      const isFinal = gameObj.isArchived || gameObj.statusText === 'FINAL';
+
+                      return (
+                        <button
+                          key={m.id}
+                          onClick={() => setSelectedGameId(gameObj.id)}
+                          className={`w-full text-left p-3.5 sm:p-4 rounded-sm border transition-all cursor-pointer relative ${
+                            isSelected
+                              ? 'bg-[#181818] border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.25)] ring-2 ring-amber-400'
+                              : m.isChamp
+                                ? 'bg-gradient-to-r from-amber-950/25 to-black/80 border-amber-500/35 hover:border-amber-400 hover:bg-amber-950/35'
+                                : 'bg-[#151515] border-white/10 hover:border-white/25 hover:bg-[#1c1c1c]'
+                          }`}
+                        >
+                          {/* Top Badges */}
+                          <div className="flex items-center justify-between gap-2 mb-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-[10px] font-sans tabular font-bold uppercase px-2 py-0.5 rounded ${
+                                m.isChamp 
+                                  ? 'bg-amber-500 text-black shadow-sm' 
+                                  : 'bg-amber-500/20 border border-amber-500/40 text-amber-300'
+                              }`}>
+                                {m.matchTag}
+                              </span>
+                              <span className="text-[11px] font-sans tabular text-white/50">
+                                {m.time} • {m.court}
+                              </span>
+                            </div>
+
+                            {isSelected ? (
+                              <span className="bg-amber-400 text-black text-[10px] font-sans tabular font-bold px-2 py-0.5 rounded uppercase tracking-wide flex items-center gap-1 shadow-[0_0_8px_#F59E0B]">
+                                <Radio size={10} className="" />
+                                Active Scoreboard
+                              </span>
+                            ) : isFinal ? (
+                              <span className="bg-white/10 text-white/70 text-[10px] font-sans tabular font-bold px-2 py-0.5 rounded uppercase">
+                                Final
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-sans tabular text-white/40 group-hover:text-white/70 flex items-center gap-1">
+                                <span>Track Score</span>
+                                <ChevronRight size={12} />
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Matchup Title Line requested by user */}
+                          <div className="font-display font-bold text-sm sm:text-base text-white tracking-wide mb-2 flex items-center justify-between">
+                            <span className={m.isChamp ? 'text-amber-300' : 'text-white'}>
+                              {m.title}
+                            </span>
+                            <span className="font-sans tabular text-sm font-bold text-white/80">
+                              {gameObj.homeTeam.score} - {gameObj.awayTeam.score}
+                            </span>
+                          </div>
+
+                          {/* Teams Display with Logos */}
+                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={gameObj.homeTeam.logoUrl} 
+                                alt={gameObj.homeTeam.name} 
+                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
+                              />
+                              <div className="min-w-0">
+                                <div className="text-xs font-sans font-bold text-white truncate">
+                                  {m.team1}
+                                </div>
+                                <div className="text-[10px] text-white/40 truncate">
+                                  {gameObj.homeTeam.record}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={gameObj.awayTeam.logoUrl} 
+                                alt={gameObj.awayTeam.name} 
+                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
+                              />
+                              <div className="min-w-0">
+                                <div className="text-xs font-sans font-bold text-white truncate">
+                                  {m.team2}
+                                </div>
+                                <div className="text-[10px] text-white/40 truncate">
+                                  {gameObj.awayTeam.record}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {m.subNote && (
+                            <div className="text-[10px] text-amber-300/70 font-sans mt-2 pt-1 border-t border-amber-500/10 ">
+                              {m.subNote}
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* Filtered Games Grid for ALL, Sectionals, Regular-Season */}
+          {selectedWeekFilter !== 'Tournaments-Hub' && selectedWeekFilter !== 'Volleyball' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+              {games
+                .filter(g => {
+                  if (selectedWeekFilter === 'ALL') return true;
+                  if (selectedWeekFilter === 'Sectionals') return (g.week || '').includes('Sectional') || g.title.includes('Sectional');
+                  if (selectedWeekFilter === 'Volleyball') return g.sport.includes('Volleyball');
+                  if (selectedWeekFilter === 'Regular-Season') return !(g.week || '').includes('Sectional') && !g.title.includes('Sectional') && !g.sport.includes('Volleyball');
+                  return true;
+                })
+              .map((g) => {
+                const isSelected = g.id === activeGame.id;
+                const isFinal = g.isArchived || g.statusText === 'FINAL' || g.quarter === 'Final';
+                return (
+                  <button
+                    key={g.id}
+                    onClick={() => setSelectedGameId(g.id)}
+                    className={`p-3.5 rounded-sm border text-left transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                      isSelected
+                        ? 'bg-[#181818] border-[#00BFFF] shadow-lg/15 ring-2 ring-[#00BFFF]'
+                        : 'bg-[#101010] border-white/10 hover:border-white/25 hover:bg-[#141414]'
+                    }`}
+                  >
+                    {/* Top Row: Week Badge & Live/Final Status */}
+                    <div className="flex items-center justify-between text-[10px] font-sans tabular">
+                      <span className="bg-white/10 text-white/70 px-2 py-0.5 rounded font-bold uppercase">
+                        {g.week || 'Week 3'}
+                      </span>
+                      {isFinal ? (
+                        <span className="bg-white/10 text-white/70 px-2 py-0.5 rounded font-bold tracking-wider uppercase">
+                          FINAL
+                        </span>
+                      ) : (
+                        <span className="bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded font-bold tracking-wider uppercase flex items-center gap-1">
+                          <Radio size={10} className="text-red-500" />
+                          {g.quarter || 'LIVE'}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Middle: Teams & Matchup */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex -space-x-2 overflow-hidden shrink-0">
+                        <img 
+                          src={g.homeTeam.logoUrl} 
+                          alt={g.homeTeam.name} 
+                          className="inline-block h-8 w-8 rounded-full object-contain bg-black/60 border border-white/20 p-0.5" 
+                        />
+                        <img 
+                          src={g.awayTeam.logoUrl} 
+                          alt={g.awayTeam.name} 
+                          className="inline-block h-8 w-8 rounded-full object-contain bg-black/60 border border-white/20 p-0.5" 
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-display font-bold text-xs sm:text-sm text-white tracking-wide truncate">
+                          {g.homeTeam.shortName} vs {g.awayTeam.shortName}
+                        </div>
+                        <div className="text-[10px] font-sans text-white/50 truncate">
+                          {g.venue}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom: Score & Clock */}
+                    <div className="flex items-center justify-between border-t border-white/5 pt-2 mt-0.5">
+                      <div className="text-[11px] font-sans text-white/60">
+                        {g.dateString}
+                      </div>
+                      <div className="font-sans tabular font-bold text-sm text-white">
+                        {g.homeTeam.score} - {g.awayTeam.score}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         </div>
 
@@ -3540,7 +3541,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#141414] border border-white/20 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl relative"
+              className="bg-[#141414] border border-white/20 rounded-sm max-w-3xl w-full overflow-hidden shadow-2xl relative"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -3560,12 +3561,12 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
               <div className="p-6">
                 <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
-                  <span className="text-xs font-mono text-[#00BFFF] uppercase font-bold tracking-wider">
+                  <span className="text-xs font-sans tabular text-[#00BFFF] uppercase font-bold tracking-wide">
                     {previewMediaModal.time} • {previewMediaModal.platform.toUpperCase()}
                   </span>
-                  <span className="text-xs font-mono text-white/50">{previewMediaModal.author}</span>
+                  <span className="text-xs font-sans tabular text-white/50">{previewMediaModal.author}</span>
                 </div>
-                <h4 className="font-display font-black uppercase text-lg text-white mb-2">
+                <h4 className="font-display font-bold uppercase text-lg text-white mb-2">
                   {previewMediaModal.title}
                 </h4>
                 <p className="text-white/70 text-sm font-sans mb-4">
@@ -3575,7 +3576,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 <div className="flex items-center justify-between pt-4 border-t border-white/10">
                   <button
                     onClick={() => handleLikeClip(previewMediaModal.id)}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded bg-white/5 hover:bg-white/10 text-white font-display font-black text-xs uppercase cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded bg-white/5 hover:bg-white/10 text-white font-display font-bold text-xs uppercase cursor-pointer"
                   >
                     <Heart size={15} className={likedClips[previewMediaModal.id] ? 'fill-red-400 text-red-400' : ''} />
                     <span>{previewMediaModal.likes} LIKES</span>
@@ -3586,7 +3587,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                       href={previewMediaModal.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-1.5 px-5 py-2 rounded bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-xs uppercase transition-all"
+                      className="flex items-center gap-1.5 px-5 py-2 rounded bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-bold text-xs uppercase transition-all"
                     >
                       <span>VIEW ON {previewMediaModal.platform.toUpperCase()}</span>
                       <ExternalLink size={14} />
@@ -3614,51 +3615,43 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#141414] border border-white/20 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative"
+              className="bg-[#141414] border border-white/20 rounded-sm max-w-sm w-full p-6 text-center shadow-2xl relative"
             >
               <div className="w-12 h-12 rounded-full bg-[#00BFFF]/10 border border-[#00BFFF]/30 text-[#00BFFF] flex items-center justify-center mx-auto mb-4">
                 <Lock size={20} />
               </div>
               
-              <h3 className="font-display font-black text-lg uppercase text-white tracking-wide mb-1">
+              <h3 className="font-display font-bold text-lg uppercase text-white tracking-wide mb-1">
                 Sideline Operator Access
               </h3>
               <p className="text-white/50 text-xs font-sans mb-5">
-                Enter PIN number to unlock score, clock & sideline media broadcasting.
+                Sign in with your IND staff Google account to run the score, clock & sideline media.
               </p>
+              {staffAuth.user && !staffAuth.isStaff && !staffAuth.loading && (
+                <div className="text-xs text-amber-300 bg-amber-950/40 border border-amber-700/40 rounded px-3 py-2 mb-4">
+                  {staffAuth.user.email} isn't on the IND staff list yet. Ask an admin to add you in the Newsroom.
+                </div>
+              )}
 
               <form 
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (enteredPin === '1802') {
-                    setIsAuthorized(true);
-                    setIsAdminOpen(true);
-                    sessionStorage.setItem('ind_operator_auth', 'true');
-                    setPinModalOpen(false);
-                    setEnteredPin('');
-                    setPinError(false);
-                  } else {
-                    setPinError(true);
-                  }
+                  setPinError(false);
+                  signInStaff()
+                    .then(() => {
+                      setPinModalOpen(false);
+                      setIsAdminOpen(true);
+                    })
+                    .catch((err) => {
+                      console.warn(err);
+                      setPinError(true);
+                    });
                 }} 
                 className="space-y-4"
               >
-                <input
-                  type="password"
-                  maxLength={6}
-                  value={enteredPin}
-                  onChange={(e) => {
-                    setEnteredPin(e.target.value);
-                    setPinError(false);
-                  }}
-                  placeholder="Enter PIN number"
-                  autoFocus
-                  className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-lg px-4 py-3 text-center text-xl font-mono tracking-widest text-white outline-none"
-                />
-
                 {pinError && (
-                  <div className="text-xs font-mono text-red-400 bg-red-950/40 py-1.5 px-3 rounded border border-red-800/40">
-                    Incorrect PIN number. Please try again.
+                  <div className="text-xs font-sans tabular text-red-400 bg-red-950/40 py-1.5 px-3 rounded border border-red-800/40">
+                    Sign-in didn't finish. Please try again.
                   </div>
                 )}
 
@@ -3670,15 +3663,15 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                       setEnteredPin('');
                       setPinError(false);
                     }}
-                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 text-white font-display font-black text-xs uppercase rounded cursor-pointer"
+                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 text-white font-display font-bold text-xs uppercase rounded cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 py-2.5 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-xs uppercase rounded cursor-pointer font-black"
+                    className="flex-1 py-2.5 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-bold text-xs uppercase rounded cursor-pointer font-bold"
                   >
-                    Unlock
+                    Sign in with Google
                   </button>
                 </div>
               </form>
@@ -3703,7 +3696,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#141414] border border-[#00BFFF]/40 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl relative overflow-hidden"
+              className="bg-[#141414] border border-[#00BFFF]/40 rounded-sm max-w-lg w-full p-5 sm:p-6 shadow-2xl relative overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -3713,7 +3706,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     <Edit3 size={16} />
                   </div>
                   <div>
-                    <h3 className="font-display font-black text-base uppercase text-white tracking-wide">
+                    <h3 className="font-display font-bold text-base uppercase text-white tracking-wide">
                       Edit Highlight Details
                     </h3>
                     <p className="text-[11px] font-sans text-white/50">
@@ -3736,7 +3729,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               <form onSubmit={handleSaveClipEdit} className="space-y-4">
                 {/* Media Preview */}
                 {editingClip.mediaUrl && (
-                  <div className="relative aspect-video rounded-xl overflow-hidden bg-black border border-white/10 max-h-40">
+                  <div className="relative aspect-video rounded-sm overflow-hidden bg-black border border-white/10 max-h-40">
                     {editingClip.type === 'video' ? (
                       <video 
                         src={editingClip.mediaUrl} 
@@ -3749,7 +3742,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         className="w-full h-full object-cover"
                       />
                     )}
-                    <div className="absolute bottom-2 left-2 bg-black/80 px-2 py-0.5 rounded text-[10px] font-mono text-white/80 border border-white/10">
+                    <div className="absolute bottom-2 left-2 bg-black/80 px-2 py-0.5 rounded text-[10px] font-sans tabular text-white/80 border border-white/10">
                       {editingClip.type === 'video' ? 'VIDEO HIGHLIGHT' : 'PHOTO HIGHLIGHT'}
                     </div>
                   </div>
@@ -3757,7 +3750,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                 {/* Title */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-white/60 font-black block mb-1">
+                  <label className="text-[11px] font-sans tabular uppercase text-white/60 font-bold block mb-1">
                     Highlight Title
                   </label>
                   <input
@@ -3766,13 +3759,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     onChange={(e) => setEditingClip({ ...editingClip, title: e.target.value })}
                     required
                     placeholder="e.g. 45-Yard Touchdown Run"
-                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-xl px-3.5 py-2.5 text-sm text-white outline-none"
+                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-sm px-3.5 py-2.5 text-sm text-white outline-none"
                   />
                 </div>
 
                 {/* Caption */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-white/60 font-black block mb-1">
+                  <label className="text-[11px] font-sans tabular uppercase text-white/60 font-bold block mb-1">
                     Caption & Description
                   </label>
                   <textarea
@@ -3780,20 +3773,20 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     onChange={(e) => setEditingClip({ ...editingClip, caption: e.target.value })}
                     rows={3}
                     placeholder="Add details, play context, or player tags..."
-                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none resize-none"
+                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-sm px-3.5 py-2.5 text-xs text-white outline-none resize-none"
                   />
                 </div>
 
                 {/* Team Tag Attribution */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-white/60 font-black block mb-1.5">
+                  <label className="text-[11px] font-sans tabular uppercase text-white/60 font-bold block mb-1.5">
                     Team Attribution
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     <button
                       type="button"
                       onClick={() => setEditingClip({ ...editingClip, team: 'home' })}
-                      className={`py-2 px-2.5 rounded-lg text-xs font-display font-black uppercase transition-all cursor-pointer truncate ${
+                      className={`py-2 px-2.5 rounded-lg text-xs font-display font-bold uppercase transition-all cursor-pointer truncate ${
                         editingClip.team === 'home'
                           ? 'bg-emerald-500 text-black shadow-md'
                           : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10'
@@ -3804,7 +3797,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     <button
                       type="button"
                       onClick={() => setEditingClip({ ...editingClip, team: 'away' })}
-                      className={`py-2 px-2.5 rounded-lg text-xs font-display font-black uppercase transition-all cursor-pointer truncate ${
+                      className={`py-2 px-2.5 rounded-lg text-xs font-display font-bold uppercase transition-all cursor-pointer truncate ${
                         editingClip.team === 'away'
                           ? 'bg-purple-500 text-white shadow-md'
                           : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10'
@@ -3815,7 +3808,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     <button
                       type="button"
                       onClick={() => setEditingClip({ ...editingClip, team: 'neutral' })}
-                      className={`py-2 px-2.5 rounded-lg text-xs font-display font-black uppercase transition-all cursor-pointer truncate ${
+                      className={`py-2 px-2.5 rounded-lg text-xs font-display font-bold uppercase transition-all cursor-pointer truncate ${
                         editingClip.team === 'neutral'
                           ? 'bg-[#00BFFF] text-black shadow-md'
                           : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10'
@@ -3832,7 +3825,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     type="button"
                     onClick={() => !isSavingEdit && setEditingClip(null)}
                     disabled={isSavingEdit}
-                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 text-white font-display font-black text-xs uppercase rounded-xl transition-all cursor-pointer disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 text-white font-display font-bold text-xs uppercase rounded-sm transition-all cursor-pointer disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -3840,7 +3833,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   <button
                     type="submit"
                     disabled={isSavingEdit}
-                    className="flex-1 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-display font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-display font-bold text-xs uppercase tracking-wider rounded-sm shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
                   >
                     <Save size={15} />
                     <span>{isSavingEdit ? 'Saving to Live Feed...' : 'Save Changes'}</span>

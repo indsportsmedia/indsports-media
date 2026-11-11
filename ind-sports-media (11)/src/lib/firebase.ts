@@ -53,7 +53,7 @@ export const activeFirebaseProjectId = firebaseConfig.projectId;
  */
 export async function uploadMediaFile(
   file: File | Blob, 
-  pathFolder: 'photos' | 'videos' | 'highlights' = 'photos', 
+  pathFolder: 'photos' | 'videos' | 'highlights' | 'logos' = 'photos', 
   onProgress?: (progress: number) => void
 ): Promise<string> {
   const fileExtension = (file as File).name ? (file as File).name.split('.').pop() : (file.type.startsWith('video/') ? 'mp4' : 'jpg');
@@ -67,15 +67,22 @@ export async function uploadMediaFile(
   });
 
   return new Promise((resolve, reject) => {
-    // 45-second timeout safeguard for weak stadium cellular signals
-    const timeout = setTimeout(() => {
-      uploadTask.cancel();
-      reject(new Error('Upload timed out after 45s. Please check cellular signal.'));
-    }, 45000);
+    // Stall safeguard for weak stadium cell signal: cancel only if no bytes move
+    // for 60 seconds (a fixed 45s limit made longer video uploads impossible).
+    let timeout: ReturnType<typeof setTimeout>;
+    const armStallTimer = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        uploadTask.cancel();
+        reject(new Error('Upload stalled for 60s. Please check your cell signal and try again.'));
+      }, 60000);
+    };
+    armStallTimer();
 
     uploadTask.on(
       'state_changed',
       (snapshot) => {
+        armStallTimer();
         if (snapshot.totalBytes > 0) {
           const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
           if (onProgress) onProgress(progress);
@@ -86,7 +93,7 @@ export async function uploadMediaFile(
         console.error('Firebase Storage upload error:', error);
         let userFriendlyMsg = error.message;
         if ((error as any)?.code === 'storage/unauthorized') {
-          userFriendlyMsg = 'Firebase Storage rejected upload (Permission Denied). Please check your Firebase Storage Rules in the Firebase Console (allow read, write: if true;).';
+          userFriendlyMsg = 'Firebase Storage rejected upload (Permission Denied). Make sure you are signed in with an IND staff account.';
         } else if ((error as any)?.code === 'storage/canceled') {
           userFriendlyMsg = 'Upload was canceled.';
         } else if ((error as any)?.code === 'storage/retry-limit-exceeded') {
@@ -144,34 +151,74 @@ export async function testFirestoreConnection(): Promise<boolean> {
  * Whenever ANY device updates a score, clock, play, or clip,
  * this listener fires on ALL devices instantly with sub-second latency.
  */
+// ---------------------------------------------------------------------------
+// School logo library: schools/{key} = { name, logoUrl, mascot?, aliases? }
+// Added from Newsroom → Schools. Any game whose team name matches a school
+// automatically shows that logo everywhere (scoreboard, ticker, cards).
+// ---------------------------------------------------------------------------
+export interface School {
+  id: string;
+  name: string;
+  logoUrl: string;
+  mascot?: string;
+  aliases?: string[];
+}
+
+export const schoolKey = (name: string) =>
+  (name || '').toLowerCase().replace(/\b(high school|hs|h\.s\.)\b/g, '').replace(/[^a-z0-9]/g, '');
+
+let schoolLogoMap: Record<string, string> = {};
+
+export function subscribeToSchools(onUpdate: (schools: School[]) => void): Unsubscribe {
+  return onSnapshot(
+    collection(db, 'schools'),
+    (snap) => {
+      const list = snap.docs.map((d) => ({ ...(d.data() as Omit<School, 'id'>), id: d.id }));
+      list.sort((a, b) => a.name.localeCompare(b.name));
+      const map: Record<string, string> = {};
+      list.forEach((s) => {
+        if (!s.logoUrl) return;
+        [s.name, ...(s.aliases || [])].forEach((n) => { if (n) map[schoolKey(n)] = s.logoUrl; });
+      });
+      schoolLogoMap = map;
+      onUpdate(list);
+    },
+    (err) => console.warn('Schools subscription error:', err)
+  );
+}
+
+export function logoForTeam(team: { name: string; shortName?: string; logoUrl?: string }): string | undefined {
+  return schoolLogoMap[schoolKey(team.name)] || (team.shortName ? schoolLogoMap[schoolKey(team.shortName)] : undefined) || team.logoUrl;
+}
+
+function withSchoolLogos(game: GameState): GameState {
+  return {
+    ...game,
+    homeTeam: { ...game.homeTeam, logoUrl: logoForTeam(game.homeTeam) },
+    awayTeam: { ...game.awayTeam, logoUrl: logoForTeam(game.awayTeam) },
+  };
+}
+
 export function subscribeToGames(
   onUpdate: (games: GameState[]) => void,
   onError?: (err: Error) => void
 ): Unsubscribe {
-  const gamesCol = collection(db, 'games');
+  let latest: GameState[] | null = null;
+  const emit = () => { if (latest) onUpdate(latest.map(withSchoolLogos)); };
 
-  return onSnapshot(
-    gamesCol,
+  const unsubSchools = subscribeToSchools(() => emit());
+  const unsubGames = onSnapshot(
+    collection(db, 'games'),
     (snapshot) => {
-      if (!snapshot.empty) {
-        const gamesList: GameState[] = [];
-        snapshot.forEach((docSnap) => {
-          const data = docSnap.data() as GameState;
-          gamesList.push({
-            ...data,
-            id: docSnap.id
-          });
-        });
-        onUpdate(gamesList);
-      } else {
-        onUpdate([]);
-      }
+      latest = snapshot.docs.map((docSnap) => ({ ...(docSnap.data() as GameState), id: docSnap.id }));
+      emit();
     },
     (err) => {
       console.error('Firestore games subscription error:', err);
       if (onError) onError(err);
     }
   );
+  return () => { unsubGames(); unsubSchools(); };
 }
 
 /**
@@ -436,29 +483,10 @@ export async function deletePhotoFromFirestore(photoId: string, storageUrl?: str
 /**
  * Seed initial default games or ensure Week 2 matchups exist and past games are archived.
  */
-export async function seedInitialGamesIfEmpty(initialGames: GameState[]): Promise<void> {
-  try {
-    const gamesCol = collection(db, 'games');
-    const snap = await getDocs(gamesCol);
-    if (snap.empty) {
-      for (const g of initialGames) {
-        await syncGameToFirestore(g);
-      }
-    } else {
-      // Ensure the three Week 2 games exist and Lawrence North vs Brownsburg is archived
-      const existingIds = new Set(snap.docs.map(d => d.id));
-      for (const g of initialGames) {
-        if (!existingIds.has(g.id)) {
-          await syncGameToFirestore(g);
-        } else if (g.id === 'lawrence-north-vs-brownsburg-2026' || g.id === 'southside-fw-vs-marion-giants-2026') {
-          // Keep archived status in sync
-          await syncGameToFirestore(g);
-        }
-      }
-    }
-  } catch (err) {
-    console.warn('Could not auto-seed games in Firestore:', err);
-  }
+export async function seedInitialGamesIfEmpty(_initialGames: GameState[]): Promise<void> {
+  // Turned off: this used to re-create the AI-generated sample games every time
+  // staff opened the scoreboard, so deleted games kept coming back.
+  // Create real games from /score instead.
 }
 
 /**
