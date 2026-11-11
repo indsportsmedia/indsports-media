@@ -55,6 +55,7 @@ import {
   deleteMediaHighlight
 } from '../lib/firebase';
 import { useStaff, signInStaff, signOutStaff } from '../lib/staff';
+import TeamLogo from './TeamLogo';
 import type { PlayEvent, SocialClip, GameState } from '../types';
 
 export type { PlayEvent, SocialClip, GameState };
@@ -2491,7 +2492,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
         {/* ========================================================================= */}
         <section className="mb-6 bg-panel border border-rule rounded-sm overflow-hidden" aria-label="Scoreboard">
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 sm:px-6 py-2.5 border-b border-rule text-[14px]">
-            <p className="text-white/85 min-w-0 truncate">
+            <p className="text-white/85 min-w-0">
               <span className="text-ind font-semibold mr-2">{activeGame.sport}</span>
               {activeGame.title}
             </p>
@@ -2508,51 +2509,78 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
             const awayLeads = away.score > home.score;
             const homeLeads = home.score > away.score;
             const scoreClass = (leading: boolean) =>
-              `font-display font-bold tabular leading-none text-[52px] sm:text-[88px] ${isFinal && !leading ? 'text-white/45' : 'text-white'}`;
-            const Side = ({ team, side }: { team: typeof home; side: 'home' | 'away' }) => (
-              <div className={`flex items-center gap-3 sm:gap-5 min-w-0 ${side === 'home' ? 'flex-row-reverse text-right' : ''}`}>
-                <img
-                  src={team.logoUrl}
-                  alt=""
-                  className="w-12 h-12 sm:w-20 sm:h-20 object-contain shrink-0"
-                />
-                <div className="min-w-0">
-                  <p className="font-display font-semibold uppercase text-white text-lg sm:text-3xl leading-tight truncate">
+              `font-display font-bold tabular leading-none text-[72px] lg:text-[88px] ${isFinal && !leading ? 'text-white/45' : 'text-white'}`;
+            const statusBlock = (big: boolean) =>
+              activeGame.isLive ? (
+                <div className={big ? 'text-center' : 'flex items-center gap-3'}>
+                  <span className="inline-flex items-center gap-1.5 bg-[#E4002B] text-white font-display font-semibold text-[13px] px-2 py-0.5 rounded-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" aria-hidden />
+                    LIVE
+                  </span>
+                  <p className={`${big ? 'mt-2 text-lg' : 'text-[15px]'} font-display font-semibold uppercase text-white`}>{activeGame.quarter}</p>
+                  <p className={`${big ? 'text-2xl' : 'text-[15px]'} font-display text-ind tabular`}>{activeGame.clock}</p>
+                </div>
+              ) : (
+                <p className={`font-display font-semibold uppercase text-white ${big ? 'text-xl text-center' : 'text-[15px]'}`}>
+                  {activeGame.statusText || activeGame.quarter}
+                </p>
+              );
+
+            // Phones: stacked rows so full school names fit.
+            const Row = ({ team, side, leading }: { team: typeof home; side: 'home' | 'away'; leading: boolean }) => (
+              <div className="flex items-center gap-3 py-3">
+                <TeamLogo name={team.name} url={team.logoUrl} color={team.color} className="w-11 h-11" textClass="text-sm" />
+                <div className="min-w-0 flex-1">
+                  <p className="font-display font-semibold uppercase text-white text-[19px] leading-tight break-words">
                     {team.name}
+                    {activeGame.isLive && activeGame.possession === side && (
+                      <span className="ml-2 align-middle inline-block w-2 h-2 rounded-full bg-ind" title="Has the ball" />
+                    )}
                   </p>
-                  <p className="text-mute text-[13px] sm:text-sm truncate">
+                  <p className="text-mute text-[13px]">
+                    {team.mascot}
+                    {team.record && <span className="ml-2 tabular">({team.record})</span>}
+                  </p>
+                </div>
+                <span className={`font-display font-bold tabular text-[44px] leading-none ${isFinal && !leading ? 'text-white/45' : 'text-white'}`}>
+                  {team.score}
+                </span>
+              </div>
+            );
+
+            // Tablets and up: side-by-side broadcast layout.
+            const Side = ({ team, side }: { team: typeof home; side: 'home' | 'away' }) => (
+              <div className={`flex items-center gap-5 min-w-0 ${side === 'home' ? 'flex-row-reverse text-right' : ''}`}>
+                <TeamLogo name={team.name} url={team.logoUrl} color={team.color} className="w-16 h-16 lg:w-20 lg:h-20" textClass="text-xl" />
+                <div className="min-w-0">
+                  <p className="font-display font-semibold uppercase text-white text-2xl lg:text-3xl leading-tight">{team.name}</p>
+                  <p className="text-mute text-sm">
                     {team.mascot}
                     {team.record && <span className="ml-2 tabular">({team.record})</span>}
                   </p>
                   {activeGame.isLive && activeGame.possession === side && (
-                    <p className="mt-1 text-ind text-[12px] sm:text-[13px] font-semibold">Ball</p>
+                    <p className="mt-1 text-ind text-[13px] font-semibold">Ball</p>
                   )}
                 </div>
               </div>
             );
             return (
-              <div className="grid grid-cols-[1fr_auto_auto_auto_1fr] items-center gap-2 sm:gap-6 px-3 sm:px-8 py-6 sm:py-9">
-                <Side team={away} side="away" />
-                <span className={scoreClass(awayLeads)}>{away.score}</span>
-                <div className="text-center px-1 sm:px-4 min-w-[64px]">
-                  {activeGame.isLive ? (
-                    <>
-                      <span className="inline-flex items-center gap-1.5 bg-[#E4002B] text-white font-display font-semibold text-[12px] sm:text-[13px] px-2 py-0.5 rounded-sm">
-                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" aria-hidden />
-                        LIVE
-                      </span>
-                      <p className="mt-2 font-display font-semibold uppercase text-white text-sm sm:text-lg">{activeGame.quarter}</p>
-                      <p className="font-display text-ind text-lg sm:text-2xl tabular">{activeGame.clock}</p>
-                    </>
-                  ) : (
-                    <p className="font-display font-semibold uppercase text-white text-sm sm:text-xl">
-                      {activeGame.statusText || activeGame.quarter}
-                    </p>
-                  )}
+              <>
+                <div className="sm:hidden px-4 pt-3 pb-1">
+                  {statusBlock(false)}
+                  <div className="divide-y divide-rule">
+                    <Row team={away} side="away" leading={awayLeads} />
+                    <Row team={home} side="home" leading={homeLeads} />
+                  </div>
                 </div>
-                <span className={scoreClass(homeLeads)}>{home.score}</span>
-                <Side team={home} side="home" />
-              </div>
+                <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto_1fr] items-center gap-6 px-8 py-9">
+                  <Side team={away} side="away" />
+                  <span className={scoreClass(awayLeads)}>{away.score}</span>
+                  <div className="px-4 min-w-[96px]">{statusBlock(true)}</div>
+                  <span className={scoreClass(homeLeads)}>{home.score}</span>
+                  <Side team={home} side="home" />
+                </div>
+              </>
             );
           })()}
 

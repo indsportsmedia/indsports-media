@@ -15,4 +15,17 @@ let page = <App />;
 if (path === '/newsroom') page = <Newsroom />;
 else if (newsMatch) page = <ArticlePage slug={decodeURIComponent(newsMatch[1])} />;
 
+// Hide broken images (e.g. dead logo links) instead of showing a "?" box.
+document.addEventListener(
+  'error',
+  (e) => {
+    const t = e.target;
+    if (t instanceof HTMLImageElement && !t.dataset.broken) {
+      t.dataset.broken = '1';
+      t.style.visibility = 'hidden';
+    }
+  },
+  true
+);
+
 createRoot(document.getElementById('root')!).render(<StrictMode>{page}</StrictMode>);

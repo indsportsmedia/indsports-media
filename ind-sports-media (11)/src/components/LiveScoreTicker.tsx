@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Radio, ChevronRight, Trophy, Flame, Sparkles } from 'lucide-react';
+import TeamLogo from './TeamLogo';
 import type { GameState } from '../types';
 import { subscribeToGames } from '../lib/firebase';
 import { DEFAULT_GAMES_LIST } from './LiveScoreboard';
@@ -33,134 +33,56 @@ export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToSc
     return () => unsubscribe();
   }, []);
 
-  // Filter unarchived active games, prioritizing Sectionals and Volleyball Tournaments
-  const activeGames = (games.length > 0 ? games : DEFAULT_GAMES_LIST).filter(g => !g.isArchived);
+  const active = (games.length > 0 ? games : DEFAULT_GAMES_LIST).filter((g) => !g.isArchived);
+  const list = (active.length > 0 ? active : DEFAULT_GAMES_LIST)
+    .slice()
+    .sort((a, b) => Number(b.isLive) - Number(a.isLive));
 
-  // If none active, fallback to DEFAULT_GAMES_LIST
-  const displayGames = activeGames.length > 0 ? activeGames : DEFAULT_GAMES_LIST;
+  const status = (g: GameState) => {
+    const final = !g.isLive && /final/i.test(`${g.statusText} ${g.quarter}`);
+    if (final) return { text: 'Final', live: false };
+    if (g.isLive && g.clock && g.clock.includes(':') && !/pre/i.test(g.quarter)) return { text: `${g.quarter} ${g.clock}`, live: true };
+    return { text: g.statusText || g.quarter || 'Upcoming', live: g.isLive };
+  };
 
   return (
-    <div className="w-full bg-[#0c0c0c]/98 border-y border-[#00BFFF]/30 py-2.5 px-4 sm:px-6 shadow-2xl relative z-40 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
-        {/* Left Badge / Label */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          <div 
-            onClick={() => onNavigateToScoreboard()} 
-            className="flex items-center gap-1.5 px-3 py-1 bg-red-600/20 border border-red-500/60 rounded-full text-red-400 text-xs font-bold font-display uppercase tracking-wider shadow-[0_0_12px_rgba(239,68,68,0.35)] animate-pulse cursor-pointer hover:bg-red-600/30 transition-colors"
-          >
-            <Radio size={13} className="text-red-500" />
-            <span>Sectionals Tonight &amp; Tournaments</span>
-          </div>
-
-          <div 
-            onClick={() => onNavigateToScoreboard()}
-            className="hidden sm:flex items-center gap-1 text-[11px] font-mono text-amber-400 uppercase font-bold cursor-pointer hover:underline"
-          >
-            <Trophy size={12} />
-            <span>Postseason Hub</span>
-          </div>
-        </div>
-
-        {/* Touch Swipeable Game Cards Ticker */}
-        <div 
-          className="flex items-center gap-3 overflow-x-auto no-scrollbar w-full py-1 scroll-smooth overscroll-x-contain touch-pan-x cursor-grab active:cursor-grabbing select-none"
-          style={{ 
-            scrollbarWidth: 'none', 
-            msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch'
-          }}
+    <div className="h-[60px] bg-black border-b border-rule">
+      <div className="max-w-7xl mx-auto h-full flex items-stretch">
+        <button
+          onClick={() => onNavigateToScoreboard()}
+          className="shrink-0 flex flex-col justify-center px-4 sm:px-6 border-r border-rule hover:bg-panel cursor-pointer text-left"
         >
-          {displayGames.map((game) => {
-            const isLive = game.isLive;
-            const homeWon = !isLive && game.homeTeam.score > game.awayTeam.score;
-            const awayWon = !isLive && game.awayTeam.score > game.homeTeam.score;
-            const isSectional = (game.week || '').includes('Sectional') || game.title.includes('Sectional');
-            const isVolleyball = game.sport.includes('Volleyball');
-
-            return (
-              <div
-                key={game.id}
-                onClick={() => onNavigateToScoreboard(game.id)}
-                className={`shrink-0 bg-white/5 hover:bg-white/10 border ${
-                  isSectional
-                    ? 'border-red-500/40 hover:border-red-400 shadow-[0_0_12px_rgba(239,68,68,0.2)]'
-                    : isVolleyball
-                    ? 'border-[#00BFFF]/40 hover:border-[#00BFFF]'
-                    : 'border-white/10 hover:border-white/30'
-                } rounded-md p-2.5 min-w-[220px] sm:min-w-[260px] cursor-pointer transition-all duration-200 group hover:scale-[1.02]`}
-              >
-                {/* Header: Sport & Status */}
-                <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider mb-1.5 border-b border-white/5 pb-1">
-                  <span className={`font-bold ${isSectional ? 'text-red-400' : 'text-[#00BFFF]'}`}>
-                    {isSectional ? '🏈 Sectionals R1' : isVolleyball ? '🏐 VB Tournament' : game.sport}
-                  </span>
-                  <div className="flex items-center gap-1">
-                    {isLive && game.clock !== '00:00' && game.quarter !== 'Final' ? (
-                      <span className="text-red-400 font-bold flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                        {game.clock.includes(':') ? `${game.quarter} • ${game.clock}` : game.statusText}
-                      </span>
-                    ) : (
-                      <span className="text-white/60 font-bold">{game.statusText || 'UPCOMING'}</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Teams & Scores */}
-                <div className="space-y-1">
-                  {/* Away Team */}
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 truncate pr-2">
-                      <div 
-                        className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
-                        style={{ backgroundColor: game.awayTeam.color || '#333' }}
-                      >
-                        {game.awayTeam.shortName.charAt(0)}
-                      </div>
-                      <span className={`font-display font-bold truncate ${game.possession === 'away' && isLive ? 'text-[#00BFFF]' : 'text-white'}`}>
-                        {game.awayTeam.name}
-                      </span>
-                      {game.possession === 'away' && isLive && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#00BFFF] animate-ping" title="Possession" />
-                      )}
-                    </div>
-                    <span className={`font-display font-bold text-xs tabular-nums ${(isLive && game.awayTeam.score > game.homeTeam.score) || awayWon ? 'text-[#00BFFF]' : 'text-white/90'}`}>
-                      {game.awayTeam.score}
-                    </span>
-                  </div>
-
-                  {/* Home Team */}
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 truncate pr-2">
-                      <div 
-                        className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
-                        style={{ backgroundColor: game.homeTeam.color || '#333' }}
-                      >
-                        {game.homeTeam.shortName.charAt(0)}
-                      </div>
-                      <span className={`font-display font-bold truncate ${game.possession === 'home' && isLive ? 'text-[#00BFFF]' : 'text-white'}`}>
-                        {game.homeTeam.name}
-                      </span>
-                      {game.possession === 'home' && isLive && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#00BFFF] animate-ping" title="Possession" />
-                      )}
-                    </div>
-                    <span className={`font-display font-bold text-xs tabular-nums ${(isLive && game.homeTeam.score > game.awayTeam.score) || homeWon ? 'text-[#00BFFF]' : 'text-white/90'}`}>
-                      {game.homeTeam.score}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Footer */}
-                <div className="mt-1.5 pt-1 border-t border-white/5 flex items-center justify-between text-[9px] text-white/40 font-mono">
-                  <span className="truncate max-w-[150px]">
-                    {game.dateString || game.venue || game.statusText}
-                  </span>
-                  <span className="text-[#00BFFF] group-hover:translate-x-0.5 transition-transform font-bold">
-                    Scoreboard →
-                  </span>
-                </div>
+          <span className="font-display font-semibold uppercase text-white text-[15px] leading-none">Scores</span>
+          <span className="text-ind text-[12px] mt-1 leading-none">All games</span>
+        </button>
+        <div className="flex items-stretch overflow-x-auto no-scrollbar overscroll-x-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
+          {list.map((g) => {
+            const st = status(g);
+            const final = st.text === 'Final';
+            const awayWin = final && g.awayTeam.score > g.homeTeam.score;
+            const homeWin = final && g.homeTeam.score > g.awayTeam.score;
+            const row = (t: GameState['homeTeam'], win: boolean, lose: boolean) => (
+              <div className="flex items-center gap-2 leading-none">
+                <TeamLogo name={t.name} url={t.logoUrl} color={t.color} className="w-4 h-4" textClass="text-[8px]" />
+                <span className={`text-[13px] font-semibold truncate max-w-[110px] ${lose ? 'text-white/50' : 'text-white'}`}>{t.shortName || t.name}</span>
+                <span className={`ml-auto pl-3 font-display text-[14px] tabular ${lose ? 'text-white/50' : 'text-white'} ${win ? 'font-bold' : ''}`}>
+                  {t.score}
+                </span>
               </div>
+            );
+            return (
+              <button
+                key={g.id}
+                onClick={() => onNavigateToScoreboard(g.id)}
+                className="shrink-0 w-[172px] flex flex-col justify-center gap-1.5 px-3 border-r border-rule hover:bg-panel cursor-pointer text-left"
+              >
+                <span className={`text-[11px] font-semibold leading-none truncate ${st.live ? 'text-[#FF4D5E]' : 'text-mute'}`}>
+                  {st.live && <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#E4002B] mr-1 align-middle" aria-hidden />}
+                  {st.text}
+                </span>
+                {row(g.awayTeam, awayWin, homeWin)}
+                {row(g.homeTeam, homeWin, awayWin)}
+              </button>
             );
           })}
         </div>

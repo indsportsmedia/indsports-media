@@ -226,7 +226,7 @@ export default function App() {
           <nav className="hidden lg:flex items-center h-full gap-1 font-display font-semibold text-[17px]" aria-label="Main">
             {([
               ['Scores', () => navigateToLiveScoreboard(), currentView === 'live-scoreboard'],
-              ['News', () => navigateToArticles('All'), currentView === 'articles'],
+              ['Articles', () => navigateToArticles('All'), currentView === 'articles'],
               ['Photos', () => navigateToPhotos('All'), currentView === 'photos'],
               ['Athletes', navigateToAthleteFeatures, currentView === 'athlete-features'],
             ] as [string, () => void, boolean][]).map(([label, onClick, active]) => (
@@ -308,13 +308,18 @@ export default function App() {
           </div>
         </div>
 
+        {/* Score ticker stays pinned under the nav on every page */}
+        <div className="border-t border-rule">
+          <LiveScoreTicker onNavigateToScoreboard={(gameId) => navigateToLiveScoreboard(gameId)} />
+        </div>
+
         {isMenuOpen && (
-          <div className="lg:hidden border-t border-rule bg-black max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="lg:hidden border-t border-rule bg-black max-h-[calc(100vh-8rem)] overflow-y-auto">
             <nav className="px-4 py-2 font-display font-semibold text-xl" aria-label="Mobile">
               {([
                 ['Home', navigateToHome],
                 ['Scores', () => navigateToLiveScoreboard()],
-                ['News', () => navigateToArticles('All')],
+                ['Articles', () => navigateToArticles('All')],
                 ['Photos', () => navigateToPhotos('All')],
                 ['Athletes', navigateToAthleteFeatures],
                 ['For schools', navigateToPartners],
@@ -338,6 +343,8 @@ export default function App() {
           </div>
         )}
       </header>
+      {/* Space for the pinned ticker (pages already pad for the nav bar) */}
+      <div className="h-[61px]" aria-hidden />
       {/* Main Content Router */}
       {currentView === 'live-scoreboard' ? (
         <LiveScoreboard 
@@ -387,7 +394,6 @@ export default function App() {
         </div>
       ) : (
         <div className="pt-16">
-          <LiveScoreTicker onNavigateToScoreboard={(gameId) => navigateToLiveScoreboard(gameId)} />
           <HomePage
             onOpenScores={(gameId) => navigateToLiveScoreboard(gameId)}
             onOpenArticles={(sport) => navigateToArticles(sport || 'All')}
@@ -420,7 +426,7 @@ export default function App() {
             <p className="font-display font-bold text-white text-lg mb-3">Coverage</p>
             <ul className="space-y-2 text-white/70">
               <li><button onClick={() => navigateToLiveScoreboard()} className="hover:text-white cursor-pointer">Scores</button></li>
-              <li><button onClick={() => navigateToArticles('All')} className="hover:text-white cursor-pointer">News</button></li>
+              <li><button onClick={() => navigateToArticles('All')} className="hover:text-white cursor-pointer">Articles</button></li>
               <li><button onClick={() => navigateToPhotos('All')} className="hover:text-white cursor-pointer">Photos</button></li>
               <li><button onClick={navigateToAthleteFeatures} className="hover:text-white cursor-pointer">Athletes</button></li>
             </ul>

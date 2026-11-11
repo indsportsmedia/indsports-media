@@ -16,6 +16,14 @@
 Sharing: on a phone, the blue **Share** button opens your phone's share sheet
 (Instagram, TikTok, Messages, etc.). **IG caption** copies a ready-to-paste caption with the link.
 
+## School logos
+
+Newsroom → **Schools** → type the school name exactly as it appears on the scoreboard
+(e.g. "Westfield"), pick the logo, **Save school**. Every game with that school — scoreboard,
+score ticker, game cards — shows the logo automatically, including games already created.
+Add other spellings under "Other names" (e.g. "WHS, Westfield High School").
+Transparent PNGs look best. "Change logo" swaps it everywhere at once.
+
 ## For admins
 
 - Add or remove people in the **Team** tab. They must use the same Google email they sign in with.

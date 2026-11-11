@@ -53,7 +53,7 @@ export const activeFirebaseProjectId = firebaseConfig.projectId;
  */
 export async function uploadMediaFile(
   file: File | Blob, 
-  pathFolder: 'photos' | 'videos' | 'highlights' = 'photos', 
+  pathFolder: 'photos' | 'videos' | 'highlights' | 'logos' = 'photos', 
   onProgress?: (progress: number) => void
 ): Promise<string> {
   const fileExtension = (file as File).name ? (file as File).name.split('.').pop() : (file.type.startsWith('video/') ? 'mp4' : 'jpg');
@@ -151,34 +151,74 @@ export async function testFirestoreConnection(): Promise<boolean> {
  * Whenever ANY device updates a score, clock, play, or clip,
  * this listener fires on ALL devices instantly with sub-second latency.
  */
+// ---------------------------------------------------------------------------
+// School logo library: schools/{key} = { name, logoUrl, mascot?, aliases? }
+// Added from Newsroom → Schools. Any game whose team name matches a school
+// automatically shows that logo everywhere (scoreboard, ticker, cards).
+// ---------------------------------------------------------------------------
+export interface School {
+  id: string;
+  name: string;
+  logoUrl: string;
+  mascot?: string;
+  aliases?: string[];
+}
+
+export const schoolKey = (name: string) =>
+  (name || '').toLowerCase().replace(/\b(high school|hs|h\.s\.)\b/g, '').replace(/[^a-z0-9]/g, '');
+
+let schoolLogoMap: Record<string, string> = {};
+
+export function subscribeToSchools(onUpdate: (schools: School[]) => void): Unsubscribe {
+  return onSnapshot(
+    collection(db, 'schools'),
+    (snap) => {
+      const list = snap.docs.map((d) => ({ ...(d.data() as Omit<School, 'id'>), id: d.id }));
+      list.sort((a, b) => a.name.localeCompare(b.name));
+      const map: Record<string, string> = {};
+      list.forEach((s) => {
+        if (!s.logoUrl) return;
+        [s.name, ...(s.aliases || [])].forEach((n) => { if (n) map[schoolKey(n)] = s.logoUrl; });
+      });
+      schoolLogoMap = map;
+      onUpdate(list);
+    },
+    (err) => console.warn('Schools subscription error:', err)
+  );
+}
+
+export function logoForTeam(team: { name: string; shortName?: string; logoUrl?: string }): string | undefined {
+  return schoolLogoMap[schoolKey(team.name)] || (team.shortName ? schoolLogoMap[schoolKey(team.shortName)] : undefined) || team.logoUrl;
+}
+
+function withSchoolLogos(game: GameState): GameState {
+  return {
+    ...game,
+    homeTeam: { ...game.homeTeam, logoUrl: logoForTeam(game.homeTeam) },
+    awayTeam: { ...game.awayTeam, logoUrl: logoForTeam(game.awayTeam) },
+  };
+}
+
 export function subscribeToGames(
   onUpdate: (games: GameState[]) => void,
   onError?: (err: Error) => void
 ): Unsubscribe {
-  const gamesCol = collection(db, 'games');
+  let latest: GameState[] | null = null;
+  const emit = () => { if (latest) onUpdate(latest.map(withSchoolLogos)); };
 
-  return onSnapshot(
-    gamesCol,
+  const unsubSchools = subscribeToSchools(() => emit());
+  const unsubGames = onSnapshot(
+    collection(db, 'games'),
     (snapshot) => {
-      if (!snapshot.empty) {
-        const gamesList: GameState[] = [];
-        snapshot.forEach((docSnap) => {
-          const data = docSnap.data() as GameState;
-          gamesList.push({
-            ...data,
-            id: docSnap.id
-          });
-        });
-        onUpdate(gamesList);
-      } else {
-        onUpdate([]);
-      }
+      latest = snapshot.docs.map((docSnap) => ({ ...(docSnap.data() as GameState), id: docSnap.id }));
+      emit();
     },
     (err) => {
       console.error('Firestore games subscription error:', err);
       if (onError) onError(err);
     }
   );
+  return () => { unsubGames(); unsubSchools(); };
 }
 
 /**

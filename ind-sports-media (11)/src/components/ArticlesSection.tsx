@@ -26,7 +26,7 @@ export const ArticlesSection = ({ initialSport = 'All' }: { initialSport?: strin
     <div className="pt-16 bg-black min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
         <div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-white pb-3">
-          <h1 className="font-display font-bold text-4xl sm:text-5xl text-white">News</h1>
+          <h1 className="font-display font-bold text-4xl sm:text-5xl text-white">Articles</h1>
           <div className="flex flex-wrap gap-1" role="tablist" aria-label="Filter by sport">
             {SPORT_FILTERS.map((s) => (
               <button

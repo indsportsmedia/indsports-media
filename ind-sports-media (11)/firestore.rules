@@ -41,6 +41,12 @@ service cloud.firestore {
       }
     }
 
+    // ---- School logo library (Newsroom → Schools) ---------------------------
+    match /schools/{schoolId} {
+      allow read: if true;
+      allow write: if isStaff() && isValidId(schoolId);
+    }
+
     match /photos/{photoId} {
       allow read: if true;
       allow write: if isStaff() && isValidId(photoId);
