@@ -1562,7 +1562,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
   });
 
   return (
-    <div className="min-h-screen bg-[#070707] text-white pt-24 pb-24 font-sans selection:bg-[#00BFFF] selection:text-black">
+    <div className="min-h-screen bg-black text-white pt-20 pb-24 font-sans selection:bg-[#00BFFF] selection:text-black">
       {/* Top Breadcrumb & Actions Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-6">
         <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/10 pb-4">
@@ -1620,516 +1620,6 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
-        {/* ========================================================================= */}
-        {/* SEASON & WEEK ARCHIVE NAVIGATION BAR */}
-        {/* ========================================================================= */}
-        <div className="mb-6 bg-[#121212] border border-[#00BFFF]/30 rounded-sm p-4 sm:p-5 shadow-2xl relative overflow-hidden">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-            <div>
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-red-400 flex items-center gap-2">
-                <Radio size={14} className="text-red-500 animate-pulse" />
-                2026 IHSAA Postseason Tournament Central • Live Sectionals &amp; Regionals Hub
-              </span>
-              <h2 className="text-base sm:text-lg font-bold font-display uppercase tracking-tight text-white mt-0.5">
-                Tonight&apos;s Football Sectionals R1 &amp; Saturday Volleyball Tournaments
-              </h2>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-mono text-white/50 flex items-center gap-1">
-                <RefreshCw size={11} className={isSyncing ? 'animate-spin text-[#00BFFF]' : ''} />
-                Live Sync: {lastSyncTime}
-              </span>
-            </div>
-          </div>
-
-          {/* Week & Tournament Filter Chips */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-            {[
-              { id: 'Sectionals', label: 'Tonight: Football Sectionals R1', count: games.filter(g => (g.week || '').includes('Sectional') || g.title.includes('Sectional')).length },
-              { id: 'Volleyball', label: 'Saturday: Volleyball Tournaments', count: games.filter(g => g.sport.includes('Volleyball')).length },
-              { id: 'Tournaments-Hub', label: 'Brackets & Site Hub', count: 2 },
-              { id: 'Regular-Season', label: 'Regular Season Archives', count: games.filter(g => !(g.week || '').includes('Sectional') && !g.title.includes('Sectional') && !g.sport.includes('Volleyball')).length },
-              { id: 'ALL', label: 'All Matchups', count: games.length },
-            ].map(tab => {
-              const isActive = selectedWeekFilter === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setSelectedWeekFilter(tab.id)}
-                  className={`px-3.5 py-2 rounded-sm text-xs font-display font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
-                    isActive
-                      ? tab.id === 'Sectionals' 
-                        ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.5)] scale-100'
-                        : 'bg-[#00BFFF] text-black scale-100'
-                      : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10'
-                  }`}
-                >
-                  <span>{tab.label}</span>
-                  <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${isActive ? 'bg-black/30 text-white font-bold' : 'bg-white/10 text-white/60'}`}>
-                    {tab.count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Embedded Interactive Tournament Central Brackets */}
-          {selectedWeekFilter === 'Tournaments-Hub' && (
-            <div className="mt-4 pt-4 border-t border-white/10">
-              <TournamentCentral 
-                isScoreboardEmbedded={true}
-                onNavigateToGame={(gameId) => {
-                  setSelectedGameId(gameId);
-                  setSelectedWeekFilter('ALL');
-                }}
-              />
-            </div>
-          )}
-
-          {/* Volleyball Specific View: Dual Site Tournaments */}
-          {selectedWeekFilter === 'Volleyball' && (
-            <div className="mt-4 space-y-6">
-              {/* Informational Header */}
-              <div className="bg-gradient-to-r from-blue-950/40 via-[#101010] to-emerald-950/30 border border-white/10 rounded-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#00BFFF]/15 border border-[#00BFFF]/30 text-[#00BFFF] text-xs font-mono font-bold uppercase tracking-wider mb-1.5">
-                    <Sparkles size={13} className="text-[#00BFFF]" />
-                    Saturday: Volleyball Tournaments • Dual Site Centers
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-display font-bold text-white uppercase tracking-wide">
-                    Saturday Regional Volleyball Tournaments
-                  </h3>
-                  <p className="text-xs sm:text-sm text-white/60 font-sans mt-0.5">
-                    Official schedule and live tracking for both Huntington North and Jennings County tournament sites.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setSelectedWeekFilter('Tournaments-Hub')}
-                  className="px-4 py-2.5 rounded-sm bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/40 hover:border-amber-400 text-amber-300 font-display font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition cursor-pointer shrink-0"
-                >
-                  <Trophy size={15} className="text-amber-400" />
-                  <span>View Bracket Hub</span>
-                  <ChevronRight size={14} />
-                </button>
-              </div>
-
-              {/* Dual Site Columns */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
-                {/* 1. HUNTINGTON NORTH */}
-                <div className="bg-[#121212] border border-cyan-500/30 rounded-sm p-4 sm:p-5 shadow-2xl space-y-4">
-                  {/* Site Header */}
-                  <div className="flex items-start justify-between border-b border-white/10 pb-3.5">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#00BFFF]" />
-                        <h4 className="text-lg sm:text-xl font-display font-bold text-white uppercase tracking-wider">
-                          For Huntington North:
-                        </h4>
-                      </div>
-                      <p className="text-xs text-white/50 font-sans flex items-center gap-1.5 mt-1">
-                        <MapPin size={13} className="text-[#00BFFF]" />
-                        Huntington North Arena • Huntington, IN
-                      </p>
-                    </div>
-                    <span className="bg-[#00BFFF]/10 border border-[#00BFFF]/30 text-[#00BFFF] text-[10px] font-mono font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
-                      3 Matches
-                    </span>
-                  </div>
-
-                  {/* Matches List: M1, M2, Championship */}
-                  <div className="space-y-3">
-                    {[
-                      {
-                        id: 'vb-huntington-m1-carroll-vs-penn',
-                        matchTag: 'M1',
-                        title: 'M1: Carroll (Fort Wayne) vs Penn',
-                        team1: 'Carroll (Fort Wayne)',
-                        team2: 'Penn',
-                        time: '10:00 AM',
-                        round: 'Semifinal 1',
-                        court: 'Court 1 - North Gym',
-                        isChamp: false
-                      },
-                      {
-                        id: 'vb-huntington-m2-westfield-vs-crownpoint',
-                        matchTag: 'M2',
-                        title: 'M2: Westfield vs Crown Point',
-                        team1: 'Westfield',
-                        team2: 'Crown Point',
-                        time: '12:00 PM',
-                        round: 'Semifinal 2',
-                        court: 'Court 1 - North Gym',
-                        isChamp: false
-                      },
-                      {
-                        id: 'vb-huntington-champ',
-                        matchTag: 'Championship',
-                        title: 'Championship: M1 Winner vs M2 Winner',
-                        team1: 'M1 Winner',
-                        team2: 'M2 Winner',
-                        subNote: 'Winner M1 (Carroll / Penn) vs Winner M2 (Westfield / Crown Point)',
-                        time: '7:00 PM',
-                        round: 'Championship Final',
-                        court: 'Main Arena Court',
-                        isChamp: true
-                      }
-                    ].map((m) => {
-                      const gameObj = games.find(g => g.id === m.id) || DEFAULT_GAMES_LIST.find(g => g.id === m.id);
-                      if (!gameObj) return null;
-                      const isSelected = gameObj.id === activeGame.id;
-                      const isFinal = gameObj.isArchived || gameObj.statusText === 'FINAL';
-
-                      return (
-                        <button
-                          key={m.id}
-                          onClick={() => setSelectedGameId(gameObj.id)}
-                          className={`w-full text-left p-3.5 sm:p-4 rounded-sm border transition-all cursor-pointer relative ${
-                            isSelected
-                              ? 'bg-[#181818] border-[#00BFFF] ring-2 ring-[#00BFFF]'
-                              : m.isChamp
-                                ? 'bg-gradient-to-r from-amber-950/25 to-black/80 border-amber-500/35 hover:border-amber-400 hover:bg-amber-950/35'
-                                : 'bg-[#151515] border-white/10 hover:border-white/25 hover:bg-[#1c1c1c]'
-                          }`}
-                        >
-                          {/* Top Badges */}
-                          <div className="flex items-center justify-between gap-2 mb-2.5">
-                            <div className="flex items-center gap-2">
-                              <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
-                                m.isChamp 
-                                  ? 'bg-amber-500 text-black shadow-sm' 
-                                  : 'bg-[#00BFFF]/20 border border-[#00BFFF]/40 text-[#00BFFF]'
-                              }`}>
-                                {m.matchTag}
-                              </span>
-                              <span className="text-[11px] font-mono text-white/50">
-                                {m.time} • {m.court}
-                              </span>
-                            </div>
-
-                            {isSelected ? (
-                              <span className="bg-[#00BFFF] text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1">
-                                <Radio size={10} className="animate-pulse" />
-                                Active Scoreboard
-                              </span>
-                            ) : isFinal ? (
-                              <span className="bg-white/10 text-white/70 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
-                                Final
-                              </span>
-                            ) : (
-                              <span className="text-[10px] font-mono text-white/40 group-hover:text-white/70 flex items-center gap-1">
-                                <span>Track Score</span>
-                                <ChevronRight size={12} />
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Matchup Title Line requested by user */}
-                          <div className="font-display font-bold text-sm sm:text-base text-white tracking-wide mb-2 flex items-center justify-between">
-                            <span className={m.isChamp ? 'text-amber-300' : 'text-white'}>
-                              {m.title}
-                            </span>
-                            <span className="font-mono text-sm font-bold text-white/80">
-                              {gameObj.homeTeam.score} - {gameObj.awayTeam.score}
-                            </span>
-                          </div>
-
-                          {/* Teams Display with Logos */}
-                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
-                            <div className="flex items-center gap-2">
-                              <img 
-                                src={gameObj.homeTeam.logoUrl} 
-                                alt={gameObj.homeTeam.name} 
-                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
-                              />
-                              <div className="min-w-0">
-                                <div className="text-xs font-sans font-bold text-white truncate">
-                                  {m.team1}
-                                </div>
-                                <div className="text-[10px] text-white/40 truncate">
-                                  {gameObj.homeTeam.record}
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <img 
-                                src={gameObj.awayTeam.logoUrl} 
-                                alt={gameObj.awayTeam.name} 
-                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
-                              />
-                              <div className="min-w-0">
-                                <div className="text-xs font-sans font-bold text-white truncate">
-                                  {m.team2}
-                                </div>
-                                <div className="text-[10px] text-white/40 truncate">
-                                  {gameObj.awayTeam.record}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {m.subNote && (
-                            <div className="text-[10px] text-amber-300/70 font-sans mt-2 pt-1 border-t border-amber-500/10 ">
-                              {m.subNote}
-                            </div>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 2. JENNINGS COUNTY */}
-                <div className="bg-[#121212] border border-amber-500/30 rounded-sm p-4 sm:p-5 shadow-2xl space-y-4">
-                  {/* Site Header */}
-                  <div className="flex items-start justify-between border-b border-white/10 pb-3.5">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#F59E0B]" />
-                        <h4 className="text-lg sm:text-xl font-display font-bold text-white uppercase tracking-wider">
-                          For Jennings County:
-                        </h4>
-                      </div>
-                      <p className="text-xs text-white/50 font-sans flex items-center gap-1.5 mt-1">
-                        <MapPin size={13} className="text-amber-400" />
-                        Jennings County Gymnasium • North Vernon, IN
-                      </p>
-                    </div>
-                    <span className="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
-                      3 Matches
-                    </span>
-                  </div>
-
-                  {/* Matches List: M1, M2, Championship */}
-                  <div className="space-y-3">
-                    {[
-                      {
-                        id: 'vb-jennings-m1-floydcentral-vs-yorktown',
-                        matchTag: 'M1',
-                        title: 'M1: Floyd Central vs Yorktown',
-                        team1: 'Floyd Central',
-                        team2: 'Yorktown',
-                        time: '10:30 AM',
-                        round: 'Semifinal 1',
-                        court: 'Main Gymnasium',
-                        isChamp: false
-                      },
-                      {
-                        id: 'vb-jennings-m2-bloomingtonsouth-vs-centergrove',
-                        matchTag: 'M2',
-                        title: 'M2: Bloomington South vs Center Grove',
-                        team1: 'Bloomington South',
-                        team2: 'Center Grove',
-                        time: '12:30 PM',
-                        round: 'Semifinal 2',
-                        court: 'Main Gymnasium',
-                        isChamp: false
-                      },
-                      {
-                        id: 'vb-jennings-champ',
-                        matchTag: 'Championship',
-                        title: 'Championship: M1 Winner vs M2 Winner',
-                        team1: 'M1 Winner',
-                        team2: 'M2 Winner',
-                        subNote: 'Winner M1 (Floyd Central / Yorktown) vs Winner M2 (Bloomington South / Center Grove)',
-                        time: '6:30 PM',
-                        round: 'Championship Final',
-                        court: 'Championship Arena Court',
-                        isChamp: true
-                      }
-                    ].map((m) => {
-                      const gameObj = games.find(g => g.id === m.id) || DEFAULT_GAMES_LIST.find(g => g.id === m.id);
-                      if (!gameObj) return null;
-                      const isSelected = gameObj.id === activeGame.id;
-                      const isFinal = gameObj.isArchived || gameObj.statusText === 'FINAL';
-
-                      return (
-                        <button
-                          key={m.id}
-                          onClick={() => setSelectedGameId(gameObj.id)}
-                          className={`w-full text-left p-3.5 sm:p-4 rounded-sm border transition-all cursor-pointer relative ${
-                            isSelected
-                              ? 'bg-[#181818] border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.25)] ring-2 ring-amber-400'
-                              : m.isChamp
-                                ? 'bg-gradient-to-r from-amber-950/25 to-black/80 border-amber-500/35 hover:border-amber-400 hover:bg-amber-950/35'
-                                : 'bg-[#151515] border-white/10 hover:border-white/25 hover:bg-[#1c1c1c]'
-                          }`}
-                        >
-                          {/* Top Badges */}
-                          <div className="flex items-center justify-between gap-2 mb-2.5">
-                            <div className="flex items-center gap-2">
-                              <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
-                                m.isChamp 
-                                  ? 'bg-amber-500 text-black shadow-sm' 
-                                  : 'bg-amber-500/20 border border-amber-500/40 text-amber-300'
-                              }`}>
-                                {m.matchTag}
-                              </span>
-                              <span className="text-[11px] font-mono text-white/50">
-                                {m.time} • {m.court}
-                              </span>
-                            </div>
-
-                            {isSelected ? (
-                              <span className="bg-amber-400 text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1 shadow-[0_0_8px_#F59E0B]">
-                                <Radio size={10} className="animate-pulse" />
-                                Active Scoreboard
-                              </span>
-                            ) : isFinal ? (
-                              <span className="bg-white/10 text-white/70 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
-                                Final
-                              </span>
-                            ) : (
-                              <span className="text-[10px] font-mono text-white/40 group-hover:text-white/70 flex items-center gap-1">
-                                <span>Track Score</span>
-                                <ChevronRight size={12} />
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Matchup Title Line requested by user */}
-                          <div className="font-display font-bold text-sm sm:text-base text-white tracking-wide mb-2 flex items-center justify-between">
-                            <span className={m.isChamp ? 'text-amber-300' : 'text-white'}>
-                              {m.title}
-                            </span>
-                            <span className="font-mono text-sm font-bold text-white/80">
-                              {gameObj.homeTeam.score} - {gameObj.awayTeam.score}
-                            </span>
-                          </div>
-
-                          {/* Teams Display with Logos */}
-                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
-                            <div className="flex items-center gap-2">
-                              <img 
-                                src={gameObj.homeTeam.logoUrl} 
-                                alt={gameObj.homeTeam.name} 
-                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
-                              />
-                              <div className="min-w-0">
-                                <div className="text-xs font-sans font-bold text-white truncate">
-                                  {m.team1}
-                                </div>
-                                <div className="text-[10px] text-white/40 truncate">
-                                  {gameObj.homeTeam.record}
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <img 
-                                src={gameObj.awayTeam.logoUrl} 
-                                alt={gameObj.awayTeam.name} 
-                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
-                              />
-                              <div className="min-w-0">
-                                <div className="text-xs font-sans font-bold text-white truncate">
-                                  {m.team2}
-                                </div>
-                                <div className="text-[10px] text-white/40 truncate">
-                                  {gameObj.awayTeam.record}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {m.subNote && (
-                            <div className="text-[10px] text-amber-300/70 font-sans mt-2 pt-1 border-t border-amber-500/10 ">
-                              {m.subNote}
-                            </div>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          )}
-
-          {/* Filtered Games Grid for ALL, Sectionals, Regular-Season */}
-          {selectedWeekFilter !== 'Tournaments-Hub' && selectedWeekFilter !== 'Volleyball' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
-              {games
-                .filter(g => {
-                  if (selectedWeekFilter === 'ALL') return true;
-                  if (selectedWeekFilter === 'Sectionals') return (g.week || '').includes('Sectional') || g.title.includes('Sectional');
-                  if (selectedWeekFilter === 'Volleyball') return g.sport.includes('Volleyball');
-                  if (selectedWeekFilter === 'Regular-Season') return !(g.week || '').includes('Sectional') && !g.title.includes('Sectional') && !g.sport.includes('Volleyball');
-                  return true;
-                })
-              .map((g) => {
-                const isSelected = g.id === activeGame.id;
-                const isFinal = g.isArchived || g.statusText === 'FINAL' || g.quarter === 'Final';
-                return (
-                  <button
-                    key={g.id}
-                    onClick={() => setSelectedGameId(g.id)}
-                    className={`p-3.5 rounded-sm border text-left transition-all cursor-pointer flex flex-col justify-between gap-3 ${
-                      isSelected
-                        ? 'bg-[#181818] border-[#00BFFF] shadow-lg/15 ring-2 ring-[#00BFFF]'
-                        : 'bg-[#101010] border-white/10 hover:border-white/25 hover:bg-[#141414]'
-                    }`}
-                  >
-                    {/* Top Row: Week Badge & Live/Final Status */}
-                    <div className="flex items-center justify-between text-[10px] font-mono">
-                      <span className="bg-white/10 text-white/70 px-2 py-0.5 rounded font-bold uppercase">
-                        {g.week || 'Week 3'}
-                      </span>
-                      {isFinal ? (
-                        <span className="bg-white/10 text-white/70 px-2 py-0.5 rounded font-bold tracking-wider uppercase">
-                          FINAL
-                        </span>
-                      ) : (
-                        <span className="bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded font-bold tracking-wider uppercase flex items-center gap-1 animate-pulse">
-                          <Radio size={10} className="text-red-500" />
-                          {g.quarter || 'LIVE'}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Middle: Teams & Matchup */}
-                    <div className="flex items-center gap-3">
-                      <div className="flex -space-x-2 overflow-hidden shrink-0">
-                        <img 
-                          src={g.homeTeam.logoUrl} 
-                          alt={g.homeTeam.name} 
-                          className="inline-block h-8 w-8 rounded-full object-contain bg-black/60 border border-white/20 p-0.5" 
-                        />
-                        <img 
-                          src={g.awayTeam.logoUrl} 
-                          alt={g.awayTeam.name} 
-                          className="inline-block h-8 w-8 rounded-full object-contain bg-black/60 border border-white/20 p-0.5" 
-                        />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-display font-bold text-xs sm:text-sm text-white tracking-wide truncate">
-                          {g.homeTeam.shortName} vs {g.awayTeam.shortName}
-                        </div>
-                        <div className="text-[10px] font-sans text-white/50 truncate">
-                          {g.venue}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Bottom: Score & Clock */}
-                    <div className="flex items-center justify-between border-t border-white/5 pt-2 mt-0.5">
-                      <div className="text-[11px] font-sans text-white/60">
-                        {g.dateString}
-                      </div>
-                      <div className="font-mono font-bold text-sm text-white">
-                        {g.homeTeam.score} - {g.awayTeam.score}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
         {/* ========================================================================= */}
         {/* OPERATOR / SIDELINE CONTROL CONSOLE (Strictly Mobile-First & Focused) */}
         {/* ========================================================================= */}
@@ -2997,151 +2487,97 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
         </AnimatePresence>
 
         {/* ========================================================================= */}
-        {/* MAIN PUBLIC SCOREBOARD DISPLAY (Broadcast Grade) */}
+        {/* MAIN PUBLIC SCOREBOARD DISPLAY (game header, broadcast style) */}
         {/* ========================================================================= */}
-        <div className="bg-gradient-to-b from-[#141414] to-[#0d0d0d] border border-white/15 rounded-sm p-6 sm:p-10 shadow-2xl mb-8 relative overflow-hidden">
-          
-          {/* Subtle Ambient Background Gradients */}
-          <div className="absolute top-0 left-0 w-1/3 h-full bg-emerald-900/10 blur-3xl pointer-events-none" />
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-purple-900/10 blur-3xl pointer-events-none" />
-
-          {/* Matchup Header Details */}
-          <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/10 pb-6 mb-8">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00BFFF]/10 border border-[#00BFFF]/30 rounded-full text-[#00BFFF] text-xs font-display font-bold tracking-widest uppercase mb-2">
-                <Flame size={14} /> {activeGame.sport} • {activeGame.title}
-              </div>
-              <h2 className="text-sm sm:text-base font-display font-bold text-white/60 flex items-center gap-2">
-                <span>{activeGame.venue}</span>
-                <span>•</span>
-                <span className="text-[#00BFFF] font-mono">{activeGame.dateString}</span>
-              </h2>
-            </div>
-
-            {/* Quarter & Game Clock Badge */}
-            <div className="bg-black/80 border border-white/15 px-5 py-2.5 rounded-sm flex items-center gap-4 shadow-inner">
-              <div className="text-right">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-white/50 block">PERIOD</span>
-                <span className="text-base sm:text-lg font-display font-bold text-white uppercase">{activeGame.quarter}</span>
-              </div>
-              <div className="h-8 w-px bg-white/15" />
-              <div>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-white/50 block">GAME CLOCK</span>
-                <span className="text-base sm:text-lg font-mono font-bold text-[#00BFFF] flex items-center gap-1.5">
-                  <Clock size={16} /> {activeGame.clock}
-                </span>
-              </div>
-            </div>
+        <section className="mb-6 bg-panel border border-rule rounded-sm overflow-hidden" aria-label="Scoreboard">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 sm:px-6 py-2.5 border-b border-rule text-[14px]">
+            <p className="text-white/85 min-w-0 truncate">
+              <span className="text-ind font-semibold mr-2">{activeGame.sport}</span>
+              {activeGame.title}
+            </p>
+            <p className="text-mute">
+              {activeGame.venue}
+              {activeGame.dateString && <span className="ml-3">{activeGame.dateString}</span>}
+            </p>
           </div>
 
-          {/* Big Scoreboard Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-11 gap-6 items-center">
-            
-            {/* Team 1: HOME (Left) */}
-            <div className="md:col-span-4 bg-[#181818]/95 border-2 border-white/20 rounded-sm p-6 sm:p-8 flex items-center justify-between relative group hover:border-[#00BFFF]/60 transition-all shadow-xl overflow-hidden min-h-[140px]">
-              {/* Mascot Logo in the Background */}
-              <div 
-                className="absolute inset-y-0 left-0 w-3/4 pointer-events-none opacity-20 group-hover:opacity-30 transition-opacity duration-300 bg-no-repeat bg-contain bg-left-center mix-blend-screen"
-                style={{ 
-                  backgroundImage: `url(${activeGame.homeTeam.logoUrl})`,
-                  maskImage: 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%)',
-                  WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%)'
-                }}
-              />
-
-              {activeGame.possession === 'home' && (
-                <div className="absolute -top-3 left-6 bg-[#00BFFF] text-black font-display font-bold text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-md/30 z-10">
-                  <Zap size={12} /> POSSESSION
-                </div>
-              )}
-              
-              <div className="relative z-10 flex items-center gap-4">
-                <img 
-                  src={activeGame.homeTeam.logoUrl} 
-                  alt={activeGame.homeTeam.name}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-contain bg-black/60 border-2 border-white/30 p-1 shrink-0 shadow-lg"
+          {(() => {
+            const away = activeGame.awayTeam;
+            const home = activeGame.homeTeam;
+            const isFinal = !activeGame.isLive && /final/i.test(activeGame.statusText || activeGame.quarter || '');
+            const awayLeads = away.score > home.score;
+            const homeLeads = home.score > away.score;
+            const scoreClass = (leading: boolean) =>
+              `font-display font-bold tabular leading-none text-[52px] sm:text-[88px] ${isFinal && !leading ? 'text-white/45' : 'text-white'}`;
+            const Side = ({ team, side }: { team: typeof home; side: 'home' | 'away' }) => (
+              <div className={`flex items-center gap-3 sm:gap-5 min-w-0 ${side === 'home' ? 'flex-row-reverse text-right' : ''}`}>
+                <img
+                  src={team.logoUrl}
+                  alt=""
+                  className="w-12 h-12 sm:w-20 sm:h-20 object-contain shrink-0"
                 />
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-mono text-emerald-400 font-bold">HOME</span>
-                    <span className="text-xs text-white/40">({activeGame.homeTeam.record})</span>
-                  </div>
-                  <h3 className="text-2xl sm:text-3xl font-display font-bold uppercase text-white tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                    {activeGame.homeTeam.name}
-                  </h3>
-                  <span className="text-xs text-white/70 font-sans font-medium">{activeGame.homeTeam.mascot}</span>
+                <div className="min-w-0">
+                  <p className="font-display font-semibold uppercase text-white text-lg sm:text-3xl leading-tight truncate">
+                    {team.name}
+                  </p>
+                  <p className="text-mute text-[13px] sm:text-sm truncate">
+                    {team.mascot}
+                    {team.record && <span className="ml-2 tabular">({team.record})</span>}
+                  </p>
+                  {activeGame.isLive && activeGame.possession === side && (
+                    <p className="mt-1 text-ind text-[12px] sm:text-[13px] font-semibold">Ball</p>
+                  )}
                 </div>
               </div>
-              
-              <div className="text-center pl-4 border-l border-white/10 relative z-10">
-                <span className="text-5xl sm:text-7xl font-display font-bold text-white tracking-tighter drop-shadow-[0_4px_16px_rgba(255,255,255,0.2)]">
-                  {activeGame.homeTeam.score}
-                </span>
+            );
+            return (
+              <div className="grid grid-cols-[1fr_auto_auto_auto_1fr] items-center gap-2 sm:gap-6 px-3 sm:px-8 py-6 sm:py-9">
+                <Side team={away} side="away" />
+                <span className={scoreClass(awayLeads)}>{away.score}</span>
+                <div className="text-center px-1 sm:px-4 min-w-[64px]">
+                  {activeGame.isLive ? (
+                    <>
+                      <span className="inline-flex items-center gap-1.5 bg-[#E4002B] text-white font-display font-semibold text-[12px] sm:text-[13px] px-2 py-0.5 rounded-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" aria-hidden />
+                        LIVE
+                      </span>
+                      <p className="mt-2 font-display font-semibold uppercase text-white text-sm sm:text-lg">{activeGame.quarter}</p>
+                      <p className="font-display text-ind text-lg sm:text-2xl tabular">{activeGame.clock}</p>
+                    </>
+                  ) : (
+                    <p className="font-display font-semibold uppercase text-white text-sm sm:text-xl">
+                      {activeGame.statusText || activeGame.quarter}
+                    </p>
+                  )}
+                </div>
+                <span className={scoreClass(homeLeads)}>{home.score}</span>
+                <Side team={home} side="home" />
               </div>
-            </div>
+            );
+          })()}
 
-            {/* Middle Game Situation / Down & Distance (Center) */}
-            <div className="md:col-span-3 text-center bg-black/60 border border-white/10 rounded-sm p-4 sm:p-5 flex flex-col justify-center">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#00BFFF] font-bold block mb-1">
-                CURRENT SITUATION
+          {activeGame.isLive && /football/i.test(activeGame.sport) && activeGame.down && (
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1 px-4 sm:px-6 py-2.5 border-t border-rule text-[14px]">
+              <span className="font-display font-semibold uppercase text-white">
+                {activeGame.down} &amp; {activeGame.distance}
               </span>
-              <div className="text-xl sm:text-2xl font-display font-bold text-white uppercase tracking-tight mb-2">
-                {activeGame.down} & {activeGame.distance}
-              </div>
-              <div className="text-xs font-mono text-white/70 bg-white/5 py-1 px-2.5 rounded border border-white/5 inline-block mx-auto mb-2">
-                BALL ON <span className="text-white font-bold">{activeGame.ballOn}</span>
-              </div>
-              <div className="text-[11px] font-sans text-white/50 line-clamp-1">
-                {activeGame.possession === 'home' ? `${activeGame.homeTeam.shortName} offense` : `${activeGame.awayTeam.shortName} offense`}
-              </div>
-            </div>
-
-            {/* Team 2: AWAY (Right) */}
-            <div className="md:col-span-4 bg-[#181818]/95 border-2 border-white/20 rounded-sm p-6 sm:p-8 flex items-center justify-between relative group hover:border-[#00BFFF]/60 transition-all shadow-xl overflow-hidden min-h-[140px]">
-              {/* Mascot Logo in the Background */}
-              <div 
-                className="absolute inset-y-0 right-0 w-3/4 pointer-events-none opacity-20 group-hover:opacity-30 transition-opacity duration-300 bg-no-repeat bg-contain bg-right-center mix-blend-screen"
-                style={{ 
-                  backgroundImage: `url(${activeGame.awayTeam.logoUrl})`,
-                  maskImage: 'linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%)',
-                  WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%)'
-                }}
-              />
-
-              {activeGame.possession === 'away' && (
-                <div className="absolute -top-3 right-6 bg-[#00BFFF] text-black font-display font-bold text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-md/30 z-10">
-                  <Zap size={12} /> POSSESSION
-                </div>
+              {activeGame.ballOn && <span className="text-white/75">Ball on {activeGame.ballOn}</span>}
+              <span className="text-white/75">
+                {(activeGame.possession === 'home' ? activeGame.homeTeam : activeGame.awayTeam).shortName} ball
+              </span>
+              {activeGame.redZone && (
+                <span className="bg-[#E4002B] text-white font-display font-semibold text-[12px] px-2 py-0.5 rounded-sm">RED ZONE</span>
               )}
-              
-              <div className="text-center pr-4 border-r border-white/10 order-2 md:order-1 relative z-10">
-                <span className="text-5xl sm:text-7xl font-display font-bold text-white tracking-tighter drop-shadow-[0_4px_16px_rgba(255,255,255,0.2)]">
-                  {activeGame.awayTeam.score}
-                </span>
-              </div>
-
-              <div className="order-1 md:order-2 text-right relative z-10 flex items-center gap-4 flex-row-reverse">
-                <img 
-                  src={activeGame.awayTeam.logoUrl} 
-                  alt={activeGame.awayTeam.name}
-                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-contain bg-black/60 border-2 border-white/30 p-1 shrink-0 shadow-lg"
-                />
-                <div>
-                  <div className="flex items-center justify-end gap-2 mb-1">
-                    <span className="text-xs text-white/40">({activeGame.awayTeam.record})</span>
-                    <span className="text-xs font-mono text-amber-400 font-bold">AWAY</span>
-                  </div>
-                  <h3 className="text-2xl sm:text-3xl font-display font-bold uppercase text-white tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                    {activeGame.awayTeam.name}
-                  </h3>
-                  <span className="text-xs text-white/70 font-sans font-medium">{activeGame.awayTeam.mascot}</span>
-                </div>
-              </div>
             </div>
+          )}
 
-          </div>
-
-        </div>
+          {activeGame.lastPlay && (
+            <div className="px-4 sm:px-6 py-3 border-t border-rule bg-black/40 text-[15px]">
+              <span className="text-mute mr-2">Last play</span>
+              <span className="text-white">{activeGame.lastPlay}</span>
+            </div>
+          )}
+        </section>
 
         {/* ========================================================================= */}
         {/* TABBED INTERFACE: LIVE HIGHLIGHTS / BOX SCORE / STATS */}
@@ -3523,6 +2959,520 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
             )}
 
           </div>
+
+        </div>
+
+        {/* More games */}
+        <div className="mt-10">
+        {/* ========================================================================= */}
+        {/* SEASON & WEEK ARCHIVE NAVIGATION BAR */}
+        {/* ========================================================================= */}
+        <div className="mb-6 bg-[#121212] border border-[#00BFFF]/30 rounded-sm p-4 sm:p-5 shadow-2xl relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+            <div>
+              <span className="text-xs font-mono font-bold uppercase tracking-widest text-red-400 flex items-center gap-2">
+                <Radio size={14} className="text-red-500 animate-pulse" />
+                2026 IHSAA Postseason Tournament Central • Live Sectionals &amp; Regionals Hub
+              </span>
+              <h2 className="text-base sm:text-lg font-bold font-display uppercase tracking-tight text-white mt-0.5">
+                Tonight&apos;s Football Sectionals R1 &amp; Saturday Volleyball Tournaments
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-mono text-white/50 flex items-center gap-1">
+                <RefreshCw size={11} className={isSyncing ? 'animate-spin text-[#00BFFF]' : ''} />
+                Live Sync: {lastSyncTime}
+              </span>
+            </div>
+          </div>
+
+          {/* Week & Tournament Filter Chips */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+            {[
+              { id: 'Sectionals', label: 'Tonight: Football Sectionals R1', count: games.filter(g => (g.week || '').includes('Sectional') || g.title.includes('Sectional')).length },
+              { id: 'Volleyball', label: 'Saturday: Volleyball Tournaments', count: games.filter(g => g.sport.includes('Volleyball')).length },
+              { id: 'Tournaments-Hub', label: 'Brackets & Site Hub', count: 2 },
+              { id: 'Regular-Season', label: 'Regular Season Archives', count: games.filter(g => !(g.week || '').includes('Sectional') && !g.title.includes('Sectional') && !g.sport.includes('Volleyball')).length },
+              { id: 'ALL', label: 'All Matchups', count: games.length },
+            ].map(tab => {
+              const isActive = selectedWeekFilter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setSelectedWeekFilter(tab.id)}
+                  className={`px-3.5 py-2 rounded-sm text-xs font-display font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+                    isActive
+                      ? tab.id === 'Sectionals' 
+                        ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.5)] scale-100'
+                        : 'bg-[#00BFFF] text-black scale-100'
+                      : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10'
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${isActive ? 'bg-black/30 text-white font-bold' : 'bg-white/10 text-white/60'}`}>
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Embedded Interactive Tournament Central Brackets */}
+          {selectedWeekFilter === 'Tournaments-Hub' && (
+            <div className="mt-4 pt-4 border-t border-white/10">
+              <TournamentCentral 
+                isScoreboardEmbedded={true}
+                onNavigateToGame={(gameId) => {
+                  setSelectedGameId(gameId);
+                  setSelectedWeekFilter('ALL');
+                }}
+              />
+            </div>
+          )}
+
+          {/* Volleyball Specific View: Dual Site Tournaments */}
+          {selectedWeekFilter === 'Volleyball' && (
+            <div className="mt-4 space-y-6">
+              {/* Informational Header */}
+              <div className="bg-gradient-to-r from-blue-950/40 via-[#101010] to-emerald-950/30 border border-white/10 rounded-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#00BFFF]/15 border border-[#00BFFF]/30 text-[#00BFFF] text-xs font-mono font-bold uppercase tracking-wider mb-1.5">
+                    <Sparkles size={13} className="text-[#00BFFF]" />
+                    Saturday: Volleyball Tournaments • Dual Site Centers
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-display font-bold text-white uppercase tracking-wide">
+                    Saturday Regional Volleyball Tournaments
+                  </h3>
+                  <p className="text-xs sm:text-sm text-white/60 font-sans mt-0.5">
+                    Official schedule and live tracking for both Huntington North and Jennings County tournament sites.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedWeekFilter('Tournaments-Hub')}
+                  className="px-4 py-2.5 rounded-sm bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/40 hover:border-amber-400 text-amber-300 font-display font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition cursor-pointer shrink-0"
+                >
+                  <Trophy size={15} className="text-amber-400" />
+                  <span>View Bracket Hub</span>
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+
+              {/* Dual Site Columns */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* 1. HUNTINGTON NORTH */}
+                <div className="bg-[#121212] border border-cyan-500/30 rounded-sm p-4 sm:p-5 shadow-2xl space-y-4">
+                  {/* Site Header */}
+                  <div className="flex items-start justify-between border-b border-white/10 pb-3.5">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#00BFFF]" />
+                        <h4 className="text-lg sm:text-xl font-display font-bold text-white uppercase tracking-wider">
+                          For Huntington North:
+                        </h4>
+                      </div>
+                      <p className="text-xs text-white/50 font-sans flex items-center gap-1.5 mt-1">
+                        <MapPin size={13} className="text-[#00BFFF]" />
+                        Huntington North Arena • Huntington, IN
+                      </p>
+                    </div>
+                    <span className="bg-[#00BFFF]/10 border border-[#00BFFF]/30 text-[#00BFFF] text-[10px] font-mono font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
+                      3 Matches
+                    </span>
+                  </div>
+
+                  {/* Matches List: M1, M2, Championship */}
+                  <div className="space-y-3">
+                    {[
+                      {
+                        id: 'vb-huntington-m1-carroll-vs-penn',
+                        matchTag: 'M1',
+                        title: 'M1: Carroll (Fort Wayne) vs Penn',
+                        team1: 'Carroll (Fort Wayne)',
+                        team2: 'Penn',
+                        time: '10:00 AM',
+                        round: 'Semifinal 1',
+                        court: 'Court 1 - North Gym',
+                        isChamp: false
+                      },
+                      {
+                        id: 'vb-huntington-m2-westfield-vs-crownpoint',
+                        matchTag: 'M2',
+                        title: 'M2: Westfield vs Crown Point',
+                        team1: 'Westfield',
+                        team2: 'Crown Point',
+                        time: '12:00 PM',
+                        round: 'Semifinal 2',
+                        court: 'Court 1 - North Gym',
+                        isChamp: false
+                      },
+                      {
+                        id: 'vb-huntington-champ',
+                        matchTag: 'Championship',
+                        title: 'Championship: M1 Winner vs M2 Winner',
+                        team1: 'M1 Winner',
+                        team2: 'M2 Winner',
+                        subNote: 'Winner M1 (Carroll / Penn) vs Winner M2 (Westfield / Crown Point)',
+                        time: '7:00 PM',
+                        round: 'Championship Final',
+                        court: 'Main Arena Court',
+                        isChamp: true
+                      }
+                    ].map((m) => {
+                      const gameObj = games.find(g => g.id === m.id) || DEFAULT_GAMES_LIST.find(g => g.id === m.id);
+                      if (!gameObj) return null;
+                      const isSelected = gameObj.id === activeGame.id;
+                      const isFinal = gameObj.isArchived || gameObj.statusText === 'FINAL';
+
+                      return (
+                        <button
+                          key={m.id}
+                          onClick={() => setSelectedGameId(gameObj.id)}
+                          className={`w-full text-left p-3.5 sm:p-4 rounded-sm border transition-all cursor-pointer relative ${
+                            isSelected
+                              ? 'bg-[#181818] border-[#00BFFF] ring-2 ring-[#00BFFF]'
+                              : m.isChamp
+                                ? 'bg-gradient-to-r from-amber-950/25 to-black/80 border-amber-500/35 hover:border-amber-400 hover:bg-amber-950/35'
+                                : 'bg-[#151515] border-white/10 hover:border-white/25 hover:bg-[#1c1c1c]'
+                          }`}
+                        >
+                          {/* Top Badges */}
+                          <div className="flex items-center justify-between gap-2 mb-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
+                                m.isChamp 
+                                  ? 'bg-amber-500 text-black shadow-sm' 
+                                  : 'bg-[#00BFFF]/20 border border-[#00BFFF]/40 text-[#00BFFF]'
+                              }`}>
+                                {m.matchTag}
+                              </span>
+                              <span className="text-[11px] font-mono text-white/50">
+                                {m.time} • {m.court}
+                              </span>
+                            </div>
+
+                            {isSelected ? (
+                              <span className="bg-[#00BFFF] text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1">
+                                <Radio size={10} className="animate-pulse" />
+                                Active Scoreboard
+                              </span>
+                            ) : isFinal ? (
+                              <span className="bg-white/10 text-white/70 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
+                                Final
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-mono text-white/40 group-hover:text-white/70 flex items-center gap-1">
+                                <span>Track Score</span>
+                                <ChevronRight size={12} />
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Matchup Title Line requested by user */}
+                          <div className="font-display font-bold text-sm sm:text-base text-white tracking-wide mb-2 flex items-center justify-between">
+                            <span className={m.isChamp ? 'text-amber-300' : 'text-white'}>
+                              {m.title}
+                            </span>
+                            <span className="font-mono text-sm font-bold text-white/80">
+                              {gameObj.homeTeam.score} - {gameObj.awayTeam.score}
+                            </span>
+                          </div>
+
+                          {/* Teams Display with Logos */}
+                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={gameObj.homeTeam.logoUrl} 
+                                alt={gameObj.homeTeam.name} 
+                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
+                              />
+                              <div className="min-w-0">
+                                <div className="text-xs font-sans font-bold text-white truncate">
+                                  {m.team1}
+                                </div>
+                                <div className="text-[10px] text-white/40 truncate">
+                                  {gameObj.homeTeam.record}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={gameObj.awayTeam.logoUrl} 
+                                alt={gameObj.awayTeam.name} 
+                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
+                              />
+                              <div className="min-w-0">
+                                <div className="text-xs font-sans font-bold text-white truncate">
+                                  {m.team2}
+                                </div>
+                                <div className="text-[10px] text-white/40 truncate">
+                                  {gameObj.awayTeam.record}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {m.subNote && (
+                            <div className="text-[10px] text-amber-300/70 font-sans mt-2 pt-1 border-t border-amber-500/10 ">
+                              {m.subNote}
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2. JENNINGS COUNTY */}
+                <div className="bg-[#121212] border border-amber-500/30 rounded-sm p-4 sm:p-5 shadow-2xl space-y-4">
+                  {/* Site Header */}
+                  <div className="flex items-start justify-between border-b border-white/10 pb-3.5">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#F59E0B]" />
+                        <h4 className="text-lg sm:text-xl font-display font-bold text-white uppercase tracking-wider">
+                          For Jennings County:
+                        </h4>
+                      </div>
+                      <p className="text-xs text-white/50 font-sans flex items-center gap-1.5 mt-1">
+                        <MapPin size={13} className="text-amber-400" />
+                        Jennings County Gymnasium • North Vernon, IN
+                      </p>
+                    </div>
+                    <span className="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
+                      3 Matches
+                    </span>
+                  </div>
+
+                  {/* Matches List: M1, M2, Championship */}
+                  <div className="space-y-3">
+                    {[
+                      {
+                        id: 'vb-jennings-m1-floydcentral-vs-yorktown',
+                        matchTag: 'M1',
+                        title: 'M1: Floyd Central vs Yorktown',
+                        team1: 'Floyd Central',
+                        team2: 'Yorktown',
+                        time: '10:30 AM',
+                        round: 'Semifinal 1',
+                        court: 'Main Gymnasium',
+                        isChamp: false
+                      },
+                      {
+                        id: 'vb-jennings-m2-bloomingtonsouth-vs-centergrove',
+                        matchTag: 'M2',
+                        title: 'M2: Bloomington South vs Center Grove',
+                        team1: 'Bloomington South',
+                        team2: 'Center Grove',
+                        time: '12:30 PM',
+                        round: 'Semifinal 2',
+                        court: 'Main Gymnasium',
+                        isChamp: false
+                      },
+                      {
+                        id: 'vb-jennings-champ',
+                        matchTag: 'Championship',
+                        title: 'Championship: M1 Winner vs M2 Winner',
+                        team1: 'M1 Winner',
+                        team2: 'M2 Winner',
+                        subNote: 'Winner M1 (Floyd Central / Yorktown) vs Winner M2 (Bloomington South / Center Grove)',
+                        time: '6:30 PM',
+                        round: 'Championship Final',
+                        court: 'Championship Arena Court',
+                        isChamp: true
+                      }
+                    ].map((m) => {
+                      const gameObj = games.find(g => g.id === m.id) || DEFAULT_GAMES_LIST.find(g => g.id === m.id);
+                      if (!gameObj) return null;
+                      const isSelected = gameObj.id === activeGame.id;
+                      const isFinal = gameObj.isArchived || gameObj.statusText === 'FINAL';
+
+                      return (
+                        <button
+                          key={m.id}
+                          onClick={() => setSelectedGameId(gameObj.id)}
+                          className={`w-full text-left p-3.5 sm:p-4 rounded-sm border transition-all cursor-pointer relative ${
+                            isSelected
+                              ? 'bg-[#181818] border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.25)] ring-2 ring-amber-400'
+                              : m.isChamp
+                                ? 'bg-gradient-to-r from-amber-950/25 to-black/80 border-amber-500/35 hover:border-amber-400 hover:bg-amber-950/35'
+                                : 'bg-[#151515] border-white/10 hover:border-white/25 hover:bg-[#1c1c1c]'
+                          }`}
+                        >
+                          {/* Top Badges */}
+                          <div className="flex items-center justify-between gap-2 mb-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
+                                m.isChamp 
+                                  ? 'bg-amber-500 text-black shadow-sm' 
+                                  : 'bg-amber-500/20 border border-amber-500/40 text-amber-300'
+                              }`}>
+                                {m.matchTag}
+                              </span>
+                              <span className="text-[11px] font-mono text-white/50">
+                                {m.time} • {m.court}
+                              </span>
+                            </div>
+
+                            {isSelected ? (
+                              <span className="bg-amber-400 text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1 shadow-[0_0_8px_#F59E0B]">
+                                <Radio size={10} className="animate-pulse" />
+                                Active Scoreboard
+                              </span>
+                            ) : isFinal ? (
+                              <span className="bg-white/10 text-white/70 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
+                                Final
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-mono text-white/40 group-hover:text-white/70 flex items-center gap-1">
+                                <span>Track Score</span>
+                                <ChevronRight size={12} />
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Matchup Title Line requested by user */}
+                          <div className="font-display font-bold text-sm sm:text-base text-white tracking-wide mb-2 flex items-center justify-between">
+                            <span className={m.isChamp ? 'text-amber-300' : 'text-white'}>
+                              {m.title}
+                            </span>
+                            <span className="font-mono text-sm font-bold text-white/80">
+                              {gameObj.homeTeam.score} - {gameObj.awayTeam.score}
+                            </span>
+                          </div>
+
+                          {/* Teams Display with Logos */}
+                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={gameObj.homeTeam.logoUrl} 
+                                alt={gameObj.homeTeam.name} 
+                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
+                              />
+                              <div className="min-w-0">
+                                <div className="text-xs font-sans font-bold text-white truncate">
+                                  {m.team1}
+                                </div>
+                                <div className="text-[10px] text-white/40 truncate">
+                                  {gameObj.homeTeam.record}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={gameObj.awayTeam.logoUrl} 
+                                alt={gameObj.awayTeam.name} 
+                                className="w-6 h-6 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0" 
+                              />
+                              <div className="min-w-0">
+                                <div className="text-xs font-sans font-bold text-white truncate">
+                                  {m.team2}
+                                </div>
+                                <div className="text-[10px] text-white/40 truncate">
+                                  {gameObj.awayTeam.record}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {m.subNote && (
+                            <div className="text-[10px] text-amber-300/70 font-sans mt-2 pt-1 border-t border-amber-500/10 ">
+                              {m.subNote}
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* Filtered Games Grid for ALL, Sectionals, Regular-Season */}
+          {selectedWeekFilter !== 'Tournaments-Hub' && selectedWeekFilter !== 'Volleyball' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+              {games
+                .filter(g => {
+                  if (selectedWeekFilter === 'ALL') return true;
+                  if (selectedWeekFilter === 'Sectionals') return (g.week || '').includes('Sectional') || g.title.includes('Sectional');
+                  if (selectedWeekFilter === 'Volleyball') return g.sport.includes('Volleyball');
+                  if (selectedWeekFilter === 'Regular-Season') return !(g.week || '').includes('Sectional') && !g.title.includes('Sectional') && !g.sport.includes('Volleyball');
+                  return true;
+                })
+              .map((g) => {
+                const isSelected = g.id === activeGame.id;
+                const isFinal = g.isArchived || g.statusText === 'FINAL' || g.quarter === 'Final';
+                return (
+                  <button
+                    key={g.id}
+                    onClick={() => setSelectedGameId(g.id)}
+                    className={`p-3.5 rounded-sm border text-left transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                      isSelected
+                        ? 'bg-[#181818] border-[#00BFFF] shadow-lg/15 ring-2 ring-[#00BFFF]'
+                        : 'bg-[#101010] border-white/10 hover:border-white/25 hover:bg-[#141414]'
+                    }`}
+                  >
+                    {/* Top Row: Week Badge & Live/Final Status */}
+                    <div className="flex items-center justify-between text-[10px] font-mono">
+                      <span className="bg-white/10 text-white/70 px-2 py-0.5 rounded font-bold uppercase">
+                        {g.week || 'Week 3'}
+                      </span>
+                      {isFinal ? (
+                        <span className="bg-white/10 text-white/70 px-2 py-0.5 rounded font-bold tracking-wider uppercase">
+                          FINAL
+                        </span>
+                      ) : (
+                        <span className="bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded font-bold tracking-wider uppercase flex items-center gap-1 animate-pulse">
+                          <Radio size={10} className="text-red-500" />
+                          {g.quarter || 'LIVE'}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Middle: Teams & Matchup */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex -space-x-2 overflow-hidden shrink-0">
+                        <img 
+                          src={g.homeTeam.logoUrl} 
+                          alt={g.homeTeam.name} 
+                          className="inline-block h-8 w-8 rounded-full object-contain bg-black/60 border border-white/20 p-0.5" 
+                        />
+                        <img 
+                          src={g.awayTeam.logoUrl} 
+                          alt={g.awayTeam.name} 
+                          className="inline-block h-8 w-8 rounded-full object-contain bg-black/60 border border-white/20 p-0.5" 
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-display font-bold text-xs sm:text-sm text-white tracking-wide truncate">
+                          {g.homeTeam.shortName} vs {g.awayTeam.shortName}
+                        </div>
+                        <div className="text-[10px] font-sans text-white/50 truncate">
+                          {g.venue}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom: Score & Clock */}
+                    <div className="flex items-center justify-between border-t border-white/5 pt-2 mt-0.5">
+                      <div className="text-[11px] font-sans text-white/60">
+                        {g.dateString}
+                      </div>
+                      <div className="font-mono font-bold text-sm text-white">
+                        {g.homeTeam.score} - {g.awayTeam.score}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         </div>
 

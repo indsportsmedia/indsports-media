@@ -395,6 +395,7 @@ export default function App() {
             onOpenPhotos={() => navigateToPhotos('All')}
             onOpenAthletes={navigateToAthleteFeatures}
             onOpenPartners={navigateToPartners}
+            onOpenAdvertise={() => setIsAdvertiseOpen(true)}
           />
         </div>
       )}

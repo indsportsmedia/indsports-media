@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { Camera, Star, Newspaper, Megaphone } from 'lucide-react';
+import { IndLogo } from './IndLogo';
 import { subscribeToPublishedArticles, formatTime, type Article } from '../lib/articles';
 import TournamentCentral from './TournamentCentral';
 
@@ -11,7 +13,34 @@ interface HomePageProps {
   onOpenPhotos: () => void;
   onOpenAthletes: () => void;
   onOpenPartners: () => void;
+  onOpenAdvertise: () => void;
 }
+
+// Hero background clips. Swap these for IND's own game footage (upload to
+// Firebase Storage and paste the links) when you have it.
+const HERO_VIDEOS = [
+  {
+    sport: 'Football',
+    url: 'https://assets.mixkit.co/videos/preview/mixkit-american-football-match-under-the-rain-40348-large.mp4',
+    poster: 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&q=80&w=1920',
+  },
+  {
+    sport: 'Basketball',
+    url: 'https://assets.mixkit.co/videos/preview/mixkit-basketball-player-dunking-40018-large.mp4',
+    poster: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&q=80&w=1920',
+  },
+  {
+    sport: 'Track and field',
+    url: 'https://assets.mixkit.co/videos/preview/mixkit-athletes-in-a-running-race-40351-large.mp4',
+    poster: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&q=80&w=1920',
+  },
+];
+
+const PILLARS = [
+  { title: 'Professional capture', body: 'High-quality photo and video that keeps every big moment, from warmups to the final whistle.' },
+  { title: 'Athlete exposure', body: 'Media built to show off performance, skills and accomplishments to fans, schools and recruiters.' },
+  { title: 'Social-ready content', body: 'Vertical and widescreen cuts ready to post on Instagram, TikTok, X and recruiting profiles.' },
+];
 
 const SPORTS: { key: SportKey; season: string }[] = [
   { key: 'Football', season: 'Fall' },
@@ -46,107 +75,114 @@ const go = (slug: string) => (window.location.href = `/news/${slug}`);
 
 export default function HomePage(p: HomePageProps) {
   const [stories, setStories] = useState<Article[] | null>(null);
+  const [heroIdx, setHeroIdx] = useState(0);
   useEffect(() => subscribeToPublishedArticles(setStories), []);
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const t = setInterval(() => setHeroIdx((i) => (i + 1) % HERO_VIDEOS.length), 8000);
+    return () => clearInterval(t);
+  }, []);
 
-  const live = (stories || []).filter((s) => s.isLive);
-  const lead = live[0] || stories?.[0];
-  const rail = (stories || []).filter((s) => s !== lead).slice(0, 6);
-  const more = (stories || []).filter((s) => s !== lead && !rail.includes(s)).slice(0, 3);
+  const sorted = (stories || []).slice().sort((a, b) => Number(b.isLive) - Number(a.isLive));
+  const live = sorted.find((s) => s.isLive);
+  const latest = sorted.slice(0, 4);
+  const hero = HERO_VIDEOS[heroIdx];
+
+  const HUB = [
+    { icon: Camera, title: 'Action photos', body: 'Sideline galleries from football, basketball, volleyball and more.', onClick: p.onOpenPhotos },
+    { icon: Star, title: 'Athlete features', body: 'Spotlights on the players driving Indiana programs.', onClick: p.onOpenAthletes },
+    { icon: Newspaper, title: 'Stories and recaps', body: 'Live game coverage, recaps and tournament previews.', onClick: () => p.onOpenArticles('All') },
+    { icon: Megaphone, title: 'Advertise with us', body: 'Reach Indiana sports fans on game night and on social.', onClick: p.onOpenAdvertise },
+  ];
 
   return (
     <div className="bg-black">
-      {/* ---------------- Top stories ---------------- */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-x-8 gap-y-8">
-          {/* Lead */}
-          <div className="lg:col-span-8">
-            {stories === null ? (
-              <div className="aspect-video bg-panel animate-pulse motion-reduce:animate-none" />
-            ) : lead ? (
-              <button onClick={() => go(lead.slug)} className="group block text-left w-full cursor-pointer">
-                <div className="aspect-video overflow-hidden bg-panel">
-                  <Cover a={lead} className="group-hover:scale-[1.015] transition-transform duration-500" />
-                </div>
-                <div className="flex items-center gap-3 mt-4 text-[14px]">
-                  {lead.isLive && <LiveTag />}
-                  <span className="text-ind font-semibold">{lead.sport}</span>
-                  <span className="text-mute">{lead.isLive ? `Updated ${formatTime(lead.updatedAt)}` : formatTime(lead.publishedAt)}</span>
-                </div>
-                <h1 className="mt-2 font-display font-bold text-white text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.08] group-hover:text-ind transition-colors max-w-[22ch]">
-                  {lead.title}
-                </h1>
-                {lead.excerpt && <p className="mt-3 text-white/75 text-[17px] leading-relaxed max-w-[62ch]">{lead.excerpt}</p>}
-                <p className="mt-3 text-mute text-sm">By {lead.authorName}</p>
-              </button>
-            ) : (
-              <div className="border-t-4 border-ind pt-6">
-                <h1 className="font-display font-bold text-white text-[40px] sm:text-[56px] leading-[1.04] max-w-[16ch]">
-                  Indiana high school sports, covered live.
-                </h1>
-                <p className="mt-4 text-white/70 text-lg max-w-[52ch]">
-                  Scores, sideline photos, highlights and game stories from across the state, posted while the game is still going.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <button onClick={() => p.onOpenScores()} className="bg-ind hover:bg-white text-black font-display font-bold text-lg px-5 py-2 rounded-sm cursor-pointer transition-colors">
-                    Today's scores
-                  </button>
-                  <button onClick={p.onOpenPhotos} className="border border-white/30 hover:border-white text-white font-display font-bold text-lg px-5 py-2 rounded-sm cursor-pointer transition-colors">
-                    Game photos
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right rail */}
-          <aside className="lg:col-span-4 lg:border-l lg:border-rule lg:pl-8">
-            <div className="flex items-baseline justify-between border-b-2 border-white pb-2 mb-1">
-              <h2 className="font-display font-bold text-xl text-white">Latest</h2>
-              <button onClick={() => p.onOpenArticles('All')} className="text-sm text-ind hover:text-white cursor-pointer">
-                All stories
-              </button>
-            </div>
-            {stories !== null && rail.length === 0 && (
-              <p className="text-mute text-sm py-4">New stories from game nights will show up here.</p>
-            )}
-            <ul>
-              {rail.map((s) => (
-                <li key={s.slug} className="border-b border-rule">
-                  <button onClick={() => go(s.slug)} className="group w-full text-left py-3.5 cursor-pointer flex gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 text-[13px] mb-1">
-                        {s.isLive && <LiveTag />}
-                        <span className="text-ind font-semibold">{s.sport}</span>
-                        <span className="text-mute">{formatTime(s.isLive ? s.updatedAt : s.publishedAt)}</span>
-                      </div>
-                      <p className="font-display font-semibold text-[19px] leading-tight text-white group-hover:text-ind transition-colors">
-                        {s.title}
-                      </p>
-                    </div>
-                    {s.coverUrl && s.coverType !== 'video' && (
-                      <img src={s.coverUrl} alt="" className="w-20 h-14 object-cover shrink-0 mt-1" />
-                    )}
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={() => p.onOpenScores()}
-              className="mt-5 w-full flex items-center justify-between bg-panel hover:bg-[#1a1d20] border border-rule px-4 py-3 rounded-sm cursor-pointer transition-colors"
-            >
-              <span className="font-display font-bold text-lg text-white">Live scoreboard</span>
-              <span className="text-ind text-sm">Open</span>
-            </button>
-          </aside>
+      {/* ---------------- Hero ---------------- */}
+      <section className="relative min-h-[78vh] sm:min-h-[86vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0">
+          <video
+            key={hero.url}
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster={hero.poster}
+            className="w-full h-full object-cover opacity-55"
+          >
+            <source src={hero.url} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/60" />
         </div>
 
-        {more.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10 pt-8 border-t border-rule">
-            {more.map((s) => (
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center flex flex-col items-center">
+          <IndLogo size="xl" className="mb-8" />
+          <h1 className="font-display font-bold uppercase text-white text-[40px] sm:text-6xl lg:text-7xl leading-[1.02] tracking-[0.01em] max-w-[18ch]">
+            Capturing the pulse of sports
+          </h1>
+          <p className="mt-5 text-white/80 text-lg sm:text-xl max-w-[48ch]">
+            Indiana high school and college sports, covered live with scores, photos, highlights and stories.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <button onClick={p.onOpenPartners} className="bg-ind hover:bg-white text-black font-display font-semibold uppercase tracking-wide text-lg px-8 py-3 rounded-sm transition-colors cursor-pointer">
+              Partner with us
+            </button>
+            <button onClick={() => p.onOpenScores()} className="border-2 border-white/70 hover:border-white hover:bg-white hover:text-black text-white font-display font-semibold uppercase tracking-wide text-lg px-8 py-[10px] rounded-sm transition-colors cursor-pointer">
+              Live scores
+            </button>
+          </div>
+          <div className="mt-8 flex items-center gap-2.5">
+            {HERO_VIDEOS.map((v, i) => (
+              <button
+                key={v.sport}
+                onClick={() => setHeroIdx(i)}
+                aria-label={`Show ${v.sport} video`}
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${i === heroIdx ? 'w-8 bg-ind' : 'w-3 bg-white/40 hover:bg-white/70'}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {live && (
+          <button
+            onClick={() => go(live.slug)}
+            className="absolute bottom-0 inset-x-0 z-10 bg-black/85 border-t border-rule hover:bg-black cursor-pointer"
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3 text-left">
+              <LiveTag />
+              <span className="font-display font-semibold text-white text-lg truncate">{live.title}</span>
+              <span className="ml-auto text-ind text-sm shrink-0">Follow live</span>
+            </div>
+          </button>
+        )}
+      </section>
+
+      {/* ---------------- Latest stories ---------------- */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <div className="flex items-baseline justify-between border-b-2 border-white pb-2 mb-6">
+          <h2 className="font-display font-semibold uppercase text-2xl text-white">Latest stories</h2>
+          <button onClick={() => p.onOpenArticles('All')} className="text-ind hover:text-white text-[15px] cursor-pointer">
+            All stories
+          </button>
+        </div>
+        {stories === null ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[0, 1, 2, 3].map((i) => <div key={i} className="aspect-[16/10] bg-panel animate-pulse motion-reduce:animate-none" />)}
+          </div>
+        ) : latest.length === 0 ? (
+          <p className="text-mute">Game-night stories will show up here. Follow along on the <button onClick={() => p.onOpenScores()} className="text-ind underline cursor-pointer">live scoreboard</button> in the meantime.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {latest.map((s) => (
               <button key={s.slug} onClick={() => go(s.slug)} className="group text-left cursor-pointer">
-                <div className="aspect-[16/10] overflow-hidden bg-panel"><Cover a={s} /></div>
-                <p className="mt-3 text-[13px]"><span className="text-ind font-semibold">{s.sport}</span> <span className="text-mute ml-1">{formatTime(s.publishedAt)}</span></p>
-                <p className="mt-1 font-display font-semibold text-xl leading-tight text-white group-hover:text-ind transition-colors">{s.title}</p>
+                <div className="aspect-[16/10] overflow-hidden bg-panel relative">
+                  <Cover a={s} className="group-hover:scale-[1.02] transition-transform duration-500" />
+                  {s.isLive && <span className="absolute top-2 left-2"><LiveTag /></span>}
+                </div>
+                <p className="mt-3 text-[13px]">
+                  <span className="text-ind font-semibold">{s.sport}</span>
+                  <span className="text-mute ml-2">{formatTime(s.isLive ? s.updatedAt : s.publishedAt)}</span>
+                </p>
+                <p className="mt-1 font-display font-semibold text-xl leading-snug text-white group-hover:text-ind transition-colors">{s.title}</p>
               </button>
             ))}
           </div>
@@ -158,9 +194,42 @@ export default function HomePage(p: HomePageProps) {
         <TournamentCentral onNavigateToGame={(id) => p.onOpenScores(id)} onNavigateToLiveScoreboard={() => p.onOpenScores()} />
       </section>
 
+      {/* ---------------- The IND standard ---------------- */}
+      <section className="bg-panel border-b border-rule">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+          <div className="max-w-2xl">
+            <h2 className="font-display font-bold uppercase text-4xl sm:text-5xl text-white">The IND standard</h2>
+            <p className="mt-3 text-white/70 text-lg leading-relaxed">
+              Independent, high-quality sports media built to celebrate Indiana athletes at every level.
+            </p>
+          </div>
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-10">
+            {PILLARS.map((x) => (
+              <div key={x.title} className="border-t-[3px] border-ind pt-5">
+                <h3 className="font-display font-semibold uppercase text-2xl text-white">{x.title}</h3>
+                <p className="mt-2 text-white/70 leading-relaxed">{x.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------- Quick hub ---------------- */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {HUB.map(({ icon: Icon, title, body, onClick }) => (
+            <button key={title} onClick={onClick} className="group text-left border border-rule hover:border-ind bg-black p-6 rounded-sm transition-colors cursor-pointer">
+              <Icon size={26} className="text-ind" />
+              <h3 className="mt-4 font-display font-semibold uppercase text-xl text-white group-hover:text-ind transition-colors">{title}</h3>
+              <p className="mt-1.5 text-white/65 text-[15px] leading-relaxed">{body}</p>
+            </button>
+          ))}
+        </div>
+      </section>
+
       {/* ---------------- Sports index ---------------- */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-        <h2 className="font-display font-bold text-2xl text-white mb-5">Coverage by sport</h2>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-14">
+        <h2 className="font-display font-semibold uppercase text-2xl text-white mb-5">Coverage by sport</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 border-t border-l border-rule">
           {SPORTS.map((s) => (
             <button
@@ -169,23 +238,18 @@ export default function HomePage(p: HomePageProps) {
               className="group text-left border-r border-b border-rule px-5 py-6 hover:bg-panel transition-colors cursor-pointer"
             >
               <span className="block text-mute text-sm">{s.season}</span>
-              <span className="block font-display font-bold text-2xl text-white group-hover:text-ind transition-colors">{s.key}</span>
+              <span className="block font-display font-semibold uppercase text-2xl text-white group-hover:text-ind transition-colors">{s.key}</span>
             </button>
           ))}
         </div>
-        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-5 text-[15px]">
-          <button onClick={p.onOpenPhotos} className="text-white/80 hover:text-ind cursor-pointer underline-offset-4 hover:underline">Photo galleries</button>
-          <button onClick={p.onOpenAthletes} className="text-white/80 hover:text-ind cursor-pointer underline-offset-4 hover:underline">Athlete features</button>
-          <button onClick={() => p.onOpenArticles('All')} className="text-white/80 hover:text-ind cursor-pointer underline-offset-4 hover:underline">Stories and recaps</button>
-        </div>
       </section>
 
-      {/* ---------------- For schools (the one loud moment) ---------------- */}
+      {/* ---------------- For schools ---------------- */}
       <section className="bg-ind text-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
           <div className="lg:col-span-7">
-            <h2 className="font-display font-extrabold text-[40px] sm:text-[56px] leading-[1.04] max-w-[18ch]">
-              Your games deserve coverage like this.
+            <h2 className="font-display font-bold uppercase text-[40px] sm:text-[54px] leading-[1.04] max-w-[18ch]">
+              Your games deserve coverage like this
             </h2>
             <p className="mt-4 text-[18px] leading-relaxed max-w-[56ch] text-black/80">
               We partner with athletic directors to cover home games and postseason runs: live updates, sideline photos,
@@ -193,10 +257,10 @@ export default function HomePage(p: HomePageProps) {
             </p>
           </div>
           <div className="lg:col-span-5 flex flex-wrap gap-3 lg:justify-end">
-            <button onClick={p.onOpenPartners} className="bg-black hover:bg-white text-white hover:text-black font-display font-bold text-xl px-6 py-3 rounded-sm cursor-pointer transition-colors">
+            <button onClick={p.onOpenPartners} className="bg-black hover:bg-white text-white hover:text-black font-display font-semibold uppercase tracking-wide text-xl px-6 py-3 rounded-sm cursor-pointer transition-colors">
               Partner with IND
             </button>
-            <a href="tel:+13174201722" className="border-2 border-black hover:bg-black hover:text-white font-display font-bold text-xl px-6 py-[10px] rounded-sm transition-colors">
+            <a href="tel:+13174201722" className="border-2 border-black hover:bg-black hover:text-white font-display font-semibold text-xl px-6 py-[10px] rounded-sm transition-colors tabular">
               (317) 420-1722
             </a>
           </div>
