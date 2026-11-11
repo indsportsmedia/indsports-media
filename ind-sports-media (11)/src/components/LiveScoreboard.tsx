@@ -56,6 +56,7 @@ import {
 } from '../lib/firebase';
 import { useStaff, signInStaff, signOutStaff } from '../lib/staff';
 import TeamLogo from './TeamLogo';
+import { useLiveGames } from '../lib/gamesStore';
 import { displayClock } from '../lib/scorekeeper';
 import { subscribeToUpdates, formatTime, type LiveUpdate } from '../lib/articles';
 import type { PlayEvent, SocialClip, GameState } from '../types';
@@ -991,26 +992,19 @@ export const DEFAULT_GAMES_LIST: GameState[] = [
 interface LiveScoreboardProps {
   onBack: () => void;
   initialGameId?: string;
+  /** Tells the page which game is open, so the ticker can highlight it. */
+  onGameChange?: (gameId: string) => void;
 }
 
-export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboardProps) {
-  // Games list with real-time multi-device sync
-  const [games, setGames] = useState<GameState[]>(() => {
-    try {
-      const saved = localStorage.getItem('ind_live_scoreboard_games_v4') || localStorage.getItem('ind_live_scoreboard_games_v3');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch {
-      // Fallback
-    }
-    return DEFAULT_GAMES_LIST;
-  });
+export default function LiveScoreboard({ onBack, initialGameId, onGameChange }: LiveScoreboardProps) {
+  // Games come from the one shared live feed (same source as the score ticker).
+  const { games: liveGames, loaded: gamesLoaded } = useLiveGames();
+  const [games, setGames] = useState<GameState[]>(liveGames);
+  useEffect(() => {
+    if (gamesLoaded) setGames(liveGames);
+  }, [liveGames, gamesLoaded]);
 
-  const [selectedGameId, setSelectedGameId] = useState<string>(initialGameId || DEFAULT_GAMES_LIST[0].id);
+  const [selectedGameId, setSelectedGameId] = useState<string>(initialGameId || '');
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [lastSyncTime, setLastSyncTime] = useState<string>('Just now');
 
@@ -1020,8 +1014,17 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
     }
   }, [initialGameId]);
 
-  // Currently active game
-  const activeGame = games.find(g => g.id === selectedGameId) || games[0] || DEFAULT_GAMES_LIST[0];
+  // Currently active game: the one asked for, else a live game, else the newest.
+  const activeGame =
+    games.find(g => g.id === selectedGameId) ||
+    games.find(g => g.isLive && !g.isArchived) ||
+    [...games].filter(g => !g.isArchived).sort((x, y) => (y.updatedAt || '').localeCompare(x.updatedAt || ''))[0] ||
+    games[0] ||
+    DEFAULT_GAMES_LIST[0];
+  useEffect(() => {
+    if (gamesLoaded && activeGame?.id) onGameChange?.(activeGame.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeGame?.id, gamesLoaded]);
 
   // Basketball clock counts down on each viewer's screen (set by /score).
   const [, setClockTick] = useState(0);
@@ -1084,106 +1087,10 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
   const [firestoreConnected, setFirestoreConnected] = useState<boolean>(true);
 
 
-  // 1. Primary Sync: Real-Time Firebase Firestore onSnapshot listener across all devices
-  useEffect(() => {
-    // Test initial connection and seed if empty
-    testFirestoreConnection().catch(console.warn);
-    seedInitialGamesIfEmpty(DEFAULT_GAMES_LIST).catch(console.warn);
-
-    const unsubscribe = subscribeToGames(
-      (firestoreGames) => {
-        if (firestoreGames && firestoreGames.length > 0) {
-          setGames(prev => {
-            const updated = firestoreGames.map((fGame) => {
-              const localMatch = DEFAULT_GAMES_LIST.find(d => d.id === fGame.id);
-              return {
-                ...fGame,
-                socialClips: fGame.socialClips || localMatch?.socialClips || [],
-                homeTeam: {
-                  ...fGame.homeTeam,
-                  logoUrl: fGame.homeTeam?.logoUrl || localMatch?.homeTeam.logoUrl
-                },
-                awayTeam: {
-                  ...fGame.awayTeam,
-                  logoUrl: fGame.awayTeam?.logoUrl || localMatch?.awayTeam.logoUrl
-                }
-              };
-            });
-            const existingIds = new Set(firestoreGames.map((f: GameState) => f.id));
-            // Deleted games stay deleted (sample games are no longer re-added).
-            void existingIds;
-            const combined = [...updated];
-            localStorage.setItem('ind_live_scoreboard_games_v4', JSON.stringify(combined));
-            return combined;
-          });
-          setFirestoreConnected(true);
-          setLastSyncTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-        }
-      },
-      (err) => {
-        console.warn('Firestore subscription offline fallback:', err);
-        setFirestoreConnected(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
-
-  // 2. Secondary Server Fallback Polling (Keeps Express backend & local cache in sync)
-  const fetchServerGames = async () => {
-    try {
-      setIsSyncing(true);
-      const res = await fetch('/api/games');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.games && Array.isArray(data.games) && data.games.length > 0) {
-          setGames(prev => {
-            const updated = data.games.map((serverGame: GameState) => {
-              const localMatch = DEFAULT_GAMES_LIST.find(d => d.id === serverGame.id);
-              return {
-                ...serverGame,
-                socialClips: serverGame.socialClips || localMatch?.socialClips || [],
-                homeTeam: {
-                  ...serverGame.homeTeam,
-                  logoUrl: serverGame.homeTeam.logoUrl || localMatch?.homeTeam.logoUrl
-                },
-                awayTeam: {
-                  ...serverGame.awayTeam,
-                  logoUrl: serverGame.awayTeam.logoUrl || localMatch?.awayTeam.logoUrl
-                }
-              };
-            });
-            const existingIds = new Set(data.games.map((s: GameState) => s.id));
-            // Deleted games stay deleted (sample games are no longer re-added).
-            void existingIds;
-            const combined = [...updated];
-            localStorage.setItem('ind_live_scoreboard_games_v4', JSON.stringify(combined));
-            return combined;
-          });
-          setLastSyncTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-        }
-      }
-    } catch {
-      // Offline fallback
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchServerGames();
-    const interval = setInterval(fetchServerGames, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
   // Broadcast single game update to Firebase Firestore and Express backend
   const broadcastGameUpdate = async (updatedGame: GameState) => {
     // 1. Optimistic local state update
-    setGames(prev => {
-      const next = prev.map(g => g.id === updatedGame.id ? updatedGame : g);
-      localStorage.setItem('ind_live_scoreboard_games_v3', JSON.stringify(next));
-      return next;
-    });
+    setGames(prev => prev.map(g => g.id === updatedGame.id ? updatedGame : g));
 
     // 2. Push to Firebase Firestore (instantly pushes via onSnapshot to every device)
     try {
@@ -1195,17 +1102,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
       throw e;
     }
 
-    // 3. Push to Express backend API as server backup
-    try {
-      await fetch(`/api/games/${updatedGame.id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ game: updatedGame })
-      });
-      setLastSyncTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-    } catch (e) {
-      console.warn('Could not push live update to server backup:', e);
-    }
+    setLastSyncTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
   };
 
   // Clock runner simulation
@@ -1587,6 +1484,10 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
     if (clipFilter === 'away') return c.team === 'away';
     return true;
   });
+
+  if (!gamesLoaded) {
+    return <div className="min-h-screen bg-black pt-24 text-center text-mute">Loading scores…</div>;
+  }
 
   return (
     <div className="min-h-screen bg-black text-white pt-20 pb-24 font-sans selection:bg-[#00BFFF] selection:text-black">
