@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { sendSiteForm, readFormFields } from '../lib/forms';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Phone, MapPin, Send, CheckCircle2, X, MessageSquare, Clock } from 'lucide-react';
 
@@ -17,9 +18,16 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose 
     message: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [sendError, setSendError] = useState('');
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSendError('');
+    try {
+      await sendSiteForm('contact', readFormFields(e.currentTarget));
+      setSubmitted(true);
+    } catch {
+      setSendError("Your message didn't send. Check your connection and try again, or email admin@indsports.media.");
+    }
   };
 
   if (!isOpen) return null;
@@ -158,6 +166,7 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose 
                 >
                   <Send size={16} /> Send Direct Message
                 </button>
+                {sendError && <p className="text-red-400 text-sm">{sendError}</p>}
               </form>
             </div>
           ) : (

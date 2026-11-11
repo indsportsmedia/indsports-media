@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { sendSiteForm, readFormFields } from '../lib/forms';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShieldCheck, X, CheckCircle2, Camera, AlertCircle, FileText, Send } from 'lucide-react';
 
@@ -21,9 +22,16 @@ export const MediaCredentialsModal: React.FC<MediaCredentialsModalProps> = ({ is
     termsAgreed: false
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [sendError, setSendError] = useState('');
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSendError('');
+    try {
+      await sendSiteForm('media-credentials', readFormFields(e.currentTarget));
+      setSubmitted(true);
+    } catch {
+      setSendError("Your message didn't send. Check your connection and try again, or email admin@indsports.media.");
+    }
   };
 
   if (!isOpen) return null;
@@ -190,6 +198,7 @@ export const MediaCredentialsModal: React.FC<MediaCredentialsModalProps> = ({ is
                 >
                   <Send size={16} /> Submit Credential Application
                 </button>
+                {sendError && <p className="text-red-400 text-sm">{sendError}</p>}
               </form>
             </div>
           ) : (

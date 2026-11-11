@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { sendSiteForm, readFormFields } from '../lib/forms';
 import { motion, AnimatePresence } from 'motion/react';
 import { Megaphone, TrendingUp, Users, Video, CheckCircle2, X, Send, Award, Target, Flame } from 'lucide-react';
 
@@ -19,9 +20,16 @@ export const AdvertiseWithUsModal: React.FC<AdvertiseWithUsModalProps> = ({ isOp
     details: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [sendError, setSendError] = useState('');
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSendError('');
+    try {
+      await sendSiteForm('advertise', readFormFields(e.currentTarget));
+      setSubmitted(true);
+    } catch {
+      setSendError("Your message didn't send. Check your connection and try again, or email admin@indsports.media.");
+    }
   };
 
   if (!isOpen) return null;
@@ -188,6 +196,7 @@ export const AdvertiseWithUsModal: React.FC<AdvertiseWithUsModalProps> = ({ isOp
                 >
                   <Send size={16} /> Request Media Kit & Rate Card
                 </button>
+                {sendError && <p className="text-red-400 text-sm">{sendError}</p>}
               </form>
             </div>
           ) : (

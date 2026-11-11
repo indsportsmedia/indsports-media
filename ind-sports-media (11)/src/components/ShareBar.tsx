@@ -38,8 +38,8 @@ export default function ShareBar({ url, text, compact = false }: ShareBarProps) 
   };
 
   const btn =
-    'inline-flex items-center gap-1.5 rounded border border-white/15 bg-white/5 hover:border-[#00BFFF]/60 hover:text-white text-white/70 transition-colors cursor-pointer font-display font-bold uppercase tracking-wider';
-  const size = compact ? 'px-2 py-1 text-[10px]' : 'px-3 py-2 text-[11px]';
+    'inline-flex items-center gap-1.5 rounded-sm border border-rule hover:border-white/50 hover:text-white text-white/75 transition-colors cursor-pointer font-sans font-semibold';
+  const size = compact ? 'px-2 py-1 text-[12px]' : 'px-3 py-1.5 text-[14px]';
 
   return (
     <div className="flex flex-wrap items-center gap-2">
