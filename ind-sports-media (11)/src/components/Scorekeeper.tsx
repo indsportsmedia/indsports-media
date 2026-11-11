@@ -31,7 +31,7 @@ const buzz = () => { try { navigator.vibrate?.(12); } catch { /* not supported *
 // ---------------------------------------------------------------------------
 // Game list + new game
 // ---------------------------------------------------------------------------
-function GamePicker({ games, schools, staffEmail, onPick }: { games: GameState[]; schools: School[]; staffEmail: string; onPick: (id: string) => void }) {
+export function GamePicker({ games, schools, staffEmail, onPick }: { games: GameState[]; schools: School[]; staffEmail: string; onPick: (id: string) => void }) {
   const [creating, setCreating] = useState(false);
   const [sport, setSport] = useState('Varsity Football');
   const [away, setAway] = useState('');
@@ -419,7 +419,7 @@ function VolleyballPad({ g, run }: { g: GameState; run: (a: Action) => void }) {
 // ---------------------------------------------------------------------------
 // Edit game details
 // ---------------------------------------------------------------------------
-function EditDetails({ g, schools }: { g: GameState; schools: School[] }) {
+export function EditDetails({ g, schools }: { g: GameState; schools: School[] }) {
   const [open, setOpen] = useState(false);
   const [away, setAway] = useState(g.awayTeam.name);
   const [home, setHome] = useState(g.homeTeam.name);
@@ -487,7 +487,7 @@ function toSport(s: string): Sport {
   return (SPORTS.find((x) => x.toLowerCase() === k) || 'Other') as Sport;
 }
 
-function StoryLink({ g, staff }: { g: GameState; staff: StaffProfile }) {
+export function StoryLink({ g, staff }: { g: GameState; staff: StaffProfile }) {
   const [story, setStory] = useState<Article | null>(null);
   const [liveStories, setLiveStories] = useState<Article[]>([]);
   const [busy, setBusy] = useState(false);

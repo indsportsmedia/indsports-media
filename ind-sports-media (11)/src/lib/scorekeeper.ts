@@ -10,7 +10,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 import { db, logoForTeam, schoolKey, type School } from './firebase';
-import type { GameState, PlayEvent, TeamData } from '../types';
+import type { GameState, PlayEvent, SocialClip, TeamData } from '../types';
 
 /**
  * Scorekeeper data layer.
@@ -438,4 +438,54 @@ export async function updateGameDetails(
 
 export async function archiveMany(ids: string[]) {
   await Promise.all(ids.map((id) => archiveGame(id, true)));
+}
+
+// ---------------------------------------------------------------------------
+// Newsroom game editor: direct fixes and media
+// ---------------------------------------------------------------------------
+export type GameStatus = 'upcoming' | 'live' | 'final';
+
+export function gameStatus(g: GameState): GameStatus {
+  if (g.isLive) return 'live';
+  return /final/i.test(`${g.quarter} ${g.statusText}`) ? 'final' : 'upcoming';
+}
+
+/** Set exact scores and status (for fixing a game after the fact). */
+export async function setScoreAndStatus(
+  g: GameState,
+  v: { away: number; home: number; status: GameStatus; period: string; awaySets?: number; homeSets?: number }
+) {
+  const fields: Record<string, unknown> = {
+    'awayTeam.score': v.away,
+    'homeTeam.score': v.home,
+    ...stamp(),
+  };
+  if (v.status === 'final') Object.assign(fields, { isLive: false, quarter: 'Final', statusText: 'Final', clockRunning: false });
+  if (v.status === 'live') Object.assign(fields, { isLive: true, isArchived: false, quarter: v.period || g.quarter || '1st Qtr', statusText: v.period || g.quarter || 'Live' });
+  if (v.status === 'upcoming') Object.assign(fields, { isLive: false, quarter: 'Pregame', statusText: g.dateString || 'Upcoming' });
+  if (v.awaySets != null) fields.awaySetsWon = v.awaySets;
+  if (v.homeSets != null) fields.homeSetsWon = v.homeSets;
+  await updateDoc(doc(db, 'games', g.id), fields);
+}
+
+export async function addGameClip(g: GameState, clip: SocialClip) {
+  await updateDoc(doc(db, 'games', g.id), { socialClips: arrayUnion(clip), ...stamp() });
+}
+
+export async function removeGameClip(g: GameState, clipId: string) {
+  await updateDoc(doc(db, 'games', g.id), { socialClips: (g.socialClips || []).filter((c) => c.id !== clipId), ...stamp() });
+}
+
+/** A written update on the game itself (shows as Last play and in play-by-play). */
+export async function addGameNote(g: GameState, side: Side | 'neutral', text: string) {
+  const p: PlayEvent = {
+    id: `n${Date.now()}${Math.random().toString(36).slice(2, 5)}`,
+    time: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+    quarter: g.quarter,
+    team: side,
+    teamName: side === 'away' ? g.awayTeam.shortName : g.homeTeam.shortName,
+    text,
+    isScoring: false,
+  };
+  await updateDoc(doc(db, 'games', g.id), { plays: arrayUnion(p), lastPlay: text, ...stamp() });
 }
