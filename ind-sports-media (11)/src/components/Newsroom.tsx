@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import {
   Camera, Radio, PenSquare, ListChecks, Users, LogOut, Send, Pin, PinOff, Trash2,
-  ExternalLink, Loader2, X, ArrowLeft, School as SchoolIcon,
+  ExternalLink, Loader2, X, ArrowLeft, School as SchoolIcon, Trophy,
 } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { useStaff, signInStaff, signOutStaff, type StaffProfile } from '../lib/staff';
@@ -14,9 +14,10 @@ import {
 } from '../lib/articles';
 import ShareBar from './ShareBar';
 import SchoolsManager from './SchoolsManager';
+import NewsroomGames from './NewsroomGames';
 import InstallApp from './InstallApp';
 
-type Tab = 'live' | 'write' | 'stories' | 'schools' | 'team';
+type Tab = 'live' | 'write' | 'stories' | 'games' | 'schools' | 'team';
 
 const input =
   'w-full bg-black border border-white/15 focus:border-[#00BFFF] rounded-lg px-3 py-3 text-white text-base outline-none placeholder:text-white/30';
@@ -526,6 +527,7 @@ export default function Newsroom() {
         { id: 'live' as Tab, label: 'Live', icon: Radio },
         { id: 'write' as Tab, label: 'Write', icon: PenSquare },
         { id: 'stories' as Tab, label: 'Stories', icon: ListChecks },
+        { id: 'games' as Tab, label: 'Games', icon: Trophy },
         { id: 'schools' as Tab, label: 'Schools', icon: SchoolIcon },
         ...(isAdmin ? [{ id: 'team' as Tab, label: 'Team', icon: Users }] : []),
       ],
@@ -611,6 +613,7 @@ export default function Newsroom() {
           />
         )}
         {tab === 'stories' && <StoryList articles={articles} onEdit={(a) => openEditor(a)} />}
+        {tab === 'games' && <NewsroomGames staff={staff} />}
         {tab === 'schools' && <SchoolsManager />}
         {tab === 'team' && isAdmin && <TeamManager me={staff} />}
       </main>
