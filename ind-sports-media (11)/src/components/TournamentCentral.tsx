@@ -1,4 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { subscribeToSchools, logoForTeam } from '../lib/firebase';
+
+/** Team mark: the school's logo from Newsroom → Schools, or a letter on team color. */
+function SchoolMark({ team, className }: { team: { name: string; shortName: string; color?: string; textColor?: string }; className: string }) {
+  const [failed, setFailed] = useState(false);
+  const url = logoForTeam(team);
+  if (url && !failed) {
+    const sizeOnly = className.split(' ').filter((c) => /^(w|h)-/.test(c) || c === 'shrink-0').join(' ');
+    return <img src={url} alt={team.name} onError={() => setFailed(true)} className={`${sizeOnly} object-contain`} />;
+  }
+  return (
+    <div className={className} style={{ backgroundColor: team.color, color: team.textColor }}>
+      {team.shortName.charAt(0)}
+    </div>
+  );
+}
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Trophy, 
@@ -332,6 +348,8 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
   const [activeFilter, setActiveFilter] = useState<'football' | 'volleyball' | 'bracket'>('football');
   const [selectedVbSite, setSelectedVbSite] = useState<string>('huntington-north');
   const [copiedLink, setCopiedLink] = useState(false);
+  const [, setSchoolsVersion] = useState(0);
+  useEffect(() => subscribeToSchools(() => setSchoolsVersion((v) => v + 1)), []);
 
   const activeSiteData = VOLLEYBALL_TOURNAMENT_SITES.find(s => s.id === selectedVbSite) || VOLLEYBALL_TOURNAMENT_SITES[0];
 
@@ -533,12 +551,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                       {/* Away Team */}
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div 
-                            className="w-9 h-9 rounded-lg flex items-center justify-center font-display font-bold text-sm uppercase shadow-md shrink-0"
-                            style={{ backgroundColor: matchup.awayTeam.color, color: matchup.awayTeam.textColor }}
-                          >
-                            {matchup.awayTeam.shortName.charAt(0)}
-                          </div>
+                          <SchoolMark team={matchup.awayTeam} className="w-9 h-9 rounded-lg flex items-center justify-center font-display font-bold text-sm uppercase shadow-md shrink-0" />
                           <div>
                             <div className="flex items-center gap-2">
                               <span className="font-display font-bold text-base text-white">
@@ -566,12 +579,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                       {/* Home Team */}
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div 
-                            className="w-9 h-9 rounded-lg flex items-center justify-center font-display font-bold text-sm uppercase shadow-md shrink-0"
-                            style={{ backgroundColor: matchup.homeTeam.color, color: matchup.homeTeam.textColor }}
-                          >
-                            {matchup.homeTeam.shortName.charAt(0)}
-                          </div>
+                          <SchoolMark team={matchup.homeTeam} className="w-9 h-9 rounded-lg flex items-center justify-center font-display font-bold text-sm uppercase shadow-md shrink-0" />
                           <div>
                             <div className="flex items-center gap-2">
                               <span className="font-display font-bold text-base text-white">
@@ -724,12 +732,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                         {/* Team 1 */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2.5">
-                            <div 
-                              className="w-7 h-7 rounded-md flex items-center justify-center font-display font-bold text-xs uppercase"
-                              style={{ backgroundColor: match.team1.color, color: match.team1.textColor }}
-                            >
-                              {match.team1.shortName.charAt(0)}
-                            </div>
+                            <SchoolMark team={match.team1} className="w-7 h-7 rounded-md flex items-center justify-center font-display font-bold text-xs uppercase" />
                             <div>
                               <span className="font-display font-bold text-sm text-white block">
                                 {match.team1.name}
@@ -751,12 +754,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                         {/* Team 2 */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2.5">
-                            <div 
-                              className="w-7 h-7 rounded-md flex items-center justify-center font-display font-bold text-xs uppercase"
-                              style={{ backgroundColor: match.team2.color, color: match.team2.textColor }}
-                            >
-                              {match.team2.shortName.charAt(0)}
-                            </div>
+                            <SchoolMark team={match.team2} className="w-7 h-7 rounded-md flex items-center justify-center font-display font-bold text-xs uppercase" />
                             <div>
                               <span className="font-display font-bold text-sm text-white block">
                                 {match.team2.name}
