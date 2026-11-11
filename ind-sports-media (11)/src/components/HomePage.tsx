@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Camera, Star, Newspaper, Megaphone } from 'lucide-react';
 import { IndLogo } from './IndLogo';
 import { subscribeToPublishedArticles, formatTime, type Article } from '../lib/articles';
-import TournamentCentral from './TournamentCentral';
+import GamesBoard from './GamesBoard';
 
 type SportKey = 'Football' | 'Basketball' | 'Volleyball' | 'Wrestling' | 'Flag Football';
 
@@ -189,9 +189,9 @@ export default function HomePage(p: HomePageProps) {
         )}
       </section>
 
-      {/* ---------------- Tournament central (existing) ---------------- */}
-      <section id="tournament-hub" className="border-y border-rule">
-        <TournamentCentral onNavigateToGame={(id) => p.onOpenScores(id)} onNavigateToLiveScoreboard={() => p.onOpenScores()} />
+      {/* ---------------- Games (live from the Scorekeeper) ---------------- */}
+      <section id="games" className="border-y border-rule">
+        <GamesBoard onOpenGame={(id) => p.onOpenScores(id)} />
       </section>
 
       {/* ---------------- The IND standard ---------------- */}

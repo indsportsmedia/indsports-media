@@ -344,6 +344,7 @@ export async function createGame(opts: {
   title: string;
   venue: string;
   dateString: string;
+  startsAt?: string;
   createdBy: string;
 }): Promise<string> {
   const find = (n: string) => opts.schools.find((s) => schoolKey(s.name) === schoolKey(n) || (s.aliases || []).some((a) => schoolKey(a) === schoolKey(n)));
@@ -374,6 +375,7 @@ export async function createGame(opts: {
     socialClips: [],
     updatedAt: new Date().toISOString(),
     createdBy: opts.createdBy,
+    ...(opts.startsAt ? { startsAt: opts.startsAt } : {}),
     ...(kind === 'basketball' ? { clockRunning: false, clockSeconds: 480, clock: '8:00', homeFouls: 0, awayFouls: 0 } : {}),
     ...(kind === 'volleyball' ? { vbSet: 1, vbSets: [], homeSetsWon: 0, awaySetsWon: 0 } : {}),
   };
@@ -399,4 +401,41 @@ export async function linkStory(gameId: string, slug: string | null) {
 
 export async function setAutoPost(gameId: string, on: boolean) {
   await updateDoc(doc(db, 'games', gameId), { autoPost: on, ...stamp() });
+}
+
+// ---------------------------------------------------------------------------
+// Edit details / bulk tools
+// ---------------------------------------------------------------------------
+export async function updateGameDetails(
+  g: GameState,
+  d: { away: string; home: string; title: string; venue: string; startsAt: string; dateString: string; schools: School[] }
+) {
+  const find = (n: string) => d.schools.find((s) => schoolKey(s.name) === schoolKey(n) || (s.aliases || []).some((a) => schoolKey(a) === schoolKey(n)));
+  const team = (cur: TeamData, name: string) => {
+    if (schoolKey(name) === schoolKey(cur.name)) return {};
+    const s = find(name);
+    const prefix = cur === g.homeTeam ? 'homeTeam' : 'awayTeam';
+    const clean = s?.name || name.trim();
+    return {
+      [`${prefix}.name`]: clean,
+      [`${prefix}.shortName`]: clean,
+      [`${prefix}.mascot`]: s?.mascot || '',
+      [`${prefix}.logoUrl`]: s?.logoUrl || '',
+    };
+  };
+  const fields: Record<string, unknown> = {
+    ...team(g.awayTeam, d.away),
+    ...team(g.homeTeam, d.home),
+    title: d.title.trim(),
+    venue: d.venue.trim(),
+    startsAt: d.startsAt,
+    dateString: d.dateString,
+    ...stamp(),
+  };
+  if (!g.isLive && !/final/i.test(`${g.quarter} ${g.statusText}`)) fields.statusText = d.dateString || 'Upcoming';
+  await updateDoc(doc(db, 'games', g.id), fields);
+}
+
+export async function archiveMany(ids: string[]) {
+  await Promise.all(ids.map((id) => archiveGame(id, true)));
 }

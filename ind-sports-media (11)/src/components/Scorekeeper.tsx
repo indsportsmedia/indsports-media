@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Loader2, Play, Pause, Plus, Undo2, Wifi, WifiOff, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Loader2, Play, Pause, Plus, Undo2, Wifi, WifiOff, ExternalLink, Archive, Trash2 } from 'lucide-react';
 import { subscribeToGames, subscribeToSchools, type School } from '../lib/firebase';
 import { useStaff, signInStaff, signOutStaff } from '../lib/staff';
 import type { GameState } from '../types';
 import TeamLogo from './TeamLogo';
+import { isFinal, isStale, startMs, whenLabel, toLocalInput } from '../lib/gameTime';
 import InstallApp from './InstallApp';
 import {
   type Action, type Side, apply, undo, watchGame, sportKind, score, setFields, foul,
   clockStart, clockStop, clockSet, displayClock, secondsLeft, vbPoint, vbEndSet, vbSetWinner, vbTarget,
-  startGame, endGame, createGame, archiveGame, deleteGame, periodPost, linkStory, setAutoPost,
+  startGame, endGame, createGame, archiveGame, deleteGame, periodPost, linkStory, setAutoPost, updateGameDetails, archiveMany,
 } from '../lib/scorekeeper';
 import {
   subscribeToAllArticles, subscribeToArticle, saveArticle, newUpdateRef, postAutoUpdate, deleteLiveUpdate,
@@ -37,21 +38,29 @@ function GamePicker({ games, schools, staffEmail, onPick }: { games: GameState[]
   const [home, setHome] = useState('');
   const [title, setTitle] = useState('');
   const [venue, setVenue] = useState('');
-  const [when, setWhen] = useState('Tonight, 7:00 PM');
+  const [when, setWhen] = useState(() => {
+    const d = new Date();
+    d.setHours(19, 0, 0, 0);
+    return toLocalInput(d.toISOString());
+  });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [showOld, setShowOld] = useState(false);
 
   const visible = games
     .filter((g) => showOld || !g.isArchived)
-    .sort((a, b) => Number(b.isLive) - Number(a.isLive) || (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+    .sort((a, b) => Number(b.isLive) - Number(a.isLive) || Number(isFinal(a)) - Number(isFinal(b)) || (startMs(a) ?? 0) - (startMs(b) ?? 0) || (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+  const finals = games.filter((g) => !g.isArchived && isFinal(g));
+  const stale = games.filter((g) => !g.isArchived && isStale(g));
 
   const create = async () => {
     if (!away.trim() || !home.trim()) return setError('Enter both teams.');
     setBusy(true);
     setError('');
     try {
-      const id = await createGame({ sport, away, home, schools, title, venue, dateString: when, createdBy: staffEmail });
+      const startsAt = when ? new Date(when).toISOString() : '';
+      const label = startsAt ? whenLabel({ startsAt } as GameState) : '';
+      const id = await createGame({ sport, away, home, schools, title, venue, dateString: label, startsAt, createdBy: staffEmail });
       onPick(id);
     } catch (e: any) {
       setError(e?.message || 'Game not created.');
@@ -94,8 +103,8 @@ function GamePicker({ games, schools, staffEmail, onPick }: { games: GameState[]
               <input value={venue} onChange={(e) => setVenue(e.target.value)} placeholder="Westfield, IN" className={field} />
             </div>
             <div>
-              <label className={label}>Date and time</label>
-              <input value={when} onChange={(e) => setWhen(e.target.value)} className={field} />
+              <label className={label}>Start time</label>
+              <input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} className={field} />
             </div>
           </div>
           {error && <p className="text-red-400 text-sm">{error}</p>}
@@ -112,14 +121,41 @@ function GamePicker({ games, schools, staffEmail, onPick }: { games: GameState[]
         <p className="font-display font-semibold uppercase text-white">Games</p>
         <button onClick={() => setShowOld(!showOld)} className="text-ind text-sm cursor-pointer">{showOld ? 'Hide archived' : 'Show archived'}</button>
       </div>
+
+      {(finals.length > 0 || stale.length > 0) && (
+        <div className="flex flex-wrap gap-2">
+          {finals.length > 0 && (
+            <button
+              onClick={() => confirm(`Archive ${finals.length} finished game${finals.length > 1 ? 's' : ''}? They leave the homepage, ticker and scoreboard but aren't deleted.`) && archiveMany(finals.map((g) => g.id))}
+              className="flex items-center gap-1.5 border border-white/15 rounded-md px-3 py-2 text-white/85 text-sm cursor-pointer"
+            >
+              <Archive size={14} /> Archive {finals.length} finished
+            </button>
+          )}
+          {stale.length > 0 && (
+            <button
+              onClick={() => confirm(`Archive ${stale.length} out-of-date game${stale.length > 1 ? 's' : ''} that never started?`) && archiveMany(stale.map((g) => g.id))}
+              className="flex items-center gap-1.5 border border-amber-500/40 rounded-md px-3 py-2 text-amber-200 text-sm cursor-pointer"
+            >
+              <Archive size={14} /> Archive {stale.length} out of date
+            </button>
+          )}
+        </div>
+      )}
+
       {visible.length === 0 && <p className="text-mute text-sm">No games yet. Tap New game to set one up.</p>}
       <ul className="space-y-2">
         {visible.map((g) => (
-          <li key={g.id}>
-            <button onClick={() => onPick(g.id)} className="w-full text-left bg-panel border border-rule rounded-lg px-4 py-3 cursor-pointer active:border-ind">
+          <li key={g.id} className="bg-panel border border-rule rounded-lg">
+            <button onClick={() => onPick(g.id)} className="w-full text-left px-4 pt-3 pb-2 cursor-pointer">
               <div className="flex items-center gap-2 text-[12px] mb-1.5">
-                {g.isLive ? <span className="bg-[#E4002B] text-white font-display px-1.5 rounded-sm">LIVE</span> : <span className="text-mute">{g.statusText || g.quarter}</span>}
+                {g.isLive ? (
+                  <span className="bg-[#E4002B] text-white font-display px-1.5 rounded-sm">LIVE</span>
+                ) : (
+                  <span className="text-mute">{isFinal(g) ? 'Final' : whenLabel(g) || 'No start time'}</span>
+                )}
                 <span className="text-ind">{g.sport.replace('Varsity ', '')}</span>
+                {isStale(g) && <span className="text-amber-300">Out of date</span>}
                 {g.isArchived && <span className="text-mute">Archived</span>}
               </div>
               {[g.awayTeam, g.homeTeam].map((t, i) => (
@@ -130,6 +166,17 @@ function GamePicker({ games, schools, staffEmail, onPick }: { games: GameState[]
                 </div>
               ))}
             </button>
+            <div className="flex border-t border-rule text-[13px]">
+              <button onClick={() => archiveGame(g.id, !g.isArchived)} className="flex-1 flex items-center justify-center gap-1.5 py-2 text-white/70 cursor-pointer">
+                <Archive size={13} /> {g.isArchived ? 'Unarchive' : 'Archive'}
+              </button>
+              <button
+                onClick={() => confirm(`Delete ${g.awayTeam.shortName} at ${g.homeTeam.shortName} for good? This can't be undone.`) && deleteGame(g.id)}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2 text-red-300/80 border-l border-rule cursor-pointer"
+              >
+                <Trash2 size={13} /> Delete
+              </button>
+            </div>
           </li>
         ))}
       </ul>
@@ -367,6 +414,70 @@ function VolleyballPad({ g, run }: { g: GameState; run: (a: Action) => void }) {
   );
 }
 
+
+
+// ---------------------------------------------------------------------------
+// Edit game details
+// ---------------------------------------------------------------------------
+function EditDetails({ g, schools }: { g: GameState; schools: School[] }) {
+  const [open, setOpen] = useState(false);
+  const [away, setAway] = useState(g.awayTeam.name);
+  const [home, setHome] = useState(g.homeTeam.name);
+  const [title, setTitle] = useState(g.title || '');
+  const [venue, setVenue] = useState(g.venue || '');
+  const [when, setWhen] = useState(toLocalInput(g.startsAt));
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+
+  useEffect(() => {
+    if (open) return;
+    setAway(g.awayTeam.name); setHome(g.homeTeam.name); setTitle(g.title || ''); setVenue(g.venue || ''); setWhen(toLocalInput(g.startsAt));
+  }, [g, open]);
+
+  const save = async () => {
+    setSaving(true);
+    setMsg('');
+    try {
+      const startsAt = when ? new Date(when).toISOString() : '';
+      await updateGameDetails(g, { away, home, title, venue, startsAt, dateString: startsAt ? whenLabel({ startsAt } as GameState) : '', schools });
+      setMsg('Saved');
+      setOpen(false);
+    } catch (e: any) {
+      setMsg(e?.message || 'Not saved');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!open) {
+    return (
+      <button onClick={() => setOpen(true)} className="w-full flex items-center justify-between bg-panel border border-rule rounded-lg px-4 py-3 cursor-pointer">
+        <span className="text-white text-sm">Edit teams, time and venue</span>
+        <span className="text-mute text-[13px]">{msg || whenLabel(g) || 'No start time'}</span>
+      </button>
+    );
+  }
+  return (
+    <div className="bg-panel border border-rule rounded-lg p-4 space-y-3">
+      <p className="text-white font-semibold">Game details</p>
+      <datalist id="school-list-edit">{schools.map((s) => <option key={s.id} value={s.name} />)}</datalist>
+      <div className="grid grid-cols-2 gap-2">
+        <div><label className={label}>Away</label><input list="school-list-edit" value={away} onChange={(e) => setAway(e.target.value)} className={field} /></div>
+        <div><label className={label}>Home</label><input list="school-list-edit" value={home} onChange={(e) => setHome(e.target.value)} className={field} /></div>
+      </div>
+      <div><label className={label}>Start time</label><input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} className={field} /></div>
+      <div><label className={label}>Game title</label><input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="IHSAA Sectional 4, Round 1" className={field} /></div>
+      <div><label className={label}>Venue</label><input value={venue} onChange={(e) => setVenue(e.target.value)} className={field} /></div>
+      {msg && <p className="text-red-400 text-sm">{msg}</p>}
+      <div className="grid grid-cols-2 gap-2">
+        <button onClick={() => setOpen(false)} className="rounded-lg border border-white/15 py-3 text-white font-display uppercase cursor-pointer">Cancel</button>
+        <button onClick={save} disabled={saving} className="rounded-lg bg-ind text-black py-3 font-display font-semibold uppercase cursor-pointer disabled:opacity-50">
+          {saving ? 'Saving…' : 'Save details'}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Live story link: scoring plays post to this article automatically
@@ -621,6 +732,7 @@ export default function Scorekeeper() {
               </button>
             )}
 
+            <EditDetails g={game} schools={schools} />
             <StoryLink g={game} staff={staff} />
 
             {kind === 'football' && <FootballPad g={game} run={run} />}

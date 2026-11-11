@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TeamLogo from './TeamLogo';
 import { useLiveGames } from '../lib/gamesStore';
+import { isStale, whenLabel } from '../lib/gameTime';
 import { displayClock } from '../lib/scorekeeper';
 import type { GameState } from '../types';
 
@@ -23,7 +24,7 @@ export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToSc
   }, [anyClock]);
 
   const list = games
-    .filter((g) => !g.isArchived)
+    .filter((g) => !g.isArchived && !isStale(g))
     .sort((a, b) => Number(b.isLive) - Number(a.isLive) || (b.updatedAt || '').localeCompare(a.updatedAt || ''));
 
   const status = (g: GameState) => {
@@ -33,7 +34,7 @@ export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToSc
     const clk = displayClock(g);
     if (g.isLive && clk && !/pre|half/i.test(g.quarter)) return { text: `${g.quarter} ${clk}`, live: true };
     if (g.isLive) return { text: g.quarter || 'Live', live: true };
-    return { text: g.statusText || g.quarter || 'Upcoming', live: g.isLive };
+    return { text: (g.startsAt ? whenLabel(g) : g.statusText) || g.quarter || 'Upcoming', live: g.isLive };
   };
 
   return (
