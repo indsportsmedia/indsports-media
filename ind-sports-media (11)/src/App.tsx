@@ -15,6 +15,7 @@ import ContactUsModal from './components/ContactUsModal';
 import AdvertiseWithUsModal from './components/AdvertiseWithUsModal';
 import HomePage from './components/HomePage';
 import PartnersPage from './components/PartnersPage';
+import InstallApp from './components/InstallApp';
 import { 
   Play, 
   Camera, 
@@ -106,8 +107,10 @@ export default function App() {
 
   // Deep link to a game: indsports.media/?scores={gameId}
   useEffect(() => {
-    const g = new URLSearchParams(window.location.search).get('scores');
-    if (g) navigateToLiveScoreboard(g);
+    const params = new URLSearchParams(window.location.search);
+    const g = params.get('scores');
+    if (g) navigateToLiveScoreboard(g === 'all' ? undefined : g);
+    else if (params.get('view') === 'articles') navigateToArticles('All');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -459,6 +462,7 @@ export default function App() {
         <div className="border-t border-rule">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-wrap justify-between gap-3 text-[13px] text-mute">
             <span>© {new Date().getFullYear()} IND Sports Media</span>
+            <InstallApp className="text-ind hover:text-white" />
             <a href="/newsroom" className="hover:text-white">Staff sign-in</a>
           </div>
         </div>

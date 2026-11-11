@@ -1,0 +1,22 @@
+{
+  "name": "IND Sports Media",
+  "short_name": "IND Sports",
+  "description": "Indiana high school sports: live scores, stories, photos and highlights.",
+  "id": "/",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "categories": ["sports", "news"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Live scores", "url": "/?scores=all", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Articles", "url": "/?view=articles", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

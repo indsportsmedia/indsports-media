@@ -4,6 +4,7 @@ import { subscribeToGames, subscribeToSchools, type School } from '../lib/fireba
 import { useStaff, signInStaff, signOutStaff } from '../lib/staff';
 import type { GameState } from '../types';
 import TeamLogo from './TeamLogo';
+import InstallApp from './InstallApp';
 import {
   type Action, type Side, apply, undo, watchGame, sportKind, score, setFields, foul,
   clockStart, clockStop, clockSet, displayClock, secondsLeft, vbPoint, vbEndSet, vbSetWinner, vbTarget,
@@ -584,6 +585,7 @@ export default function Scorekeeper() {
           <p className="mb-3 text-red-300 bg-red-950/40 border border-red-800/50 rounded-md px-3 py-2 text-sm" onClick={() => setError('')}>{error}</p>
         )}
 
+        {!gameId && <InstallApp appName="IND Crew" className="mb-4 w-full justify-center border border-ind/50 text-ind rounded-lg py-2.5 text-sm font-semibold" />}
         {!gameId && <GamePicker games={games} schools={schools} staffEmail={staff.email} onPick={pick} />}
 
         {gameId && !game && <p className="text-mute py-10 text-center">Loading game…</p>}

@@ -14,6 +14,7 @@ import {
 } from '../lib/articles';
 import ShareBar from './ShareBar';
 import SchoolsManager from './SchoolsManager';
+import InstallApp from './InstallApp';
 
 type Tab = 'live' | 'write' | 'stories' | 'schools' | 'team';
 
@@ -593,6 +594,7 @@ export default function Newsroom() {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-5">
+        <InstallApp appName="IND Crew" className="mb-4 w-full justify-center border border-[#00BFFF]/50 text-[#00BFFF] rounded-lg py-2.5 text-sm font-bold" />
         {tab === 'live' && <LiveDesk staff={staff} articles={articles} onNewLiveStory={() => openEditor(null, true)} />}
         {tab === 'write' && (
           <Editor
