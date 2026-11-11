@@ -97,4 +97,7 @@ export interface GameState {
   homeFouls?: number;
   awayFouls?: number;
   createdBy?: string;
+  /** Live story this game auto-posts to */
+  articleSlug?: string;
+  autoPost?: boolean;
 }

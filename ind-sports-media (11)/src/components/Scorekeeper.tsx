@@ -7,8 +7,13 @@ import TeamLogo from './TeamLogo';
 import {
   type Action, type Side, apply, undo, watchGame, sportKind, score, setFields, foul,
   clockStart, clockStop, clockSet, displayClock, secondsLeft, vbPoint, vbEndSet, vbSetWinner, vbTarget,
-  startGame, endGame, createGame, archiveGame, deleteGame,
+  startGame, endGame, createGame, archiveGame, deleteGame, periodPost, linkStory, setAutoPost,
 } from '../lib/scorekeeper';
+import {
+  subscribeToAllArticles, subscribeToArticle, saveArticle, newUpdateRef, postAutoUpdate, deleteLiveUpdate,
+  SPORTS, type Article, type Sport,
+} from '../lib/articles';
+import type { StaffProfile } from '../lib/staff';
 
 const chip = (on: boolean) =>
   `px-3 py-2.5 rounded-md font-display font-semibold uppercase text-[15px] cursor-pointer border transition-colors ${
@@ -172,7 +177,7 @@ function FootballPad({ g, run }: { g: GameState; run: (a: Action) => void }) {
         <p className={label}>Quarter</p>
         <div className="grid grid-cols-6 gap-1.5">
           {['1st Qtr', '2nd Qtr', 'Halftime', '3rd Qtr', '4th Qtr', 'OT'].map((q) => (
-            <button key={q} onClick={() => run(setFields(q, g, { quarter: q, statusText: q }))} className={`${chip(g.quarter === q)} !px-1 !text-[13px]`}>
+            <button key={q} onClick={() => run({ ...setFields(q, g, { quarter: q, statusText: q }), post: periodPost(g, q) })} className={`${chip(g.quarter === q)} !px-1 !text-[13px]`}>
               {q.replace(' Qtr', '').replace('Halftime', 'Half')}
             </button>
           ))}
@@ -291,12 +296,12 @@ function BasketballPad({ g, run }: { g: GameState; run: (a: Action) => void }) {
             <button
               key={q}
               onClick={() =>
-                run(setFields(q, g, {
+                run({ post: periodPost(g, q), ...setFields(q, g, {
                   quarter: q,
                   statusText: q,
                   ...(q !== g.quarter && q !== 'Halftime' ? { clockRunning: false, clockSeconds: q === 'OT' ? 240 : 480, clock: q === 'OT' ? '4:00' : '8:00' } : {}),
                   ...(q === '3rd Qtr' && g.quarter !== '3rd Qtr' ? { homeFouls: 0, awayFouls: 0 } : {}),
-                }))
+                }) })
               }
               className={`${chip(g.quarter === q)} !px-1 !text-[13px]`}
             >
@@ -361,6 +366,98 @@ function VolleyballPad({ g, run }: { g: GameState; run: (a: Action) => void }) {
   );
 }
 
+
+// ---------------------------------------------------------------------------
+// Live story link: scoring plays post to this article automatically
+// ---------------------------------------------------------------------------
+function toSport(s: string): Sport {
+  const k = s.replace(/varsity|jv|boys|girls/gi, '').trim().toLowerCase();
+  return (SPORTS.find((x) => x.toLowerCase() === k) || 'Other') as Sport;
+}
+
+function StoryLink({ g, staff }: { g: GameState; staff: StaffProfile }) {
+  const [story, setStory] = useState<Article | null>(null);
+  const [liveStories, setLiveStories] = useState<Article[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+
+  useEffect(() => (g.articleSlug ? subscribeToArticle(g.articleSlug, setStory) : setStory(null)), [g.articleSlug]);
+  useEffect(() => (g.articleSlug ? undefined : subscribeToAllArticles((list) => setLiveStories(list.filter((a) => a.isLive)))), [g.articleSlug]);
+
+  const create = async () => {
+    setBusy(true);
+    setErr('');
+    try {
+      const slug = await saveArticle(
+        staff,
+        {
+          title: `LIVE: ${g.awayTeam.shortName} at ${g.homeTeam.shortName}`,
+          excerpt: `${g.title ? `${g.title}. ` : ''}Live score and updates${g.venue ? ` from ${g.venue}` : ''}.`,
+          body: '',
+          sport: toSport(g.sport),
+          coverUrl: '',
+          coverType: 'image',
+          isLive: true,
+        },
+        true
+      );
+      await linkStory(g.id, slug);
+    } catch (e: any) {
+      setErr(e?.message || 'Story not created.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (g.articleSlug) {
+    const on = g.autoPost !== false;
+    return (
+      <div className="bg-panel border border-rule rounded-lg p-4 space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-mute text-[12px]">Live story</p>
+            <p className="text-white font-semibold truncate">{story?.title || 'Loading…'}</p>
+          </div>
+          <a href={`/news/${g.articleSlug}`} target="_blank" rel="noopener noreferrer" className="text-ind text-sm shrink-0 flex items-center gap-1">
+            <ExternalLink size={14} /> View
+          </a>
+        </div>
+        <button onClick={() => setAutoPost(g.id, !on)} className="w-full flex items-center justify-between bg-black border border-white/10 rounded-md px-3 py-3 cursor-pointer">
+          <span className="text-white text-sm text-left">
+            Auto-post to story
+            <span className="block text-mute text-[12px]">
+              {/basket/i.test(g.sport) ? 'Start, end of each quarter, halftime, final' : /volley/i.test(g.sport) ? 'Start, each set result, final' : 'Start, every score, end of quarters, final'}
+            </span>
+          </span>
+          <span className={`w-11 h-6 rounded-full relative transition-colors ${on ? 'bg-ind' : 'bg-white/20'}`}>
+            <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${on ? 'left-[22px]' : 'left-0.5'}`} />
+          </span>
+        </button>
+        <button onClick={() => confirm('Unlink this story? Posts already made stay on the story.') && linkStory(g.id, null)} className="text-mute text-[13px] underline cursor-pointer">
+          Unlink story
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-panel border border-rule rounded-lg p-4 space-y-3">
+      <p className="text-white font-semibold">Live story</p>
+      <p className="text-mute text-[13px] -mt-2">Link a story and scoring plays post to it automatically. Undo removes the post too.</p>
+      <button onClick={create} disabled={busy} className="w-full bg-ind text-black font-display font-semibold uppercase rounded-md py-3 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2">
+        {busy && <Loader2 size={16} className="animate-spin" />} Create live story for this game
+      </button>
+      {liveStories.length > 0 && (
+        <select defaultValue="" onChange={(e) => e.target.value && linkStory(g.id, e.target.value)} className={field}>
+          <option value="" disabled>Or link an existing live story…</option>
+          {liveStories.map((a) => <option key={a.slug} value={a.slug}>{a.title}</option>)}
+        </select>
+      )}
+      {err && <p className="text-red-400 text-sm">{err}</p>}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
@@ -372,7 +469,7 @@ export default function Scorekeeper() {
   const [game, setGame] = useState<GameState | null>(null);
   const [pending, setPending] = useState(false);
   const [online, setOnline] = useState(navigator.onLine);
-  const [history, setHistory] = useState<Action[]>([]);
+  const [history, setHistory] = useState<(Action & { postRef?: { slug: string; id: string } })[]>([]);
   const [toast, setToast] = useState('');
   const [error, setError] = useState('');
 
@@ -411,8 +508,14 @@ export default function Scorekeeper() {
   const run = (a: Action) => {
     if (!game) return;
     buzz();
-    setHistory((h) => [...h.slice(-49), a]);
-    flash(a.label);
+    const entry: Action & { postRef?: { slug: string; id: string } } = { ...a };
+    if (a.post && game.articleSlug && game.autoPost !== false) {
+      const ref = newUpdateRef(game.articleSlug);
+      entry.postRef = { slug: game.articleSlug, id: ref.id };
+      postAutoUpdate(staff!, game.articleSlug, ref.id, a.post).catch((e) => setError(`Score saved, but the story post failed: ${e?.message || e}`));
+    }
+    setHistory((h) => [...h.slice(-49), entry]);
+    flash(entry.postRef ? `${a.label} · posted to story` : a.label);
     // Not awaited: Firestore saves on the phone first and sends when signal returns.
     apply(game.id, a).catch((e) => setError(e?.message || 'Update failed. Check you are signed in as staff.'));
   };
@@ -424,6 +527,7 @@ export default function Scorekeeper() {
     setHistory((h) => h.slice(0, -1));
     flash(`Undid: ${a.label}`);
     undo(game.id, a).catch((e) => setError(e?.message || 'Undo failed.'));
+    if (a.postRef) deleteLiveUpdate(a.postRef.slug, a.postRef.id).catch(() => {});
   };
 
   const kind = game ? sportKind(game.sport) : 'football';
@@ -514,6 +618,8 @@ export default function Scorekeeper() {
                 Start game (go live)
               </button>
             )}
+
+            <StoryLink g={game} staff={staff} />
 
             {kind === 'football' && <FootballPad g={game} run={run} />}
             {kind === 'basketball' && <BasketballPad g={game} run={run} />}

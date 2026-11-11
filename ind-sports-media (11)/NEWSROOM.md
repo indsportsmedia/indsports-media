@@ -34,6 +34,12 @@ Open **/score** on your phone (or tap **Scorekeeper** in the Newsroom). Sign in 
 - **Two phones:** one person can keep score on /score while another posts photos in the Newsroom
   or the scoreboard's Sideline Console. Score taps only change the score, so they can't erase
   each other. (Avoid changing the score in the old Sideline Console during a game.)
+- **Live story:** on the game screen tap **Create live story for this game** (or link an existing
+  live story). With **Auto-post to story** on, the story gets updates automatically:
+  football = kickoff, every score, end of each quarter, halftime, final; basketball = tip-off,
+  end of each quarter, halftime, final; volleyball = first serve, each set result, final.
+  **Undo** also deletes the auto-post. The story page shows a live score box at the top.
+  Photos and notes still go in through the Newsroom **Live** tab as usual.
 - **End game** marks it Final. Archive or delete old and sample games from the game's screen.
 
 ## School logos

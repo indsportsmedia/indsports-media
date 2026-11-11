@@ -4,6 +4,7 @@ import {
   type Article, type LiveUpdate, subscribeToArticle, subscribeToUpdates, articleUrl, formatTime, readTime,
 } from '../lib/articles';
 import ShareBar from './ShareBar';
+import StoryScorebox from './StoryScorebox';
 
 /** Public page for one story: indsports.media/news/{slug} */
 export default function ArticlePage({ slug }: { slug: string }) {
@@ -111,6 +112,8 @@ export default function ArticlePage({ slug }: { slug: string }) {
 
         <h1 className="mt-3 text-[34px] sm:text-[48px] font-display font-bold leading-[1.08] max-w-[24ch]">{article.title}</h1>
         {article.excerpt && <p className="mt-3 text-white/70 text-lg leading-relaxed">{article.excerpt}</p>}
+
+        {article.gameId && <StoryScorebox gameId={article.gameId} />}
 
         <div className="mt-5">
           <ShareBar url={articleUrl(article.slug)} text={`${article.isLive ? 'LIVE: ' : ''}${article.title}`} />

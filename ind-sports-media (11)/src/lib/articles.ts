@@ -33,6 +33,7 @@ export interface Article {
   coverType?: MediaType;
   status: 'draft' | 'published';
   isLive: boolean; // true while a game is in progress: shows LIVE badge + update feed
+  gameId?: string; // scoreboard game linked from /score
   createdAt?: Timestamp | null;
   updatedAt?: Timestamp | null;
   publishedAt?: Timestamp | null;
@@ -243,4 +244,23 @@ export async function setUpdatePinned(slug: string, updateId: string, pinned: bo
 
 export async function deleteLiveUpdate(slug: string, updateId: string) {
   await deleteDoc(doc(db, 'articles', slug, 'updates', updateId));
+}
+
+/** Reserve an update id, so an auto-post can be deleted again by Undo. */
+export function newUpdateRef(slug: string) {
+  return doc(collection(db, 'articles', slug, 'updates'));
+}
+
+export async function postAutoUpdate(author: StaffProfile, slug: string, id: string, text: string) {
+  await setDoc(doc(db, 'articles', slug, 'updates', id), {
+    text,
+    mediaUrl: '',
+    mediaType: '',
+    authorName: author.name,
+    authorEmail: author.email,
+    pinned: false,
+    auto: true,
+    createdAt: serverTimestamp(),
+  });
+  await updateDoc(doc(db, 'articles', slug), { updatedAt: serverTimestamp() }).catch(() => {});
 }

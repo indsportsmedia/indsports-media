@@ -33,6 +33,22 @@ export interface Action {
   label: string;
   updates: Record<string, unknown>;
   inverse: Record<string, unknown>;
+  /** Text auto-posted to the game's live story (if one is linked). */
+  post?: string;
+}
+
+/** "Carmel 7, Westfield 14" (away first, like a scoreboard). */
+export function scoreLine(g: GameState, awayScore = g.awayTeam.score, homeScore = g.homeTeam.score) {
+  return `${g.awayTeam.shortName} ${awayScore}, ${g.homeTeam.shortName} ${homeScore}`;
+}
+
+/** Story update when the period changes, e.g. "End of 1st Qtr: Carmel 14, Westfield 12". */
+export function periodPost(g: GameState, next: string): string | undefined {
+  if (!g.isLive || next === g.quarter) return undefined;
+  if (next === 'Halftime') return `Halftime: ${scoreLine(g)}`;
+  const order = ['1st Qtr', '2nd Qtr', 'Halftime', '3rd Qtr', '4th Qtr', 'OT'];
+  if (order.indexOf(next) > order.indexOf(g.quarter) && g.quarter !== 'Halftime') return `End of ${g.quarter}: ${scoreLine(g)}`;
+  return undefined;
 }
 
 const stamp = () => ({ updatedAt: new Date().toISOString() });
@@ -155,7 +171,14 @@ export function score(g: GameState, side: Side, points: number, what: string): A
       : `${team.shortName} ${newScore}, ${other.shortName} ${other.score}`;
   const text = points > 0 ? `${what}, ${team.shortName || team.name}. ${line}` : `Score correction (${points}), ${team.shortName}. ${line}`;
   const p = play(g, side, text, points > 0, points > 0 ? `+${points}` : String(points));
+  const newAway = side === 'away' ? newScore : other.score;
+  const newHome = side === 'home' ? newScore : other.score;
+  const post =
+    points > 0 && sportKind(g.sport) === 'football' && g.isLive
+      ? `${what}, ${team.shortName || team.name}. ${scoreLine(g, newAway, newHome)} (${g.quarter})`
+      : undefined;
   return {
+    post,
     label: `${team.shortName} ${points > 0 ? '+' : ''}${points} ${what}`,
     updates: { [`${key}.score`]: increment(points), [`${key}.qScores`]: q, lastPlay: text, plays: arrayUnion(p) },
     inverse: { [`${key}.score`]: increment(-points), [`${key}.qScores`]: prevQ, lastPlay: g.lastPlay || '', plays: arrayRemove(p) },
@@ -237,6 +260,9 @@ export function vbEndSet(g: GameState): Action {
     });
   }
   return {
+    post: matchOver
+      ? `FINAL: ${wTeam.shortName} wins ${Math.max(hw, aw)}-${Math.min(hw, aw)}. ${(g.vbSets || []).concat(result).map((x, i) => `Set ${i + 1}: ${x.away}-${x.home}`).join(', ')}`
+      : text,
     label: matchOver ? 'Match final' : `End set ${set}`,
     updates,
     inverse: {
@@ -263,13 +289,16 @@ export function startGame(g: GameState): Action {
   const kind = sportKind(g.sport);
   const first = kind === 'volleyball' ? 'Set 1' : '1st Qtr';
   const quarter = /pre|upcoming|^$/i.test(g.quarter || '') ? first : g.quarter;
-  return setFields('Game started', g, {
+  const a = setFields('Game started', g, {
     isLive: true,
     isArchived: false,
     quarter,
     statusText: quarter,
     ...(kind === 'volleyball' && !g.vbSet ? { vbSet: 1 } : {}),
   });
+  const start = kind === 'football' ? 'Kickoff' : kind === 'basketball' ? 'Tip-off' : 'First serve';
+  a.post = `${start}: ${g.awayTeam.shortName} at ${g.homeTeam.shortName} is underway.`;
+  return a;
 }
 
 export function endGame(g: GameState): Action {
@@ -279,7 +308,14 @@ export function endGame(g: GameState): Action {
     fields['homeTeam.score'] = g.homeSetsWon || 0;
     fields['awayTeam.score'] = g.awaySetsWon || 0;
   }
-  return setFields('Game final', g, fields);
+  const a = setFields('Game final', g, fields);
+  if (kind === 'volleyball') {
+    a.post = `FINAL: ${scoreLine(g, g.awaySetsWon || 0, g.homeSetsWon || 0)} (sets)`;
+  } else {
+    const w = g.homeTeam.score === g.awayTeam.score ? null : g.homeTeam.score > g.awayTeam.score ? g.homeTeam : g.awayTeam;
+    a.post = `FINAL: ${scoreLine(g)}.${w ? ` ${w.shortName} wins.` : ''}`;
+  }
+  return a;
 }
 
 const emptyStats = { passingYds: 0, rushingYds: 0, firstDowns: 0, turnovers: 0, penalties: '0-0' };
@@ -351,4 +387,16 @@ export async function archiveGame(id: string, archived: boolean) {
 
 export async function deleteGame(id: string) {
   await deleteDoc(doc(db, 'games', id));
+}
+
+// ---------------------------------------------------------------------------
+// Live story link
+// ---------------------------------------------------------------------------
+export async function linkStory(gameId: string, slug: string | null) {
+  await updateDoc(doc(db, 'games', gameId), { articleSlug: slug || '', autoPost: !!slug, ...stamp() });
+  if (slug) await updateDoc(doc(db, 'articles', slug), { gameId }).catch(() => {});
+}
+
+export async function setAutoPost(gameId: string, on: boolean) {
+  await updateDoc(doc(db, 'games', gameId), { autoPost: on, ...stamp() });
 }
