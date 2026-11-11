@@ -310,7 +310,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
                 <span className="bg-[#00BFFF] text-black px-2.5 py-0.5 rounded font-bold text-xs uppercase tracking-wider">
                   {filteredPhotos[activeLightboxIndex].sport}
                 </span>
-                <span className="text-white/60 text-xs font-mono">
+                <span className="text-white/60 text-xs font-sans tabular">
                   {activeLightboxIndex + 1} / {filteredPhotos.length}
                 </span>
               </div>
@@ -448,7 +448,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
 
                 {/* Title */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-white/60 font-bold block mb-1">
+                  <label className="text-[11px] font-sans tabular uppercase text-white/60 font-bold block mb-1">
                     Photo Title
                   </label>
                   <input
@@ -462,7 +462,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
 
                 {/* Matchup / Event */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-white/60 font-bold block mb-1">
+                  <label className="text-[11px] font-sans tabular uppercase text-white/60 font-bold block mb-1">
                     Matchup / Description
                   </label>
                   <input
@@ -476,7 +476,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
                 {/* Sport & Photographer Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[11px] font-mono uppercase text-white/60 font-bold block mb-1">
+                    <label className="text-[11px] font-sans tabular uppercase text-white/60 font-bold block mb-1">
                       Sport Category
                     </label>
                     <select
@@ -491,7 +491,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-mono uppercase text-white/60 font-bold block mb-1">
+                    <label className="text-[11px] font-sans tabular uppercase text-white/60 font-bold block mb-1">
                       Photographer
                     </label>
                     <input
@@ -505,7 +505,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
 
                 {/* Tags */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-white/60 font-bold block mb-1">
+                  <label className="text-[11px] font-sans tabular uppercase text-white/60 font-bold block mb-1">
                     Tags (Comma Separated)
                   </label>
                   <input

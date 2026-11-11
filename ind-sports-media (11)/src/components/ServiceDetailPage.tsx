@@ -198,7 +198,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
         >
           <ArrowLeft size={16} /> BACK TO ATHLETICS
         </button>
-        <span className="text-[11px] font-mono tracking-widest text-red-500 font-bold uppercase py-1 px-3 bg-red-500/10 border border-red-500/20 rounded-full">
+        <span className="text-[11px] font-sans tabular tracking-wide text-red-500 font-bold uppercase py-1 px-3 bg-red-500/10 border border-red-500/20 rounded-full">
           {data.badge}
         </span>
       </div>
@@ -257,7 +257,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
               {data.stats.map((stat, i) => (
                 <div key={i} className="bg-neutral-900/60 p-4 border border-white/5 rounded-sm">
                   <div className="text-3xl font-bold text-red-500 font-display">{stat.value}</div>
-                  <div className="text-[10px] font-mono text-neutral-500 uppercase tracking-wider mt-1">{stat.label}</div>
+                  <div className="text-[10px] font-sans tabular text-neutral-500 uppercase tracking-wide mt-1">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -296,12 +296,12 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
               </div>
 
               {/* Tag indicator */}
-              <div className="absolute bottom-4 left-4 bg-black/80 border border-white/10 text-white text-[10px] font-mono py-1 px-3 rounded uppercase tracking-wider">
+              <div className="absolute bottom-4 left-4 bg-black/80 border border-white/10 text-white text-[10px] font-sans tabular py-1 px-3 rounded uppercase tracking-wide">
                 {isPlaying ? "🎥 PLAYING PREVIEW CLIP" : "🎬 REELS PREVIEW DEMO"}
               </div>
             </div>
             
-            <p className="text-xs text-neutral-500 uppercase font-mono text-center tracking-widest">
+            <p className="text-xs text-neutral-500 uppercase font-sans tabular text-center tracking-wide">
               *All preview footage represents actual student highlight reels recorded in high density.
             </p>
           </div>
@@ -313,7 +313,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
       <section className="bg-neutral-950 py-24 border-t border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="text-center mb-16">
-            <span className="text-[11px] font-mono text-red-500 font-bold tracking-widest uppercase bg-red-500/5 px-4 py-1.5 border border-red-500/10 rounded-full">
+            <span className="text-[11px] font-sans tabular text-red-500 font-bold tracking-wide uppercase bg-red-500/5 px-4 py-1.5 border border-red-500/10 rounded-full">
               WHY IND BROADCASTING
             </span>
             <h2 className="text-4xl md:text-6xl font-bold text-white uppercase tracking-tight mt-4">
@@ -365,18 +365,18 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
               className={`relative bg-neutral-900 border rounded-sm p-8 text-left transition-all flex flex-col justify-between ${pkg.popular ? 'border-red-500 ring-2 ring-red-500/10 scale-105 md:translate-y-[-10px] z-10 bg-gradient-to-b from-neutral-900 to-neutral-950' : 'border-white/5'}`}
             >
               {pkg.popular && (
-                <span className="absolute top-0 right-8 transform -translate-y-1/2 bg-red-600 text-white text-[9px] font-mono font-bold uppercase tracking-widest py-1 px-3 rounded">
+                <span className="absolute top-0 right-8 transform -translate-y-1/2 bg-red-600 text-white text-[9px] font-sans tabular font-bold uppercase tracking-wide py-1 px-3 rounded">
                   MOST POPULAR REEL
                 </span>
               )}
               
               <div>
-                <h4 className="text-xs font-mono text-neutral-400 uppercase tracking-widest mb-2 block">
+                <h4 className="text-xs font-sans tabular text-neutral-400 uppercase tracking-wide mb-2 block">
                   {pkg.name}
                 </h4>
                 <div className="flex items-baseline gap-2 mb-6 border-b border-white/10 pb-6">
                   <span className="text-5xl font-bold text-white font-display">{pkg.price}</span>
-                  <span className="text-neutral-500 text-sm font-mono font-medium">/ Flat Rate</span>
+                  <span className="text-neutral-500 text-sm font-sans tabular font-medium">/ Flat Rate</span>
                 </div>
 
                 <ul className="space-y-4 mb-8">

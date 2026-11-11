@@ -69,17 +69,17 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose 
                 <div className="bg-black/50 border border-white/10 p-3 rounded text-center">
                   <Mail size={16} className="text-[#00BFFF] mx-auto mb-1" />
                   <div className="text-[10px] text-white/40 uppercase font-bold">Direct Email</div>
-                  <div className="text-xs text-white font-mono font-bold truncate">admin@indsports.media</div>
+                  <div className="text-xs text-white font-sans tabular font-bold truncate">admin@indsports.media</div>
                 </div>
                 <div className="bg-black/50 border border-white/10 p-3 rounded text-center">
                   <Phone size={16} className="text-[#00BFFF] mx-auto mb-1" />
                   <div className="text-[10px] text-white/40 uppercase font-bold">Media Desk</div>
-                  <div className="text-xs text-white font-mono font-bold">(317) 420-1722</div>
+                  <div className="text-xs text-white font-sans tabular font-bold">(317) 420-1722</div>
                 </div>
                 <div className="bg-black/50 border border-white/10 p-3 rounded text-center">
                   <Clock size={16} className="text-[#00BFFF] mx-auto mb-1" />
                   <div className="text-[10px] text-white/40 uppercase font-bold">Response Time</div>
-                  <div className="text-xs text-white font-mono font-bold">Under 24 Hours</div>
+                  <div className="text-xs text-white font-sans tabular font-bold">Under 24 Hours</div>
                 </div>
               </div>
 

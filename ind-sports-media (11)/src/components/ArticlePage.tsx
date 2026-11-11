@@ -81,7 +81,7 @@ export default function ArticlePage({ slug }: { slug: string }) {
           </a>
           {article.isLive && (
             <span className="flex items-center gap-1.5 bg-[#E4002B] text-white font-display font-bold text-[13px] px-2 py-0.5 rounded-sm">
-              <span className="w-2 h-2 rounded-full bg-white animate-pulse" /> Live
+              <span className="w-2 h-2 rounded-full bg-white" /> Live
             </span>
           )}
         </div>

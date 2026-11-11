@@ -9,6 +9,8 @@
 @theme {
   --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Oswald", "Arial Narrow", sans-serif;
+  /* No monospace anywhere: small data labels use the body sans with even-width numbers. */
+  --font-mono: "Barlow", ui-sans-serif, system-ui, sans-serif;
   --color-electric-cyan: #00BFFF;
   --color-electric-cyan-hover: #33CCFF;
   --color-electric-cyan-dark: #0082B3;
@@ -40,7 +42,7 @@
   }
 }
 
-.tabular { font-variant-numeric: tabular-nums; }
+.tabular, .font-mono { font-variant-numeric: tabular-nums; }
 
 .text-stroke {
   -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);

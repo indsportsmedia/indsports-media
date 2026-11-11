@@ -550,7 +550,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
         {/* Dynamic Athlete Cards gallery grid */}
         {filteredReels.length === 0 ? (
           <div className="text-center py-20 border border-white/5 bg-neutral-900/40 rounded-sm">
-            <AlertCircle className="w-12 h-12 text-neutral-600 mx-auto mb-3 animate-pulse" />
+            <AlertCircle className="w-12 h-12 text-neutral-600 mx-auto mb-3" />
             <h3 className="font-display font-bold text-xl text-white uppercase mb-1">NO ATHLETES FOUND</h3>
             <p className="text-xs text-neutral-500 font-sans max-w-sm mx-auto">
               We couldn't find any athlete matches matching that exact spelling or filter criteria. Add a custom reel using the top-right button!
@@ -595,7 +595,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                       <span className="bg-[#00BFFF] text-black px-2.5 py-1 text-[9px] font-display font-bold uppercase tracking-wider rounded-sm shadow-md">
                         {reel.sport}
                       </span>
-                      <span className="bg-black/80 text-white px-2.5 py-1 text-[9px] font-mono font-bold uppercase tracking-wider rounded-sm border border-white/5">
+                      <span className="bg-black/80 text-white px-2.5 py-1 text-[9px] font-sans tabular font-bold uppercase tracking-wide rounded-sm border border-white/5">
                         CLASS OF {reel.gradYear}
                       </span>
                     </div>
@@ -615,7 +615,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                   {/* Body particulars and statistics */}
                   <div className="p-6 flex-1 flex flex-col justify-between">
                     <div>
-                      <div className="text-xs text-neutral-500 font-mono uppercase tracking-widest mb-1">{reel.position}</div>
+                      <div className="text-xs text-neutral-500 font-sans tabular uppercase tracking-wide mb-1">{reel.position}</div>
                       <h3 className="font-display font-bold text-2xl text-white group-hover:text-[#00BFFF] transition-colors uppercase leading-none mb-3">
                         {reel.name}
                       </h3>
@@ -627,7 +627,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                       </div>
 
                       {/* Micro metric grid detail */}
-                      <div className="grid grid-cols-3 gap-2 py-3 border-t border-b border-white/5 mb-5 font-mono text-center">
+                      <div className="grid grid-cols-3 gap-2 py-3 border-t border-b border-white/5 mb-5 font-sans tabular text-center">
                         <div>
                           <div className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest">GPA</div>
                           <div className="text-xs text-white font-extrabold flex items-center justify-center gap-1.5 mt-0.5">
@@ -732,7 +732,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                     <span className="bg-[#00BFFF]/10 text-[#00BFFF] border border-[#00BFFF]/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-widest font-bold rounded-sm">
                       {activeReel.sport}
                     </span>
-                    <span className="bg-neutral-800 text-neutral-300 font-mono text-[9px] px-2 py-0.5 rounded-sm">
+                    <span className="bg-neutral-800 text-neutral-300 font-sans tabular text-[9px] px-2 py-0.5 rounded-sm">
                       CLASS OF {activeReel.gradYear}
                     </span>
                   </div>
@@ -740,7 +740,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                   <h2 className="font-display font-bold text-3xl text-white uppercase leading-none mb-1">
                     {activeReel.name}
                   </h2>
-                  <p className="text-neutral-500 uppercase font-mono tracking-widest mb-4">{activeReel.position}</p>
+                  <p className="text-neutral-500 uppercase font-sans tabular tracking-wide mb-4">{activeReel.position}</p>
 
                   <div className="space-y-4 pt-4 border-t border-white/5">
                     {/* General Location Info */}
@@ -748,12 +748,12 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                       <MapPin className="text-[#00BFFF] w-4 h-4 shrink-0 mt-0.5" />
                       <div>
                         <p className="font-semibold text-white">{activeReel.school}</p>
-                        <p className="text-[10px] text-neutral-500 uppercase font-mono">Current High School</p>
+                        <p className="text-[10px] text-neutral-500 uppercase font-sans tabular">Current High School</p>
                       </div>
                     </div>
 
                     {/* Academic Stat card snippet row */}
-                    <div className="grid grid-cols-3 gap-2 py-4 border-t border-b border-white/5 my-4 font-mono text-center">
+                    <div className="grid grid-cols-3 gap-2 py-4 border-t border-b border-white/5 my-4 font-sans tabular text-center">
                       <div className="bg-neutral-950 p-2 border border-white/5 rounded">
                         <p className="text-[9px] text-neutral-500 font-extrabold uppercase tracking-widest mb-1">GPA</p>
                         <p className="text-sm text-green-500 font-bold flex items-center justify-center gap-1">
@@ -818,7 +818,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                     </a>
                   )}
 
-                  <p className="text-[9px] text-neutral-500 text-center font-mono uppercase tracking-wider">
+                  <p className="text-[9px] text-neutral-500 text-center font-sans tabular uppercase tracking-wide">
                     ATHLETE MEDIA ID: {activeReel.id} • IND BROADCAST PORTFOLIO
                   </p>
                 </div>
@@ -870,8 +870,8 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
               {isSubmitting ? (
                 <div className="p-10 text-center space-y-4">
                   <div className="w-12 h-12 border-4 border-[#00BFFF]/20 border-t-[#00BFFF] rounded-full animate-spin mx-auto" />
-                  <p className="font-display font-bold text-sm uppercase text-white animate-pulse">PROCESSING ACTION VIDEO...</p>
-                  <p className="text-[10px] text-neutral-500 font-mono">Syncing fields, securing player credentials and generating thumbnails.</p>
+                  <p className="font-display font-bold text-sm uppercase text-white">PROCESSING ACTION VIDEO...</p>
+                  <p className="text-[10px] text-neutral-500 font-sans tabular">Syncing fields, securing player credentials and generating thumbnails.</p>
                 </div>
               ) : validationSuccess ? (
                 <div className="p-10 text-center space-y-4">
@@ -914,8 +914,8 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                       
                       {selectedFile ? (
                         <div className="space-y-1">
-                          <p className="text-white font-mono text-[11px] truncate font-bold">{selectedFile.name}</p>
-                          <p className="text-[10px] text-neutral-450 uppercase font-mono tracking-wider">
+                          <p className="text-white font-sans tabular text-[11px] truncate font-bold">{selectedFile.name}</p>
+                          <p className="text-[10px] text-neutral-450 uppercase font-sans tabular tracking-wide">
                             {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB • Click to replace file
                           </p>
                         </div>
@@ -993,7 +993,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                   </div>
 
                   {/* Section 3: Physical & Academic particulars */}
-                  <div className="grid grid-cols-4 gap-2 font-mono text-[10px]">
+                  <div className="grid grid-cols-4 gap-2 font-sans tabular text-[10px]">
                     <div className="space-y-1.5">
                       <label className="uppercase tracking-widest font-bold text-neutral-400 font-display text-[9px]">GRAD YEAR</label>
                       <select 

@@ -144,10 +144,10 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
           <div className="bg-neutral-900 border-b border-white/10 px-6 py-5 flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <span className="bg-[#00BFFF] text-black text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-0.5 rounded">
+                <span className="bg-[#00BFFF] text-black text-[10px] font-sans tabular font-bold uppercase tracking-wide px-2.5 py-0.5 rounded">
                   CREATOR NETWORK
                 </span>
-                <span className="text-xs text-neutral-400 font-mono flex items-center gap-1">
+                <span className="text-xs text-neutral-400 font-sans tabular flex items-center gap-1">
                   <FileSpreadsheet size={13} className="text-green-500" /> Google Sheets Sync
                 </span>
               </div>
@@ -198,7 +198,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
                     <div className="flex items-center gap-3">
                       <FileSpreadsheet className="text-green-500 flex-shrink-0" size={24} />
                       <div>
-                        <div className="text-xs font-mono text-white font-bold uppercase">Google Sheet Status</div>
+                        <div className="text-xs font-sans tabular text-white font-bold uppercase">Google Sheet Status</div>
                         <div className="text-[11px] text-neutral-400">Application row synced to spreadsheet</div>
                       </div>
                     </div>
@@ -207,7 +207,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
                         href={spreadsheetUrl} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="text-xs font-mono text-[#00BFFF] hover:underline flex items-center gap-1 font-bold"
+                        className="text-xs font-sans tabular text-[#00BFFF] hover:underline flex items-center gap-1 font-bold"
                       >
                         OPEN SHEET <ExternalLink size={12} />
                       </a>
@@ -238,7 +238,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
                   <div className="grid md:grid-cols-2 gap-6">
                     {/* Full Name */}
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-widest text-neutral-300 mb-2 font-bold">
+                      <label className="block text-xs font-sans tabular uppercase tracking-wide text-neutral-300 mb-2 font-bold">
                         Full Name *
                       </label>
                       <input 
@@ -253,7 +253,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
 
                     {/* Email */}
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-widest text-neutral-300 mb-2 font-bold">
+                      <label className="block text-xs font-sans tabular uppercase tracking-wide text-neutral-300 mb-2 font-bold">
                         Email Address *
                       </label>
                       <input 
@@ -268,7 +268,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
 
                     {/* Phone */}
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-widest text-neutral-300 mb-2 font-bold">
+                      <label className="block text-xs font-sans tabular uppercase tracking-wide text-neutral-300 mb-2 font-bold">
                         Phone Number
                       </label>
                       <input 
@@ -282,7 +282,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
 
                     {/* Primary Role */}
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-widest text-neutral-300 mb-2 font-bold">
+                      <label className="block text-xs font-sans tabular uppercase tracking-wide text-neutral-300 mb-2 font-bold">
                         Primary Media Role *
                       </label>
                       <select 
@@ -300,7 +300,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
 
                   {/* Sports Covered */}
                   <div>
-                    <label className="block text-xs font-mono uppercase tracking-widest text-neutral-300 mb-2 font-bold">
+                    <label className="block text-xs font-sans tabular uppercase tracking-wide text-neutral-300 mb-2 font-bold">
                       Sports You Feel Comfortable Covering
                     </label>
                     <div className="flex flex-wrap gap-2">
@@ -311,7 +311,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
                             type="button"
                             key={sport}
                             onClick={() => toggleSport(sport)}
-                            className={`px-3 py-1.5 rounded text-xs font-mono font-bold uppercase transition-all cursor-pointer border ${isSelected ? 'bg-[#00BFFF] border-[#00BFFF] text-black font-extrabold' : 'bg-neutral-900 border-white/10 text-neutral-400 hover:border-white/30'}`}
+                            className={`px-3 py-1.5 rounded text-xs font-sans tabular font-bold uppercase transition-all cursor-pointer border ${isSelected ? 'bg-[#00BFFF] border-[#00BFFF] text-black font-extrabold' : 'bg-neutral-900 border-white/10 text-neutral-400 hover:border-white/30'}`}
                           >
                             {sport}
                           </button>
@@ -323,7 +323,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
                   <div className="grid md:grid-cols-2 gap-6">
                     {/* Experience */}
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-widest text-neutral-300 mb-2 font-bold">
+                      <label className="block text-xs font-sans tabular uppercase tracking-wide text-neutral-300 mb-2 font-bold">
                         Years of Experience & Background
                       </label>
                       <textarea 
@@ -337,7 +337,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
 
                     {/* Camera Gear */}
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-widest text-neutral-300 mb-2 font-bold">
+                      <label className="block text-xs font-sans tabular uppercase tracking-wide text-neutral-300 mb-2 font-bold">
                         Camera Bodies & Lenses / Equipment
                       </label>
                       <textarea 
@@ -353,7 +353,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
                   <div className="grid md:grid-cols-2 gap-6">
                     {/* Portfolio */}
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-widest text-neutral-300 mb-2 font-bold">
+                      <label className="block text-xs font-sans tabular uppercase tracking-wide text-neutral-300 mb-2 font-bold">
                         Portfolio Link / Instagram / Drive
                       </label>
                       <input 
@@ -367,7 +367,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
 
                     {/* Availability */}
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-widest text-neutral-300 mb-2 font-bold">
+                      <label className="block text-xs font-sans tabular uppercase tracking-wide text-neutral-300 mb-2 font-bold">
                         Availability for Game Days
                       </label>
                       <select 
@@ -384,7 +384,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
                   </div>
 
                   <div className="pt-4 flex items-center justify-between border-t border-white/10">
-                    <div className="flex items-center gap-2 text-xs font-mono text-neutral-400">
+                    <div className="flex items-center gap-2 text-xs font-sans tabular text-neutral-400">
                       <ShieldCheck size={16} className="text-green-500" />
                       Applications sync instantly to Google Sheets
                     </div>
@@ -430,11 +430,11 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
                 </div>
 
                 {loadingApps ? (
-                  <div className="py-12 text-center text-neutral-500 font-mono text-xs uppercase tracking-widest">
+                  <div className="py-12 text-center text-neutral-500 font-sans tabular text-xs uppercase tracking-wide">
                     Loading submitted applications...
                   </div>
                 ) : applications.length === 0 ? (
-                  <div className="py-12 text-center text-neutral-500 font-mono text-xs uppercase tracking-widest">
+                  <div className="py-12 text-center text-neutral-500 font-sans tabular text-xs uppercase tracking-wide">
                     No applications submitted yet.
                   </div>
                 ) : (
@@ -443,17 +443,17 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
                       <div key={app.id} className="bg-neutral-900/60 border border-white/5 p-4 rounded text-xs space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-white text-sm font-display uppercase">{app.fullName}</span>
-                          <span className="bg-[#00BFFF]/10 text-[#00BFFF] border border-[#00BFFF]/20 px-2 py-0.5 rounded font-mono text-[10px]">
+                          <span className="bg-[#00BFFF]/10 text-[#00BFFF] border border-[#00BFFF]/20 px-2 py-0.5 rounded font-sans tabular text-[10px]">
                             {app.role}
                           </span>
                         </div>
-                        <div className="grid md:grid-cols-3 gap-2 text-neutral-400 font-mono">
+                        <div className="grid md:grid-cols-3 gap-2 text-neutral-400 font-sans tabular">
                           <div><span className="text-neutral-500">Email:</span> {app.email}</div>
                           <div><span className="text-neutral-500">Phone:</span> {app.phone || 'N/A'}</div>
                           <div><span className="text-neutral-500">Availability:</span> {app.availability}</div>
                         </div>
                         {app.sports && (
-                          <div className="text-neutral-300 font-mono text-[11px]">
+                          <div className="text-neutral-300 font-sans tabular text-[11px]">
                             <span className="text-neutral-500">Sports:</span> {app.sports}
                           </div>
                         )}
@@ -468,7 +468,7 @@ export default function CreatorApplicationModal({ isOpen, onClose }: CreatorAppl
                               href={app.portfolioUrl} 
                               target="_blank" 
                               rel="noreferrer" 
-                              className="text-[#00BFFF] hover:underline flex items-center gap-1 font-mono text-[11px]"
+                              className="text-[#00BFFF] hover:underline flex items-center gap-1 font-sans tabular text-[11px]"
                             >
                               Portfolio Link <ExternalLink size={10} />
                             </a>
