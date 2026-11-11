@@ -4,7 +4,6 @@ import { IndLogo } from './components/IndLogo';
 import LiveScoreboard from './components/LiveScoreboard';
 import RecruitmentReels from './components/RecruitmentReels';
 import ServiceDetailPage from './components/ServiceDetailPage';
-import CreatorApplicationModal from './components/CreatorApplicationModal';
 import PhotosGallery from './components/PhotosGallery';
 import AthleteFeatures from './components/AthleteFeatures';
 import ArticlesSection from './components/ArticlesSection';
@@ -15,6 +14,7 @@ import ContactUsModal from './components/ContactUsModal';
 import AdvertiseWithUsModal from './components/AdvertiseWithUsModal';
 import HomePage from './components/HomePage';
 import PartnersPage from './components/PartnersPage';
+import InstallApp from './components/InstallApp';
 import { 
   Play, 
   Camera, 
@@ -106,8 +106,10 @@ export default function App() {
 
   // Deep link to a game: indsports.media/?scores={gameId}
   useEffect(() => {
-    const g = new URLSearchParams(window.location.search).get('scores');
-    if (g) navigateToLiveScoreboard(g);
+    const params = new URLSearchParams(window.location.search);
+    const g = params.get('scores');
+    if (g) navigateToLiveScoreboard(g === 'all' ? undefined : g);
+    else if (params.get('view') === 'articles') navigateToArticles('All');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -172,8 +174,13 @@ export default function App() {
     setIsMenuOpen(false);
     setIsSportsDropdownOpen(false);
     setIsAboutDropdownOpen(false);
+    if (currentView === 'partners') {
+      // Already here: jump to the inquiry form so the tap visibly does something.
+      document.getElementById('partner-form')?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
     setCurrentView('partners');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
   const navigateToAthleteFeatures = () => {
@@ -290,7 +297,6 @@ export default function App() {
                 <div className="absolute left-0 top-full w-56 bg-black border border-rule border-t-0 py-1 shadow-xl font-sans font-medium text-[15px]">
                   <button onClick={() => { setIsAboutDropdownOpen(false); setIsAdvertiseOpen(true); }} className="block w-full text-left px-4 py-2 text-white/80 hover:text-white hover:bg-panel cursor-pointer">Advertise with us</button>
                   <button onClick={() => { setIsAboutDropdownOpen(false); setIsMediaCredsOpen(true); }} className="block w-full text-left px-4 py-2 text-white/80 hover:text-white hover:bg-panel cursor-pointer">Media credentials</button>
-                  <button onClick={() => { setIsAboutDropdownOpen(false); setIsApplyModalOpen(true); }} className="block w-full text-left px-4 py-2 text-white/80 hover:text-white hover:bg-panel cursor-pointer">Join the crew</button>
                   <button onClick={() => { setIsAboutDropdownOpen(false); setIsContactOpen(true); }} className="block w-full text-left px-4 py-2 text-white/80 hover:text-white hover:bg-panel cursor-pointer">Contact</button>
                 </div>
               )}
@@ -342,7 +348,6 @@ export default function App() {
               <div className="flex flex-col gap-1 pt-4 pb-5 font-sans font-medium text-base text-white/70">
                 <button onClick={() => { setIsMenuOpen(false); setIsAdvertiseOpen(true); }} className="text-left py-1.5 cursor-pointer">Advertise with us</button>
                 <button onClick={() => { setIsMenuOpen(false); setIsMediaCredsOpen(true); }} className="text-left py-1.5 cursor-pointer">Media credentials</button>
-                <button onClick={() => { setIsMenuOpen(false); setIsApplyModalOpen(true); }} className="text-left py-1.5 cursor-pointer">Join the crew</button>
                 <button onClick={() => { setIsMenuOpen(false); setIsContactOpen(true); }} className="text-left py-1.5 cursor-pointer">Contact</button>
               </div>
               <button onClick={navigateToPartners} className="w-full mb-5 bg-ind text-black font-display font-bold text-xl py-3 rounded-sm cursor-pointer">Partner with us</button>
@@ -444,7 +449,6 @@ export default function App() {
               <li><button onClick={navigateToPartners} className="hover:text-white cursor-pointer">For schools</button></li>
               <li><button onClick={() => setIsAdvertiseOpen(true)} className="hover:text-white cursor-pointer">Advertise</button></li>
               <li><button onClick={() => setIsMediaCredsOpen(true)} className="hover:text-white cursor-pointer">Media credentials</button></li>
-              <li><button onClick={() => setIsApplyModalOpen(true)} className="hover:text-white cursor-pointer">Join the crew</button></li>
             </ul>
           </div>
           <div className="col-span-2 md:col-span-4">
@@ -459,15 +463,12 @@ export default function App() {
         <div className="border-t border-rule">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-wrap justify-between gap-3 text-[13px] text-mute">
             <span>© {new Date().getFullYear()} IND Sports Media</span>
+            <InstallApp className="text-ind hover:text-white" />
             <a href="/newsroom" className="hover:text-white">Staff sign-in</a>
           </div>
         </div>
       </footer>
       {/* Modals */}
-      <CreatorApplicationModal 
-        isOpen={isApplyModalOpen}
-        onClose={() => setIsApplyModalOpen(false)}
-      />
 
       <MediaCredentialsModal 
         isOpen={isMediaCredsOpen}

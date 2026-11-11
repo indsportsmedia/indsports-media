@@ -13,6 +13,18 @@ import './index.css';
 const path = window.location.pathname.replace(/\/+$/, '');
 const newsMatch = path.match(/^\/news\/([^/]+)$/);
 
+// Staff pages install as the separate "IND Crew" app; everything else is "IND Sports".
+if (path === '/newsroom' || path === '/score') {
+  document.getElementById('app-manifest')?.setAttribute('href', '/manifest-crew.webmanifest');
+  document.getElementById('apple-icon')?.setAttribute('href', '/apple-touch-icon-crew.png');
+  document.getElementById('apple-title')?.setAttribute('content', 'IND Crew');
+}
+
+// Offline support + installability (production only, so local development isn't cached).
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+
 let page = <App />;
 if (path === '/newsroom') page = <Newsroom />;
 else if (path === '/score') page = <Scorekeeper />;

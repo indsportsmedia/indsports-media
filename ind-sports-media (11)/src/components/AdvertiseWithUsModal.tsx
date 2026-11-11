@@ -61,24 +61,8 @@ export const AdvertiseWithUsModal: React.FC<AdvertiseWithUsModalProps> = ({ isOp
                     Advertise <span className="text-[#00BFFF]">With Us</span>
                   </h3>
                   <p className="text-xs text-white/50 font-sans">
-                    Connect your brand with millions of high school student-athletes, parents, and sports fans.
+                    Reach Indiana high school sports fans, families and athletes on game night and on social.
                   </p>
-                </div>
-              </div>
-
-              {/* Metrics Highlights */}
-              <div className="grid grid-cols-3 gap-2.5 mb-6">
-                <div className="bg-black/50 border border-white/10 p-3 rounded text-center">
-                  <div className="text-lg font-display font-bold text-[#00BFFF]">15M+</div>
-                  <div className="text-[10px] text-white/40 uppercase font-bold">Monthly Views</div>
-                </div>
-                <div className="bg-black/50 border border-white/10 p-3 rounded text-center">
-                  <div className="text-lg font-display font-bold text-[#00BFFF]">84%</div>
-                  <div className="text-[10px] text-white/40 uppercase font-bold">Gen-Z / Family Reach</div>
-                </div>
-                <div className="bg-black/50 border border-white/10 p-3 rounded text-center">
-                  <div className="text-lg font-display font-bold text-[#00BFFF]">500+</div>
-                  <div className="text-[10px] text-white/40 uppercase font-bold">Varsity Programs</div>
                 </div>
               </div>
 
@@ -183,7 +167,7 @@ export const AdvertiseWithUsModal: React.FC<AdvertiseWithUsModalProps> = ({ isOp
                   </label>
                   <textarea 
                     rows={3}
-                    placeholder="We want to promote our sports nutrition product to varsity football and basketball athletes in Southern California..."
+                    placeholder="We want to promote our sports nutrition product to varsity football and basketball fans in central Indiana..."
                     value={formData.details}
                     onChange={(e) => setFormData({ ...formData, details: e.target.value })}
                     className="w-full bg-black/60 border border-white/10 rounded px-3 py-2 text-sm text-white focus:border-[#00BFFF] focus:outline-none"
