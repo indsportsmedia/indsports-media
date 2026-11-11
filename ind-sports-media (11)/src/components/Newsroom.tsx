@@ -187,7 +187,7 @@ function LiveDesk({
         )}
       </div>
 
-      <div className="bg-[#141414] border border-white/10 rounded-xl p-4 space-y-3">
+      <div className="bg-[#141414] border border-white/10 rounded-sm p-4 space-y-3">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -382,7 +382,7 @@ function StoryList({ articles, onEdit }: { articles: Article[]; onEdit: (a: Arti
     <div className="space-y-3">
       {articles.map((a) => (
         <div key={a.slug} className="bg-[#111] border border-white/10 rounded-lg p-3">
-          <div className="flex items-center gap-2 mb-1 text-[10px] font-black uppercase tracking-wider">
+          <div className="flex items-center gap-2 mb-1 text-[10px] font-bold uppercase tracking-wider">
             {a.isLive && <span className="bg-red-600 text-white px-1.5 py-0.5 rounded">Live</span>}
             <span className={a.status === 'published' ? 'text-emerald-400' : 'text-amber-300'}>{a.status}</span>
             <span className="text-white/30">{a.sport}</span>
@@ -465,7 +465,7 @@ function TeamManager({ me }: { me: StaffProfile }) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-[#141414] border border-white/10 rounded-xl p-4 space-y-3">
+      <div className="bg-[#141414] border border-white/10 rounded-sm p-4 space-y-3">
         <p className="text-white font-bold text-sm">Add a team member</p>
         <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="their Google email" className={input} type="email" autoCapitalize="none" />
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name shown on their posts" className={input} />
@@ -547,9 +547,9 @@ export default function Newsroom() {
   if (!user || !isStaff || !staff) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
-        <div className="max-w-sm w-full bg-[#141414] border border-white/15 rounded-2xl p-6 text-center">
+        <div className="max-w-sm w-full bg-[#141414] border border-white/15 rounded-sm p-6 text-center">
           <img src="/logo.png" alt="IND Sports Media" className="h-12 mx-auto mb-4" />
-          <h1 className="font-display font-black uppercase text-white text-xl mb-2">IND Newsroom</h1>
+          <h1 className="font-display font-bold uppercase text-white text-xl mb-2">IND Newsroom</h1>
           {user && !isStaff ? (
             <>
               <p className="text-amber-300 text-sm mb-4">
@@ -578,7 +578,7 @@ export default function Newsroom() {
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2">
             <img src="/logo.png" alt="" className="h-7" />
-            <span className="font-display font-black uppercase text-white text-sm tracking-wider">Newsroom</span>
+            <span className="font-display font-bold uppercase text-white text-sm tracking-wider">Newsroom</span>
           </a>
           <div className="flex items-center gap-3">
             <span className="text-white/40 text-xs hidden sm:block">{staff.name}</span>

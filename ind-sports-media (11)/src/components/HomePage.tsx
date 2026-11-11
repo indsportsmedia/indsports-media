@@ -72,7 +72,7 @@ export default function HomePage(p: HomePageProps) {
                   <span className="text-ind font-semibold">{lead.sport}</span>
                   <span className="text-mute">{lead.isLive ? `Updated ${formatTime(lead.updatedAt)}` : formatTime(lead.publishedAt)}</span>
                 </div>
-                <h1 className="mt-2 font-display font-bold text-white text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.02] group-hover:text-ind transition-colors max-w-[22ch]">
+                <h1 className="mt-2 font-display font-bold text-white text-[34px] sm:text-[44px] lg:text-[52px] leading-[1.08] group-hover:text-ind transition-colors max-w-[22ch]">
                   {lead.title}
                 </h1>
                 {lead.excerpt && <p className="mt-3 text-white/75 text-[17px] leading-relaxed max-w-[62ch]">{lead.excerpt}</p>}
@@ -80,7 +80,7 @@ export default function HomePage(p: HomePageProps) {
               </button>
             ) : (
               <div className="border-t-4 border-ind pt-6">
-                <h1 className="font-display font-bold text-white text-[40px] sm:text-[56px] leading-[0.98] max-w-[16ch]">
+                <h1 className="font-display font-bold text-white text-[40px] sm:text-[56px] leading-[1.04] max-w-[16ch]">
                   Indiana high school sports, covered live.
                 </h1>
                 <p className="mt-4 text-white/70 text-lg max-w-[52ch]">
@@ -184,7 +184,7 @@ export default function HomePage(p: HomePageProps) {
       <section className="bg-ind text-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
           <div className="lg:col-span-7">
-            <h2 className="font-display font-extrabold text-[40px] sm:text-[56px] leading-[0.95] max-w-[18ch]">
+            <h2 className="font-display font-extrabold text-[40px] sm:text-[56px] leading-[1.04] max-w-[18ch]">
               Your games deserve coverage like this.
             </h2>
             <p className="mt-4 text-[18px] leading-relaxed max-w-[56ch] text-black/80">

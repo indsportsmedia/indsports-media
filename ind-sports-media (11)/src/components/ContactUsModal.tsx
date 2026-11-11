@@ -39,7 +39,7 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-[#111111] border border-white/10 rounded-xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative my-8"
+          className="bg-[#111111] border border-white/10 rounded-sm max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative my-8"
         >
           <button 
             onClick={onClose}
@@ -55,7 +55,7 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose 
                   <Mail size={22} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-display font-black text-white uppercase tracking-tight">
+                  <h3 className="text-2xl font-display font-bold text-white uppercase tracking-tight">
                     Contact <span className="text-[#00BFFF]">IND Sports Media</span>
                   </h3>
                   <p className="text-xs text-white/50 font-sans">
@@ -162,7 +162,7 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose 
 
                 <button 
                   type="submit"
-                  className="w-full mt-4 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-xs uppercase tracking-widest py-3.5 rounded transition-all cursor-pointer shadow-lg shadow-[#00BFFF]/20 flex items-center justify-center gap-2"
+                  className="w-full mt-4 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-bold text-xs uppercase tracking-widest py-3.5 rounded transition-all cursor-pointer shadow-lg/20 flex items-center justify-center gap-2"
                 >
                   <Send size={16} /> Send Direct Message
                 </button>
@@ -172,7 +172,7 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose 
           ) : (
             <div className="text-center py-8">
               <CheckCircle2 size={56} className="text-[#00BFFF] mx-auto mb-4" />
-              <h3 className="text-2xl font-display font-black text-white uppercase mb-2">
+              <h3 className="text-2xl font-display font-bold text-white uppercase mb-2">
                 Message Sent!
               </h3>
               <p className="text-white/70 text-sm max-w-md mx-auto mb-6 leading-relaxed font-sans">

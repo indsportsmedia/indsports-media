@@ -194,7 +194,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
       <div className="bg-neutral-950 border-b border-white/5 py-4 px-6 md:px-12 flex items-center justify-between sticky top-0 z-50 backdrop-blur-md bg-opacity-95">
         <button 
           onClick={onBack}
-          className="flex items-center gap-2 font-display font-black text-sm uppercase tracking-widest text-white/70 hover:text-white transition-colors cursor-pointer"
+          className="flex items-center gap-2 font-display font-bold text-sm uppercase tracking-widest text-white/70 hover:text-white transition-colors cursor-pointer"
         >
           <ArrowLeft size={16} /> BACK TO ATHLETICS
         </button>
@@ -222,10 +222,10 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
             transition={{ duration: 0.8 }}
             className="max-w-3xl"
           >
-            <span className="text-red-500 font-display font-black tracking-widest text-sm uppercase block mb-3">
+            <span className="text-red-500 font-display font-bold tracking-widest text-sm uppercase block mb-3">
               LIVE PORTAL PAGE
             </span>
-            <h1 className="text-5xl md:text-8xl font-black text-white uppercase leading-none tracking-tight">
+            <h1 className="text-5xl md:text-8xl font-bold text-white uppercase leading-none tracking-tight">
               {data.title}
             </h1>
             <p className="mt-4 text-white/50 font-display text-sm md:text-base tracking-widest max-w-2xl leading-relaxed uppercase">
@@ -241,13 +241,13 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
           
           {/* Text Content */}
           <div className="lg:col-span-5 space-y-8 text-left">
-            <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tight">
-              DOCUMENT <br />YOUR <span className="italic text-red-500">LEGACY</span>
+            <h2 className="text-4xl md:text-5xl font-bold text-white uppercase tracking-tight">
+              DOCUMENT <br />YOUR <span className="text-red-500">LEGACY</span>
             </h2>
             
             <div className="space-y-6 text-neutral-400 font-sans leading-relaxed text-lg">
               <p>{data.description1}</p>
-              <p className="border-l-4 border-red-500 pl-6 text-white font-medium italic">
+              <p className="border-l-4 border-red-500 pl-6 text-white font-medium ">
                 {data.description2}
               </p>
             </div>
@@ -256,7 +256,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
             <div className="grid grid-cols-2 gap-4 pt-6">
               {data.stats.map((stat, i) => (
                 <div key={i} className="bg-neutral-900/60 p-4 border border-white/5 rounded-sm">
-                  <div className="text-3xl font-black text-red-500 font-display">{stat.value}</div>
+                  <div className="text-3xl font-bold text-red-500 font-display">{stat.value}</div>
                   <div className="text-[10px] font-mono text-neutral-500 uppercase tracking-wider mt-1">{stat.label}</div>
                 </div>
               ))}
@@ -265,7 +265,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
             <div className="pt-4">
               <button 
                 onClick={onBookNow}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-display font-black tracking-widest text-lg py-5 px-8 uppercase transition-all rounded-sm flex items-center justify-center gap-2 group hover:scale-[1.01]"
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-display font-bold tracking-widest text-lg py-5 px-8 uppercase transition-all rounded-sm flex items-center justify-center gap-2 group hover:scale-[1.01]"
               >
                 SCHEDULE FILMING APPOINTMENT <ChevronRight className="group-hover:translate-x-1 transition-transform" />
               </button>
@@ -313,11 +313,11 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
       <section className="bg-neutral-950 py-24 border-t border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="text-center mb-16">
-            <span className="text-[11px] font-mono text-red-500 font-black tracking-widest uppercase bg-red-500/5 px-4 py-1.5 border border-red-500/10 rounded-full">
+            <span className="text-[11px] font-mono text-red-500 font-bold tracking-widest uppercase bg-red-500/5 px-4 py-1.5 border border-red-500/10 rounded-full">
               WHY IND BROADCASTING
             </span>
-            <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tight mt-4">
-              THE BROADCAST <span className="italic opacity-30">ADVANTAGE</span>
+            <h2 className="text-4xl md:text-6xl font-bold text-white uppercase tracking-tight mt-4">
+              THE BROADCAST <span className="opacity-30">ADVANTAGE</span>
             </h2>
             <p className="mt-2 text-neutral-500 font-display text-sm tracking-widest uppercase">
               How we construct broadcast-grade film that captures every defining moment.
@@ -334,7 +334,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
                   {feat.icon}
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">
+                  <h3 className="text-2xl font-bold text-white uppercase tracking-tight mb-2">
                     {feat.title}
                   </h3>
                   <p className="text-neutral-400 font-sans leading-relaxed">
@@ -350,8 +350,8 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
       {/* Pricing / Packages */}
       <section className="py-24 max-w-7xl mx-auto px-6 md:px-12">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tight">
-            SERVICE <span className="italic text-red-500">PACKAGES</span>
+          <h2 className="text-4xl md:text-6xl font-bold text-white uppercase tracking-tight">
+            SERVICE <span className="text-red-500">PACKAGES</span>
           </h2>
           <p className="mt-2 text-neutral-500 font-display text-sm tracking-widest uppercase">
             Select the optimal coverage package for your season media goals.
@@ -375,7 +375,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
                   {pkg.name}
                 </h4>
                 <div className="flex items-baseline gap-2 mb-6 border-b border-white/10 pb-6">
-                  <span className="text-5xl font-black text-white font-display">{pkg.price}</span>
+                  <span className="text-5xl font-bold text-white font-display">{pkg.price}</span>
                   <span className="text-neutral-500 text-sm font-mono font-medium">/ Flat Rate</span>
                 </div>
 
@@ -392,7 +392,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
               <div>
                 <button 
                   onClick={onBookNow}
-                  className={`w-full font-display font-black text-center uppercase tracking-widest py-4 px-6 rounded-sm text-sm transition-all cursor-pointer ${pkg.popular ? 'bg-red-600 hover:bg-red-700 text-white shadow-lg' : 'bg-white/10 hover:bg-white text-white hover:text-black'}`}
+                  className={`w-full font-display font-bold text-center uppercase tracking-widest py-4 px-6 rounded-sm text-sm transition-all cursor-pointer ${pkg.popular ? 'bg-red-600 hover:bg-red-700 text-white shadow-lg' : 'bg-white/10 hover:bg-white text-white hover:text-black'}`}
                 >
                   RESERVE COVERAGE NOW
                 </button>
@@ -406,7 +406,7 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
       <section className="bg-red-650 py-16 px-6 md:px-12 text-center relative overflow-hidden border-t-4 border-red-500">
         <div className="absolute inset-0 bg-red-900 opacity-20 filter blur-[80px] pointer-events-none" />
         <div className="relative z-10 max-w-4xl mx-auto space-y-6">
-          <h2 className="text-4xl md:text-5xl font-display font-black text-white uppercase leading-none tracking-tight">
+          <h2 className="text-4xl md:text-5xl font-display font-bold text-white uppercase leading-none tracking-tight">
             READY TO FILM YOUR NEXT BIG OUTING?
           </h2>
           <p className="text-white/85 text-lg font-sans max-w-2xl mx-auto leading-relaxed">
@@ -415,13 +415,13 @@ export default function ServiceDetailPage({ serviceId, onBack, onBookNow }: Serv
           <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button 
               onClick={onBookNow}
-              className="bg-white hover:bg-neutral-100 text-black font-display font-black py-4 px-8 tracking-widest uppercase transition-all rounded-sm flex items-center gap-2 cursor-pointer text-sm"
+              className="bg-white hover:bg-neutral-100 text-black font-display font-bold py-4 px-8 tracking-widest uppercase transition-all rounded-sm flex items-center gap-2 cursor-pointer text-sm"
             >
               <Calendar size={18} /> BOOK APPOINTMENT DATE
             </button>
             <button 
               onClick={onBack}
-              className="border border-white/30 hover:border-white text-white font-display font-black py-4 px-8 tracking-widest uppercase transition-all rounded-sm text-sm"
+              className="border border-white/30 hover:border-white text-white font-display font-bold py-4 px-8 tracking-widest uppercase transition-all rounded-sm text-sm"
             >
               VIEW OTHER SPORTS
             </button>

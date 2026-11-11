@@ -109,7 +109,7 @@ export default function ArticlePage({ slug }: { slug: string }) {
           )}
         </div>
 
-        <h1 className="mt-3 text-[34px] sm:text-[48px] font-display font-bold leading-[1.02] max-w-[24ch]">{article.title}</h1>
+        <h1 className="mt-3 text-[34px] sm:text-[48px] font-display font-bold leading-[1.08] max-w-[24ch]">{article.title}</h1>
         {article.excerpt && <p className="mt-3 text-white/70 text-lg leading-relaxed">{article.excerpt}</p>}
 
         <div className="mt-5">

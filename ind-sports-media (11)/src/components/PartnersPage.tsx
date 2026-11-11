@@ -42,7 +42,7 @@ export default function PartnersPage({ onOpenScores }: { onOpenScores: () => voi
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-14 grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-8">
             <p className="text-ind font-semibold mb-3">For athletic directors and college programs</p>
-            <h1 className="font-display font-bold text-[42px] sm:text-[60px] leading-[0.96] max-w-[18ch]">
+            <h1 className="font-display font-bold text-[42px] sm:text-[60px] leading-[1.04] max-w-[18ch]">
               Professional coverage for your program, with no extra work for your staff.
             </h1>
             <p className="mt-5 text-white/75 text-lg leading-relaxed max-w-[60ch]">

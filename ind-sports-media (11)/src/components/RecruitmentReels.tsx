@@ -476,19 +476,19 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
         <div className="flex flex-wrap items-center justify-between gap-4 mb-12 border-b border-white/5 pb-6">
           <button 
             onClick={onBack}
-            className="group flex items-center gap-2 text-neutral-400 hover:text-white font-display text-xs font-black tracking-widest uppercase transition-all cursor-pointer"
+            className="group flex items-center gap-2 text-neutral-400 hover:text-white font-display text-xs font-bold tracking-widest uppercase transition-all cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             BACK TO HOME
           </button>
           
           <div className="flex items-center gap-3">
-            <span className="text-[10px] bg-[#00BFFF]/10 text-[#00BFFF] border border-[#00BFFF]/20 px-2.5 py-1 uppercase font-display font-black tracking-wider rounded-sm">
+            <span className="text-[10px] bg-[#00BFFF]/10 text-[#00BFFF] border border-[#00BFFF]/20 px-2.5 py-1 uppercase font-display font-bold tracking-wider rounded-sm">
               DIGITAL ATHLETE PORTFOLIO
             </span>
             <button 
               onClick={() => setIsUploadOpen(true)}
-              className="bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-black px-5 py-3 font-display text-xs uppercase tracking-widest flex items-center gap-2 rounded-sm cursor-pointer shadow-lg shadow-[#00BFFF]/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-bold px-5 py-3 font-display text-xs uppercase tracking-widest flex items-center gap-2 rounded-sm cursor-pointer shadow-lg/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" /> SUBMIT HIGHLIGHT REEL
             </button>
@@ -502,7 +502,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
             <Trophy className="w-5 h-5" />
             <span className="font-display font-extrabold tracking-widest text-xs uppercase">ATHLETE MEDIA SHOWCASE</span>
           </div>
-          <h1 className="text-4xl md:text-7xl font-black uppercase mb-4 leading-none">
+          <h1 className="text-4xl md:text-7xl font-bold uppercase mb-4 leading-none">
             ATHLETE <span className="text-stroke">PERFORMANCE</span> SHOWCASE
           </h1>
           <p className="max-w-2xl text-neutral-400 text-sm md:text-base font-sans leading-relaxed">
@@ -551,7 +551,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
         {filteredReels.length === 0 ? (
           <div className="text-center py-20 border border-white/5 bg-neutral-900/40 rounded-sm">
             <AlertCircle className="w-12 h-12 text-neutral-600 mx-auto mb-3 animate-pulse" />
-            <h3 className="font-display font-black text-xl text-white uppercase mb-1">NO ATHLETES FOUND</h3>
+            <h3 className="font-display font-bold text-xl text-white uppercase mb-1">NO ATHLETES FOUND</h3>
             <p className="text-xs text-neutral-500 font-sans max-w-sm mx-auto">
               We couldn't find any athlete matches matching that exact spelling or filter criteria. Add a custom reel using the top-right button!
             </p>
@@ -585,14 +585,14 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                     
                     {/* Hover state Play Circle */}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="w-14 h-14 bg-[#00BFFF] text-black rounded-full flex items-center justify-center shadow-xl shadow-[#00BFFF]/40 transform scale-90 group-hover:scale-100 transition-transform">
+                      <div className="w-14 h-14 bg-[#00BFFF] text-black rounded-full flex items-center justify-center shadow-xl/40 transform scale-90 group-hover:scale-100 transition-transform">
                         <Play className="fill-black ml-1 text-black" size={20} />
                       </div>
                     </div>
 
                     {/* Left top indicator badging */}
                     <div className="absolute top-4 left-4 flex gap-1.5 flex-wrap">
-                      <span className="bg-[#00BFFF] text-black px-2.5 py-1 text-[9px] font-display font-black uppercase tracking-wider rounded-sm shadow-md">
+                      <span className="bg-[#00BFFF] text-black px-2.5 py-1 text-[9px] font-display font-bold uppercase tracking-wider rounded-sm shadow-md">
                         {reel.sport}
                       </span>
                       <span className="bg-black/80 text-white px-2.5 py-1 text-[9px] font-mono font-bold uppercase tracking-wider rounded-sm border border-white/5">
@@ -616,7 +616,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                   <div className="p-6 flex-1 flex flex-col justify-between">
                     <div>
                       <div className="text-xs text-neutral-500 font-mono uppercase tracking-widest mb-1">{reel.position}</div>
-                      <h3 className="font-display font-black text-2xl text-white group-hover:text-[#00BFFF] transition-colors uppercase leading-none mb-3">
+                      <h3 className="font-display font-bold text-2xl text-white group-hover:text-[#00BFFF] transition-colors uppercase leading-none mb-3">
                         {reel.name}
                       </h3>
                       
@@ -659,7 +659,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                     {/* Open / Share Trigger buttons footer row */}
                     <div className="flex items-center gap-2 pt-4 border-t border-white/5 mt-4 shrink-0">
                       <button 
-                        className="flex-1 bg-white/5 group-hover:bg-[#00BFFF] hover:bg-[#00A3D9] group-hover:text-black border border-white/5 hover:border-[#00BFFF] px-3 py-2 text-neutral-300 font-display font-black text-[10px] tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-1.5 rounded-sm"
+                        className="flex-1 bg-white/5 group-hover:bg-[#00BFFF] hover:bg-[#00A3D9] group-hover:text-black border border-white/5 hover:border-[#00BFFF] px-3 py-2 text-neutral-300 font-display font-bold text-[10px] tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-1.5 rounded-sm"
                       >
                         <Eye className="w-3.5 h-3.5 mt-[-1px]" /> STREAM REEL
                       </button>
@@ -719,7 +719,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                 {/* Visual live logo branding inside lightbox */}
                 <div className="absolute top-4 left-4 z-10 pointer-events-none flex items-center gap-2 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-sm border border-white/10">
                   <IndIcon size={20} />
-                  <span className="text-[#00BFFF] font-display text-[10px] font-black uppercase tracking-widest">
+                  <span className="text-[#00BFFF] font-display text-[10px] font-bold uppercase tracking-widest">
                     CINEMATIC REEL
                   </span>
                 </div>
@@ -729,7 +729,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
               <div className="w-full md:w-[42%] p-6 md:p-8 flex flex-col justify-between max-h-[580px] overflow-y-auto border-t md:border-t-0 md:border-l border-white/10 bg-neutral-900 font-sans text-xs line-relaxed">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="bg-[#00BFFF]/10 text-[#00BFFF] border border-[#00BFFF]/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-widest font-black rounded-sm">
+                    <span className="bg-[#00BFFF]/10 text-[#00BFFF] border border-[#00BFFF]/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-widest font-bold rounded-sm">
                       {activeReel.sport}
                     </span>
                     <span className="bg-neutral-800 text-neutral-300 font-mono text-[9px] px-2 py-0.5 rounded-sm">
@@ -737,7 +737,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                     </span>
                   </div>
 
-                  <h2 className="font-display font-black text-3xl text-white uppercase leading-none mb-1">
+                  <h2 className="font-display font-bold text-3xl text-white uppercase leading-none mb-1">
                     {activeReel.name}
                   </h2>
                   <p className="text-neutral-500 uppercase font-mono tracking-widest mb-4">{activeReel.position}</p>
@@ -756,24 +756,24 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                     <div className="grid grid-cols-3 gap-2 py-4 border-t border-b border-white/5 my-4 font-mono text-center">
                       <div className="bg-neutral-950 p-2 border border-white/5 rounded">
                         <p className="text-[9px] text-neutral-500 font-extrabold uppercase tracking-widest mb-1">GPA</p>
-                        <p className="text-sm text-green-500 font-black flex items-center justify-center gap-1">
+                        <p className="text-sm text-green-500 font-bold flex items-center justify-center gap-1">
                           <GraduationCap className="w-3.5 h-3.5 text-green-500 shrink-0" />
                           {activeReel.gpa}
                         </p>
                       </div>
                       <div className="bg-neutral-950 p-2 border border-white/5 rounded">
-                        <p className="text-[9px] text-neutral-500 font-black uppercase tracking-widest mb-1">HEIGHT</p>
+                        <p className="text-[9px] text-neutral-500 font-bold uppercase tracking-widest mb-1">HEIGHT</p>
                         <p className="text-sm text-white font-extrabold">{activeReel.height}</p>
                       </div>
                       <div className="bg-neutral-950 p-2 border border-white/5 rounded">
-                        <p className="text-[9px] text-neutral-500 font-black uppercase tracking-widest mb-1">WEIGHT</p>
+                        <p className="text-[9px] text-neutral-500 font-bold uppercase tracking-widest mb-1">WEIGHT</p>
                         <p className="text-sm text-white font-extrabold">{activeReel.weight}</p>
                       </div>
                     </div>
 
                     {/* Verified Performance Achievements List */}
                     <div>
-                      <h4 className="font-display font-black text-[10px] text-white uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                      <h4 className="font-display font-bold text-[10px] text-white uppercase tracking-widest mb-3 flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-[#00BFFF]" /> VERIFIED PERFORMANCE METRICS & HONORS
                       </h4>
                       <ul className="space-y-2 text-neutral-400 text-xs">
@@ -793,7 +793,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                   <div className="flex gap-2">
                     <a 
                       href={`mailto:${activeReel.contactEmail}`}
-                      className="flex-1 bg-[#00BFFF] hover:bg-[#00A3D9] text-black px-4 py-3 font-display font-black tracking-widest uppercase flex items-center justify-center gap-2 text-[10px] rounded-sm transition-all shadow-lg shadow-[#00BFFF]/20"
+                      className="flex-1 bg-[#00BFFF] hover:bg-[#00A3D9] text-black px-4 py-3 font-display font-bold tracking-widest uppercase flex items-center justify-center gap-2 text-[10px] rounded-sm transition-all shadow-lg/20"
                     >
                       <Mail className="w-3.5 h-3.5" /> CONTACT ATHLETE / COACH
                     </a>
@@ -812,7 +812,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
                       href={activeReel.hudlUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="w-full bg-neutral-950 hover:bg-neutral-800 border border-white/10 hover:border-white/30 text-neutral-300 hover:text-white px-4 py-3 font-display font-black tracking-widest uppercase flex items-center justify-center gap-2 text-[10px] rounded-sm transition-all"
+                      className="w-full bg-neutral-950 hover:bg-neutral-800 border border-white/10 hover:border-white/30 text-neutral-300 hover:text-white px-4 py-3 font-display font-bold tracking-widest uppercase flex items-center justify-center gap-2 text-[10px] rounded-sm transition-all"
                     >
                       VIEW HUDL PROFILE <ChevronRight className="w-3.5 h-3.5" />
                     </a>
@@ -855,10 +855,10 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
 
               <div className="p-6 md:p-8 bg-neutral-950 border-b border-white/5 relative">
                 <div className="absolute top-0 right-0 h-28 w-28 bg-[#00BFFF] opacity-10 blur-2xl pointer-events-none" />
-                <div className="flex items-center gap-1.5 text-[#00BFFF] font-display font-black tracking-wider text-[9px] uppercase mb-1.5">
+                <div className="flex items-center gap-1.5 text-[#00BFFF] font-display font-bold tracking-wider text-[9px] uppercase mb-1.5">
                   <Upload className="w-4 h-4 text-[#00BFFF]" /> SECURED FILE INGESTION
                 </div>
-                <h3 className="font-display font-black text-2xl text-white uppercase leading-none">
+                <h3 className="font-display font-bold text-2xl text-white uppercase leading-none">
                   SUBMIT ATHLETE REEL
                 </h3>
                 <p className="text-neutral-450 text-[11px] text-neutral-400 font-sans leading-relaxed mt-1">
@@ -870,15 +870,15 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
               {isSubmitting ? (
                 <div className="p-10 text-center space-y-4">
                   <div className="w-12 h-12 border-4 border-[#00BFFF]/20 border-t-[#00BFFF] rounded-full animate-spin mx-auto" />
-                  <p className="font-display font-black text-sm uppercase text-white animate-pulse">PROCESSING ACTION VIDEO...</p>
+                  <p className="font-display font-bold text-sm uppercase text-white animate-pulse">PROCESSING ACTION VIDEO...</p>
                   <p className="text-[10px] text-neutral-500 font-mono">Syncing fields, securing player credentials and generating thumbnails.</p>
                 </div>
               ) : validationSuccess ? (
                 <div className="p-10 text-center space-y-4">
-                  <div className="w-12 h-12 bg-[#00BFFF] rounded-full flex items-center justify-center mx-auto text-black shadow-2xl shadow-[#00BFFF]/30">
+                  <div className="w-12 h-12 bg-[#00BFFF] rounded-full flex items-center justify-center mx-auto text-black shadow-2xl/30">
                     <Check className="w-6 h-6 text-black" />
                   </div>
-                  <h4 className="font-display font-black text-lg uppercase text-white">REEL INGESTED SUCCESSFULLY!</h4>
+                  <h4 className="font-display font-bold text-lg uppercase text-white">REEL INGESTED SUCCESSFULLY!</h4>
                   <p className="text-[11px] text-neutral-400 font-sans max-w-xs mx-auto">Your athlete showcase reel has been processed and is now live in the showcase directory.</p>
                 </div>
               ) : (
@@ -1089,7 +1089,7 @@ export default function RecruitmentReels({ onBack, initialSport }: RecruitmentRe
 
                   <button 
                     type="submit"
-                    className="w-full bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-sm uppercase tracking-widest transition-all rounded-sm cursor-pointer shadow-lg shadow-[#00BFFF]/20 active:scale-[0.99] hover:scale-[1.01]"
+                    className="w-full bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-bold text-sm uppercase tracking-widest transition-all rounded-sm cursor-pointer shadow-lg/20 active:scale-[0.99] hover:scale-[1.01]"
                   >
                     COMPLETE UPLOAD & PUBLISH
                   </button>

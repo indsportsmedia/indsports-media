@@ -124,7 +124,7 @@ export const DEFAULT_GAMES_LIST: GameState[] = [
         id: 'clip-wst-carmel-pre',
         platform: 'upload',
         type: 'photo',
-        title: '🔥 Sectionals R1 Pregame Warmups: Westfield vs Carmel',
+        title: 'Sectionals R1 Pregame Warmups: Westfield vs Carmel',
         author: 'Brandon Blume (IND Field Staff)',
         mediaUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80',
         url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80',
@@ -197,7 +197,7 @@ export const DEFAULT_GAMES_LIST: GameState[] = [
         id: 'clip-avon-bd-pre',
         platform: 'upload',
         type: 'photo',
-        title: '📸 Avon vs Ben Davis Sectional Spotlight',
+        title: 'Avon vs Ben Davis Sectional Spotlight',
         author: 'IND Sideline Crew',
         mediaUrl: 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&w=1000&q=80',
         url: 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&w=1000&q=80',
@@ -639,7 +639,7 @@ export const DEFAULT_GAMES_LIST: GameState[] = [
         id: 'clip-roncalli-1',
         platform: 'upload',
         type: 'photo',
-        title: '📸 Bob Tully Field Packed Student Section & Coin Toss',
+        title: 'Bob Tully Field Packed Student Section & Coin Toss',
         author: 'Brandon Blume (IND Field Staff)',
         mediaUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80',
         url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80',
@@ -884,7 +884,7 @@ export const DEFAULT_GAMES_LIST: GameState[] = [
         id: 'clip-ln-1',
         platform: 'x',
         type: 'video',
-        title: '🔥 Pregame Tunnel Walkout & Student Section',
+        title: 'Pregame Tunnel Walkout & Student Section',
         author: '@INDSportsMedia',
         url: 'https://x.com/INDSportsMedia/status/178923019',
         mediaUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80',
@@ -898,7 +898,7 @@ export const DEFAULT_GAMES_LIST: GameState[] = [
         id: 'clip-bb-1',
         platform: 'instagram',
         type: 'photo',
-        title: '📸 Bulldogs Warmups Under the Friday Night Lights',
+        title: 'Bulldogs Warmups Under the Friday Night Lights',
         author: 'Brandon Blume (IND Field Team)',
         url: 'https://instagram.com/p/C99238jkl',
         mediaUrl: 'https://images.unsplash.com/photo-1519766304817-4f37bda74a29?auto=format&fit=crop&w=1000&q=80',
@@ -971,7 +971,7 @@ export const DEFAULT_GAMES_LIST: GameState[] = [
         id: 'clip-fw-1',
         platform: 'tiktok',
         type: 'video',
-        title: '⚡ Archers Marching Band Entrance',
+        title: 'Archers Marching Band Entrance',
         author: '@IND_Sideline',
         url: 'https://tiktok.com/@IND_Sideline/video/7391823901',
         mediaUrl: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1000&q=80',
@@ -1251,10 +1251,10 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
     // Auto Play description if not provided
     let playDesc = description;
     if (!playDesc) {
-      if (delta === 6) playDesc = `🏈 TOUCHDOWN ${targetTeam.shortName}! (+6 pts)`;
-      else if (delta === 1) playDesc = `👟 Extra Point (PAT) GOOD for ${targetTeam.shortName}. (+1 pt)`;
-      else if (delta === 2) playDesc = `⚡ 2-Point Conversion SUCCESSFUL for ${targetTeam.shortName}! (+2 pts)`;
-      else if (delta === 3) playDesc = `🎯 Field Goal GOOD for ${targetTeam.shortName}! (+3 pts)`;
+      if (delta === 6) playDesc = `TOUCHDOWN ${targetTeam.shortName}! (+6 pts)`;
+      else if (delta === 1) playDesc = `Extra Point (PAT) GOOD for ${targetTeam.shortName}. (+1 pt)`;
+      else if (delta === 2) playDesc = `2-Point Conversion SUCCESSFUL for ${targetTeam.shortName}! (+2 pts)`;
+      else if (delta === 3) playDesc = `Field Goal GOOD for ${targetTeam.shortName}! (+3 pts)`;
       else if (delta < 0) playDesc = `Score adjustment: ${delta} point for ${targetTeam.shortName}`;
       else playDesc = `${targetTeam.shortName} scores +${delta} points.`;
     }
@@ -1405,7 +1405,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
       const fullCaption = userText ? `${userText}\n\n${autoTags}` : autoTags;
       const headline = userText.length > 0 
         ? (userText.length > 40 ? userText.slice(0, 40) + '...' : userText)
-        : (storyMedia.type === 'video' ? '⚡ Sideline Game Highlight' : '📸 Sideline Photo');
+        : (storyMedia.type === 'video' ? 'Sideline Game Highlight' : 'Sideline Photo');
 
       // Lightweight clip metadata (storing strictly the short public download URL)
       const newClip: SocialClip = {
@@ -1461,13 +1461,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
         setStoryTeam('neutral');
         setUploadProgress(null);
         setActiveTab('highlights');
-        alert('🎉 Posted! Your highlight is live across all scoreboards.');
+        alert('Posted! Your highlight is live across all scoreboards.');
       }, 300);
 
     } catch (err: any) {
       console.error('Error publishing story highlight:', err);
       const msg = err?.message || 'Check stadium cellular connection and Firebase Storage permissions.';
-      alert(`⚠️ Upload Error:\n${msg}`);
+      alert(`Upload Error:\n${msg}`);
     } finally {
       setIsPostingStory(false);
       setUploadProgress(null);
@@ -1524,7 +1524,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
       setEditingClip(null);
     } catch (err: any) {
       console.error('Failed to update highlight details:', err);
-      alert(`⚠️ Failed to update highlight:\n${err?.message || 'Please check network connection.'}`);
+      alert(`Failed to update highlight:\n${err?.message || 'Please check network connection.'}`);
     } finally {
       setIsSavingEdit(false);
     }
@@ -1568,7 +1568,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
         <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/10 pb-4">
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-xs font-display font-black uppercase tracking-wider group cursor-pointer"
+            className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-xs font-display font-bold uppercase tracking-wider group cursor-pointer"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform text-[#00BFFF]" />
             Back to Home
@@ -1580,7 +1580,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsAdminOpen(!isAdminOpen)}
-                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-xs font-display font-black uppercase tracking-wider transition-all cursor-pointer shadow-lg ${
+                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-xs font-display font-bold uppercase tracking-wider transition-all cursor-pointer shadow-lg ${
                     isAdminOpen 
                       ? 'bg-amber-400 text-black border border-amber-300' 
                       : 'bg-[#00BFFF] hover:bg-[#00A3D9] text-black border border-[#00BFFF]'
@@ -1623,14 +1623,14 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
         {/* ========================================================================= */}
         {/* SEASON & WEEK ARCHIVE NAVIGATION BAR */}
         {/* ========================================================================= */}
-        <div className="mb-6 bg-[#121212] border border-[#00BFFF]/30 rounded-2xl p-4 sm:p-5 shadow-2xl relative overflow-hidden">
+        <div className="mb-6 bg-[#121212] border border-[#00BFFF]/30 rounded-sm p-4 sm:p-5 shadow-2xl relative overflow-hidden">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
             <div>
               <span className="text-xs font-mono font-bold uppercase tracking-widest text-red-400 flex items-center gap-2">
                 <Radio size={14} className="text-red-500 animate-pulse" />
                 2026 IHSAA Postseason Tournament Central • Live Sectionals &amp; Regionals Hub
               </span>
-              <h2 className="text-base sm:text-lg font-black font-display uppercase tracking-tight text-white mt-0.5">
+              <h2 className="text-base sm:text-lg font-bold font-display uppercase tracking-tight text-white mt-0.5">
                 Tonight&apos;s Football Sectionals R1 &amp; Saturday Volleyball Tournaments
               </h2>
             </div>
@@ -1646,10 +1646,10 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
           {/* Week & Tournament Filter Chips */}
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
             {[
-              { id: 'Sectionals', label: '🏆 Tonight: Football Sectionals R1', count: games.filter(g => (g.week || '').includes('Sectional') || g.title.includes('Sectional')).length },
-              { id: 'Volleyball', label: '🏐 Saturday: Volleyball Tournaments', count: games.filter(g => g.sport.includes('Volleyball')).length },
-              { id: 'Tournaments-Hub', label: '📊 Brackets & Site Hub', count: 2 },
-              { id: 'Regular-Season', label: '📁 Regular Season Archives', count: games.filter(g => !(g.week || '').includes('Sectional') && !g.title.includes('Sectional') && !g.sport.includes('Volleyball')).length },
+              { id: 'Sectionals', label: 'Tonight: Football Sectionals R1', count: games.filter(g => (g.week || '').includes('Sectional') || g.title.includes('Sectional')).length },
+              { id: 'Volleyball', label: 'Saturday: Volleyball Tournaments', count: games.filter(g => g.sport.includes('Volleyball')).length },
+              { id: 'Tournaments-Hub', label: 'Brackets & Site Hub', count: 2 },
+              { id: 'Regular-Season', label: 'Regular Season Archives', count: games.filter(g => !(g.week || '').includes('Sectional') && !g.title.includes('Sectional') && !g.sport.includes('Volleyball')).length },
               { id: 'ALL', label: 'All Matchups', count: games.length },
             ].map(tab => {
               const isActive = selectedWeekFilter === tab.id;
@@ -1657,11 +1657,11 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 <button
                   key={tab.id}
                   onClick={() => setSelectedWeekFilter(tab.id)}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-display font-black uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+                  className={`px-3.5 py-2 rounded-sm text-xs font-display font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
                     isActive
                       ? tab.id === 'Sectionals' 
                         ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.5)] scale-100'
-                        : 'bg-[#00BFFF] text-black shadow-[0_0_15px_rgba(0,191,255,0.4)] scale-100'
+                        : 'bg-[#00BFFF] text-black scale-100'
                       : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10'
                   }`}
                 >
@@ -1691,13 +1691,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
           {selectedWeekFilter === 'Volleyball' && (
             <div className="mt-4 space-y-6">
               {/* Informational Header */}
-              <div className="bg-gradient-to-r from-blue-950/40 via-[#101010] to-emerald-950/30 border border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="bg-gradient-to-r from-blue-950/40 via-[#101010] to-emerald-950/30 border border-white/10 rounded-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#00BFFF]/15 border border-[#00BFFF]/30 text-[#00BFFF] text-xs font-mono font-bold uppercase tracking-wider mb-1.5">
                     <Sparkles size={13} className="text-[#00BFFF]" />
                     Saturday: Volleyball Tournaments • Dual Site Centers
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-display font-black text-white uppercase tracking-wide">
+                  <h3 className="text-xl sm:text-2xl font-display font-bold text-white uppercase tracking-wide">
                     Saturday Regional Volleyball Tournaments
                   </h3>
                   <p className="text-xs sm:text-sm text-white/60 font-sans mt-0.5">
@@ -1706,7 +1706,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 </div>
                 <button
                   onClick={() => setSelectedWeekFilter('Tournaments-Hub')}
-                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/40 hover:border-amber-400 text-amber-300 font-display font-black text-xs uppercase tracking-wider flex items-center gap-2 transition cursor-pointer shrink-0"
+                  className="px-4 py-2.5 rounded-sm bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/40 hover:border-amber-400 text-amber-300 font-display font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition cursor-pointer shrink-0"
                 >
                   <Trophy size={15} className="text-amber-400" />
                   <span>View Bracket Hub</span>
@@ -1718,13 +1718,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
                 {/* 1. HUNTINGTON NORTH */}
-                <div className="bg-[#121212] border border-cyan-500/30 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-4">
+                <div className="bg-[#121212] border border-cyan-500/30 rounded-sm p-4 sm:p-5 shadow-2xl space-y-4">
                   {/* Site Header */}
                   <div className="flex items-start justify-between border-b border-white/10 pb-3.5">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#00BFFF] shadow-[0_0_8px_#00BFFF]" />
-                        <h4 className="text-lg sm:text-xl font-display font-black text-white uppercase tracking-wider">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#00BFFF]" />
+                        <h4 className="text-lg sm:text-xl font-display font-bold text-white uppercase tracking-wider">
                           For Huntington North:
                         </h4>
                       </div>
@@ -1785,9 +1785,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         <button
                           key={m.id}
                           onClick={() => setSelectedGameId(gameObj.id)}
-                          className={`w-full text-left p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer relative ${
+                          className={`w-full text-left p-3.5 sm:p-4 rounded-sm border transition-all cursor-pointer relative ${
                             isSelected
-                              ? 'bg-[#181818] border-[#00BFFF] shadow-[0_0_20px_rgba(0,191,255,0.25)] ring-2 ring-[#00BFFF]'
+                              ? 'bg-[#181818] border-[#00BFFF] ring-2 ring-[#00BFFF]'
                               : m.isChamp
                                 ? 'bg-gradient-to-r from-amber-950/25 to-black/80 border-amber-500/35 hover:border-amber-400 hover:bg-amber-950/35'
                                 : 'bg-[#151515] border-white/10 hover:border-white/25 hover:bg-[#1c1c1c]'
@@ -1796,7 +1796,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           {/* Top Badges */}
                           <div className="flex items-center justify-between gap-2 mb-2.5">
                             <div className="flex items-center gap-2">
-                              <span className={`text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded ${
+                              <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
                                 m.isChamp 
                                   ? 'bg-amber-500 text-black shadow-sm' 
                                   : 'bg-[#00BFFF]/20 border border-[#00BFFF]/40 text-[#00BFFF]'
@@ -1809,7 +1809,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             </div>
 
                             {isSelected ? (
-                              <span className="bg-[#00BFFF] text-black text-[10px] font-mono font-black px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1 shadow-[0_0_8px_#00BFFF]">
+                              <span className="bg-[#00BFFF] text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1">
                                 <Radio size={10} className="animate-pulse" />
                                 Active Scoreboard
                               </span>
@@ -1826,7 +1826,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           </div>
 
                           {/* Matchup Title Line requested by user */}
-                          <div className="font-display font-black text-sm sm:text-base text-white tracking-wide mb-2 flex items-center justify-between">
+                          <div className="font-display font-bold text-sm sm:text-base text-white tracking-wide mb-2 flex items-center justify-between">
                             <span className={m.isChamp ? 'text-amber-300' : 'text-white'}>
                               {m.title}
                             </span>
@@ -1871,7 +1871,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           </div>
 
                           {m.subNote && (
-                            <div className="text-[10px] text-amber-300/70 font-sans mt-2 pt-1 border-t border-amber-500/10 italic">
+                            <div className="text-[10px] text-amber-300/70 font-sans mt-2 pt-1 border-t border-amber-500/10 ">
                               {m.subNote}
                             </div>
                           )}
@@ -1882,13 +1882,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 </div>
 
                 {/* 2. JENNINGS COUNTY */}
-                <div className="bg-[#121212] border border-amber-500/30 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-4">
+                <div className="bg-[#121212] border border-amber-500/30 rounded-sm p-4 sm:p-5 shadow-2xl space-y-4">
                   {/* Site Header */}
                   <div className="flex items-start justify-between border-b border-white/10 pb-3.5">
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#F59E0B]" />
-                        <h4 className="text-lg sm:text-xl font-display font-black text-white uppercase tracking-wider">
+                        <h4 className="text-lg sm:text-xl font-display font-bold text-white uppercase tracking-wider">
                           For Jennings County:
                         </h4>
                       </div>
@@ -1949,7 +1949,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         <button
                           key={m.id}
                           onClick={() => setSelectedGameId(gameObj.id)}
-                          className={`w-full text-left p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer relative ${
+                          className={`w-full text-left p-3.5 sm:p-4 rounded-sm border transition-all cursor-pointer relative ${
                             isSelected
                               ? 'bg-[#181818] border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.25)] ring-2 ring-amber-400'
                               : m.isChamp
@@ -1960,7 +1960,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           {/* Top Badges */}
                           <div className="flex items-center justify-between gap-2 mb-2.5">
                             <div className="flex items-center gap-2">
-                              <span className={`text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded ${
+                              <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
                                 m.isChamp 
                                   ? 'bg-amber-500 text-black shadow-sm' 
                                   : 'bg-amber-500/20 border border-amber-500/40 text-amber-300'
@@ -1973,7 +1973,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             </div>
 
                             {isSelected ? (
-                              <span className="bg-amber-400 text-black text-[10px] font-mono font-black px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1 shadow-[0_0_8px_#F59E0B]">
+                              <span className="bg-amber-400 text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1 shadow-[0_0_8px_#F59E0B]">
                                 <Radio size={10} className="animate-pulse" />
                                 Active Scoreboard
                               </span>
@@ -1990,7 +1990,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           </div>
 
                           {/* Matchup Title Line requested by user */}
-                          <div className="font-display font-black text-sm sm:text-base text-white tracking-wide mb-2 flex items-center justify-between">
+                          <div className="font-display font-bold text-sm sm:text-base text-white tracking-wide mb-2 flex items-center justify-between">
                             <span className={m.isChamp ? 'text-amber-300' : 'text-white'}>
                               {m.title}
                             </span>
@@ -2035,7 +2035,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           </div>
 
                           {m.subNote && (
-                            <div className="text-[10px] text-amber-300/70 font-sans mt-2 pt-1 border-t border-amber-500/10 italic">
+                            <div className="text-[10px] text-amber-300/70 font-sans mt-2 pt-1 border-t border-amber-500/10 ">
                               {m.subNote}
                             </div>
                           )}
@@ -2067,9 +2067,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   <button
                     key={g.id}
                     onClick={() => setSelectedGameId(g.id)}
-                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                    className={`p-3.5 rounded-sm border text-left transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                       isSelected
-                        ? 'bg-[#181818] border-[#00BFFF] shadow-lg shadow-[#00BFFF]/15 ring-2 ring-[#00BFFF]'
+                        ? 'bg-[#181818] border-[#00BFFF] shadow-lg/15 ring-2 ring-[#00BFFF]'
                         : 'bg-[#101010] border-white/10 hover:border-white/25 hover:bg-[#141414]'
                     }`}
                   >
@@ -2079,11 +2079,11 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         {g.week || 'Week 3'}
                       </span>
                       {isFinal ? (
-                        <span className="bg-white/10 text-white/70 px-2 py-0.5 rounded font-black tracking-wider uppercase">
+                        <span className="bg-white/10 text-white/70 px-2 py-0.5 rounded font-bold tracking-wider uppercase">
                           FINAL
                         </span>
                       ) : (
-                        <span className="bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded font-black tracking-wider uppercase flex items-center gap-1 animate-pulse">
+                        <span className="bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded font-bold tracking-wider uppercase flex items-center gap-1 animate-pulse">
                           <Radio size={10} className="text-red-500" />
                           {g.quarter || 'LIVE'}
                         </span>
@@ -2105,7 +2105,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         />
                       </div>
                       <div className="min-w-0">
-                        <div className="font-display font-black text-xs sm:text-sm text-white tracking-wide truncate">
+                        <div className="font-display font-bold text-xs sm:text-sm text-white tracking-wide truncate">
                           {g.homeTeam.shortName} vs {g.awayTeam.shortName}
                         </div>
                         <div className="text-[10px] font-sans text-white/50 truncate">
@@ -2119,7 +2119,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                       <div className="text-[11px] font-sans text-white/60">
                         {g.dateString}
                       </div>
-                      <div className="font-mono font-black text-sm text-white">
+                      <div className="font-mono font-bold text-sm text-white">
                         {g.homeTeam.score} - {g.awayTeam.score}
                       </div>
                     </div>
@@ -2141,17 +2141,17 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               exit={{ opacity: 0, height: 0 }}
               className="mb-8 overflow-hidden"
             >
-              <div className="bg-[#101010] border-2 border-amber-400/90 rounded-2xl p-4 sm:p-6 shadow-2xl relative space-y-4 text-white">
+              <div className="bg-[#101010] border-2 border-amber-400/90 rounded-sm p-4 sm:p-6 shadow-2xl relative space-y-4 text-white">
                 
                 {/* Operator Header Bar */}
                 <div className="flex items-center justify-between border-b border-white/10 pb-3.5 flex-wrap gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-amber-400 text-black flex items-center justify-center font-black shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-amber-400 text-black flex items-center justify-center font-bold shrink-0">
                       <Sliders size={18} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-display font-black uppercase text-sm sm:text-base text-white tracking-wide">
+                        <h3 className="font-display font-bold uppercase text-sm sm:text-base text-white tracking-wide">
                           SIDELINE OPERATOR CONTROLLER
                         </h3>
                         <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded font-bold uppercase animate-pulse">
@@ -2172,11 +2172,11 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         try {
                           await broadcastGameUpdate({
                             ...activeGame,
-                            lastPlay: `⚡ Firebase live sync ping verified at ${testTime}`
+                            lastPlay: `Firebase live sync ping verified at ${testTime}`
                           });
-                          alert(`✅ Firebase test successful!\n\nConnected to project:\npelagic-airline-s1ttq (IND Sports Media)\n\nLive ping synced to all devices!`);
+                          alert(`Firebase test successful!\n\nConnected to project:\npelagic-airline-s1ttq (IND Sports Media)\n\nLive ping synced to all devices!`);
                         } catch (e) {
-                          alert(`⚠️ Firebase sync error: ${e}`);
+                          alert(`Firebase sync error: ${e}`);
                         }
                       }}
                       className="text-[11px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-mono uppercase bg-emerald-950/40 border border-emerald-500/40 px-2.5 py-1.5 rounded cursor-pointer"
@@ -2201,7 +2201,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                   
                   {/* Home Team Card */}
-                  <div className="bg-[#181818] border-2 border-emerald-500/50 rounded-xl p-4 relative overflow-hidden flex flex-col justify-between gap-3 shadow-lg">
+                  <div className="bg-[#181818] border-2 border-emerald-500/50 rounded-sm p-4 relative overflow-hidden flex flex-col justify-between gap-3 shadow-lg">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 min-w-0">
                         <img 
@@ -2210,7 +2210,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           className="w-12 h-12 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0"
                         />
                         <div className="min-w-0">
-                          <span className="font-display font-black uppercase text-base text-white block truncate">
+                          <span className="font-display font-bold uppercase text-base text-white block truncate">
                             {activeGame.homeTeam.name}
                           </span>
                           <span className="text-[11px] font-mono text-emerald-400 uppercase font-bold">
@@ -2220,8 +2220,8 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                       </div>
 
                       {/* Big Score Digit Display */}
-                      <div className="text-right px-4 py-1.5 bg-black/80 border-2 border-emerald-500/60 rounded-xl min-w-[70px]">
-                        <span className="font-mono font-black text-4xl text-white block leading-none">
+                      <div className="text-right px-4 py-1.5 bg-black/80 border-2 border-emerald-500/60 rounded-sm min-w-[70px]">
+                        <span className="font-mono font-bold text-4xl text-white block leading-none">
                           {activeGame.homeTeam.score}
                         </span>
                         <span className="text-[9px] font-mono uppercase text-emerald-400 font-bold block mt-0.5">
@@ -2236,28 +2236,28 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         <button
                           type="button"
                           onClick={() => adjustScore('home', 6, `Touchdown ${activeGame.homeTeam.shortName} (+6)`)}
-                          className="py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-display font-black text-xs uppercase rounded-lg border border-emerald-400/50 shadow-md cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-display font-bold text-xs uppercase rounded-lg border border-emerald-400/50 shadow-md cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +6 TD
                         </button>
                         <button
                           type="button"
                           onClick={() => adjustScore('home', 1, `Extra Point ${activeGame.homeTeam.shortName} (+1)`)}
-                          className="py-2.5 bg-white/10 hover:bg-emerald-700 text-white font-display font-black text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-white/10 hover:bg-emerald-700 text-white font-display font-bold text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +1 PAT
                         </button>
                         <button
                           type="button"
                           onClick={() => adjustScore('home', 2, `2-Pt Conversion ${activeGame.homeTeam.shortName} (+2)`)}
-                          className="py-2.5 bg-white/10 hover:bg-emerald-700 text-white font-display font-black text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-white/10 hover:bg-emerald-700 text-white font-display font-bold text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +2 2PT
                         </button>
                         <button
                           type="button"
                           onClick={() => adjustScore('home', 3, `Field Goal ${activeGame.homeTeam.shortName} (+3)`)}
-                          className="py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-display font-black text-xs uppercase rounded-lg border border-emerald-400/30 cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-display font-bold text-xs uppercase rounded-lg border border-emerald-400/30 cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +3 FG
                         </button>
@@ -2290,7 +2290,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   </div>
 
                   {/* Away Team Card */}
-                  <div className="bg-[#181818] border-2 border-purple-500/50 rounded-xl p-4 relative overflow-hidden flex flex-col justify-between gap-3 shadow-lg">
+                  <div className="bg-[#181818] border-2 border-purple-500/50 rounded-sm p-4 relative overflow-hidden flex flex-col justify-between gap-3 shadow-lg">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 min-w-0">
                         <img 
@@ -2299,7 +2299,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           className="w-12 h-12 rounded-full object-contain bg-black/60 border border-white/20 p-0.5 shrink-0"
                         />
                         <div className="min-w-0">
-                          <span className="font-display font-black uppercase text-base text-white block truncate">
+                          <span className="font-display font-bold uppercase text-base text-white block truncate">
                             {activeGame.awayTeam.name}
                           </span>
                           <span className="text-[11px] font-mono text-purple-400 uppercase font-bold">
@@ -2309,8 +2309,8 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                       </div>
 
                       {/* Big Score Digit Display */}
-                      <div className="text-right px-4 py-1.5 bg-black/80 border-2 border-purple-500/60 rounded-xl min-w-[70px]">
-                        <span className="font-mono font-black text-4xl text-white block leading-none">
+                      <div className="text-right px-4 py-1.5 bg-black/80 border-2 border-purple-500/60 rounded-sm min-w-[70px]">
+                        <span className="font-mono font-bold text-4xl text-white block leading-none">
                           {activeGame.awayTeam.score}
                         </span>
                         <span className="text-[9px] font-mono uppercase text-purple-400 font-bold block mt-0.5">
@@ -2325,28 +2325,28 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         <button
                           type="button"
                           onClick={() => adjustScore('away', 6, `Touchdown ${activeGame.awayTeam.shortName} (+6)`)}
-                          className="py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-display font-black text-xs uppercase rounded-lg border border-purple-400/50 shadow-md cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-display font-bold text-xs uppercase rounded-lg border border-purple-400/50 shadow-md cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +6 TD
                         </button>
                         <button
                           type="button"
                           onClick={() => adjustScore('away', 1, `Extra Point ${activeGame.awayTeam.shortName} (+1)`)}
-                          className="py-2.5 bg-white/10 hover:bg-purple-700 text-white font-display font-black text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-white/10 hover:bg-purple-700 text-white font-display font-bold text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +1 PAT
                         </button>
                         <button
                           type="button"
                           onClick={() => adjustScore('away', 2, `2-Pt Conversion ${activeGame.awayTeam.shortName} (+2)`)}
-                          className="py-2.5 bg-white/10 hover:bg-purple-700 text-white font-display font-black text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-white/10 hover:bg-purple-700 text-white font-display font-bold text-xs uppercase rounded-lg border border-white/15 cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +2 2PT
                         </button>
                         <button
                           type="button"
                           onClick={() => adjustScore('away', 3, `Field Goal ${activeGame.awayTeam.shortName} (+3)`)}
-                          className="py-2.5 bg-purple-700 hover:bg-purple-600 text-white font-display font-black text-xs uppercase rounded-lg border border-purple-400/30 cursor-pointer active:scale-95 transition-all text-center"
+                          className="py-2.5 bg-purple-700 hover:bg-purple-600 text-white font-display font-bold text-xs uppercase rounded-lg border border-purple-400/30 cursor-pointer active:scale-95 transition-all text-center"
                         >
                           +3 FG
                         </button>
@@ -2383,19 +2383,19 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 {/* ========================================================================= */}
                 {/* 2. GAME CLOCK & PERIOD CONTROLLER (CENTRAL FOCUS) */}
                 {/* ========================================================================= */}
-                <div className="bg-[#161616] p-4 rounded-xl border border-white/10 space-y-3">
+                <div className="bg-[#161616] p-4 rounded-sm border border-white/10 space-y-3">
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                     
                     {/* Big Digital Game Clock & Start/Stop Button */}
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-[11px] font-mono text-white/60 uppercase font-black flex items-center gap-1.5">
+                        <label className="text-[11px] font-mono text-white/60 uppercase font-bold flex items-center gap-1.5">
                           <Clock size={13} className="text-[#00BFFF]" />
                           Game Clock
                         </label>
                         <span className="text-[10px] font-mono text-white/40">
-                          {isClockRunning ? '⏱️ Running' : '⏸️ Paused'}
+                          {isClockRunning ? '⏱Running' : '⏸Paused'}
                         </span>
                       </div>
 
@@ -2404,7 +2404,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           type="text" 
                           value={activeGame.clock}
                           onChange={(e) => updateGameField({ clock: e.target.value })}
-                          className="w-28 bg-black border-2 border-white/20 rounded-xl px-3 py-2.5 text-center font-mono font-black text-white text-xl focus:border-[#00BFFF] outline-none shadow-inner"
+                          className="w-28 bg-black border-2 border-white/20 rounded-sm px-3 py-2.5 text-center font-mono font-bold text-white text-xl focus:border-[#00BFFF] outline-none shadow-inner"
                         />
 
                         <button
@@ -2413,7 +2413,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             setIsClockRunning(nextState);
                             if (nextState) updateGameField({ isLive: true });
                           }}
-                          className={`flex-1 py-3 px-4 rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg active:scale-95 flex items-center justify-center gap-2 ${
+                          className={`flex-1 py-3 px-4 rounded-sm font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg active:scale-95 flex items-center justify-center gap-2 ${
                             isClockRunning 
                               ? 'bg-amber-400 hover:bg-amber-300 text-black shadow-amber-900/30' 
                               : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/40'
@@ -2462,7 +2462,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                     {/* Quarter / Period Selector */}
                     <div>
-                      <label className="text-[11px] font-mono text-white/60 uppercase font-black block mb-1.5">
+                      <label className="text-[11px] font-mono text-white/60 uppercase font-bold block mb-1.5">
                         Quarter / Period
                       </label>
                       <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
@@ -2470,9 +2470,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           <button
                             key={q}
                             onClick={() => updateGameField({ quarter: q, statusText: q.toUpperCase(), isLive: q !== 'Final' && q !== 'Pre-Game' })}
-                            className={`py-2 text-xs font-display font-black rounded-lg uppercase transition-all cursor-pointer ${
+                            className={`py-2 text-xs font-display font-bold rounded-lg uppercase transition-all cursor-pointer ${
                               activeGame.quarter === q 
-                                ? 'bg-[#00BFFF] text-black shadow-md shadow-[#00BFFF]/30 scale-100' 
+                                ? 'bg-[#00BFFF] text-black shadow-md/30 scale-100' 
                                 : 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/5'
                             }`}
                           >
@@ -2483,31 +2483,31 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                       {/* Possession Toggle */}
                       <div className="mt-3">
-                        <label className="text-[11px] font-mono text-white/60 uppercase font-black block mb-1">
+                        <label className="text-[11px] font-mono text-white/60 uppercase font-bold block mb-1">
                           Possession (Ball in Hand)
                         </label>
                         <div className="grid grid-cols-2 gap-2">
                           <button
                             type="button"
                             onClick={() => updateGameField({ possession: 'home' })}
-                            className={`py-2 px-3 rounded-lg text-xs font-display font-black uppercase transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                            className={`py-2 px-3 rounded-lg text-xs font-display font-bold uppercase transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                               activeGame.possession === 'home' 
                                 ? 'bg-emerald-500 text-black shadow-md shadow-emerald-500/30' 
                                 : 'bg-white/5 text-white/50 hover:bg-white/10'
                             }`}
                           >
-                            <span>🏈 {activeGame.homeTeam.shortName} (Home)</span>
+                            <span>{activeGame.homeTeam.shortName} (Home)</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => updateGameField({ possession: 'away' })}
-                            className={`py-2 px-3 rounded-lg text-xs font-display font-black uppercase transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                            className={`py-2 px-3 rounded-lg text-xs font-display font-bold uppercase transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                               activeGame.possession === 'away' 
                                 ? 'bg-purple-500 text-white shadow-md shadow-purple-500/30' 
                                 : 'bg-white/5 text-white/50 hover:bg-white/10'
                             }`}
                           >
-                            <span>🏈 {activeGame.awayTeam.shortName} (Away)</span>
+                            <span>{activeGame.awayTeam.shortName} (Away)</span>
                           </button>
                         </div>
                       </div>
@@ -2521,12 +2521,12 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 {/* ========================================================================= */}
                 {/* 3. DOWN & DISTANCE & BALL SPOT (COMPACT 1-TOUCH ROW) */}
                 {/* ========================================================================= */}
-                <div className="bg-[#161616] p-3.5 rounded-xl border border-white/10">
+                <div className="bg-[#161616] p-3.5 rounded-sm border border-white/10">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     
                     {/* Down */}
                     <div>
-                      <label className="text-[11px] font-mono text-white/60 uppercase font-black block mb-1">
+                      <label className="text-[11px] font-mono text-white/60 uppercase font-bold block mb-1">
                         Down
                       </label>
                       <div className="grid grid-cols-4 gap-1">
@@ -2534,9 +2534,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           <button
                             key={d}
                             onClick={() => updateGameField({ down: d })}
-                            className={`py-1.5 text-xs font-display font-black rounded-lg cursor-pointer transition-all ${
+                            className={`py-1.5 text-xs font-display font-bold rounded-lg cursor-pointer transition-all ${
                               activeGame.down === d 
-                                ? 'bg-[#00BFFF] text-black shadow-md shadow-[#00BFFF]/20' 
+                                ? 'bg-[#00BFFF] text-black shadow-md/20' 
                                 : 'bg-white/5 text-white/70 hover:bg-white/10'
                             }`}
                           >
@@ -2548,7 +2548,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                     {/* Distance */}
                     <div>
-                      <label className="text-[11px] font-mono text-white/60 uppercase font-black block mb-1">
+                      <label className="text-[11px] font-mono text-white/60 uppercase font-bold block mb-1">
                         Distance
                       </label>
                       <div className="grid grid-cols-4 gap-1">
@@ -2556,9 +2556,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           <button
                             key={dist}
                             onClick={() => updateGameField({ distance: dist })}
-                            className={`py-1.5 text-xs font-display font-black rounded-lg cursor-pointer transition-all ${
+                            className={`py-1.5 text-xs font-display font-bold rounded-lg cursor-pointer transition-all ${
                               activeGame.distance === dist 
-                                ? 'bg-[#00BFFF] text-black shadow-md shadow-[#00BFFF]/20' 
+                                ? 'bg-[#00BFFF] text-black shadow-md/20' 
                                 : 'bg-white/5 text-white/70 hover:bg-white/10'
                             }`}
                           >
@@ -2570,7 +2570,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                     {/* Ball Spot */}
                     <div>
-                      <label className="text-[11px] font-mono text-white/60 uppercase font-black block mb-1">
+                      <label className="text-[11px] font-mono text-white/60 uppercase font-bold block mb-1">
                         Ball Spot (Yard Line)
                       </label>
                       <div className="flex items-center gap-1.5">
@@ -2604,10 +2604,10 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 {/* ========================================================================= */}
                 {/* 4. FAST PLAY LOGGER (1-LINE STATUS UPDATE) */}
                 {/* ========================================================================= */}
-                <div className="bg-[#161616] p-3.5 rounded-xl border border-white/10 space-y-2">
+                <div className="bg-[#161616] p-3.5 rounded-sm border border-white/10 space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-[11px] font-mono text-white/60 uppercase font-black">
-                      ⚡ Quick Playcast Log (Broadcasted to Live Feed)
+                    <label className="text-[11px] font-mono text-white/60 uppercase font-bold">
+                      Quick Playcast Log (Broadcasted to Live Feed)
                     </label>
                     <span className="text-[10px] font-mono text-white/40">
                       Current: {activeGame.lastPlay ? activeGame.lastPlay.slice(0, 45) + '...' : 'None'}
@@ -2637,10 +2637,10 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             downInfo: `${activeGame.down} & ${activeGame.distance}`
                           };
                           updateGameField({ plays: [newPlay, ...(activeGame.plays || [])] });
-                          alert('✓ Play logged to live play-by-play stream!');
+                          alert('Play logged to live play-by-play stream!');
                         }
                       }}
-                      className="px-4 py-2 bg-white/10 hover:bg-[#00BFFF] hover:text-black text-white font-display font-black text-xs uppercase rounded-lg transition-colors cursor-pointer"
+                      className="px-4 py-2 bg-white/10 hover:bg-[#00BFFF] hover:text-black text-white font-display font-bold text-xs uppercase rounded-lg transition-colors cursor-pointer"
                     >
                       Log Play
                     </button>
@@ -2649,14 +2649,14 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   {/* 1-Tap Situation Presets */}
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {[
-                      '🏈 Touchdown!',
-                      '🛑 Turnover on Downs',
-                      '⚡ Interception!',
-                      '💥 Fumble Turnover!',
-                      '👟 Field Goal Good!',
-                      '⏱️ Timeout LN',
-                      '⏱️ Timeout BB',
-                      '🏁 End of Quarter'
+                      'Touchdown!',
+                      'Turnover on Downs',
+                      'Interception!',
+                      'Fumble Turnover!',
+                      'Field Goal Good!',
+                      '⏱Timeout LN',
+                      '⏱Timeout BB',
+                      'End of Quarter'
                     ].map((preset) => (
                       <button
                         key={preset}
@@ -2673,14 +2673,14 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 {/* ========================================================================= */}
                 {/* 5. IN-STANDS SOCIAL & HIGHLIGHTS BROADCASTER (FRICTIONLESS 2-STEP STORY UPLOAD) */}
                 {/* ========================================================================= */}
-                <div className="bg-[#141414] p-4 sm:p-5 rounded-xl border border-[#00BFFF]/30 shadow-2xl relative overflow-hidden">
+                <div className="bg-[#141414] p-4 sm:p-5 rounded-sm border border-[#00BFFF]/30 shadow-2xl relative overflow-hidden">
                   <div className="flex items-center justify-between gap-3 mb-4">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center shadow-md">
                         <Camera size={16} className="text-white" />
                       </div>
                       <div>
-                        <h4 className="text-xs sm:text-sm font-display font-black uppercase text-white tracking-wide flex items-center gap-2">
+                        <h4 className="text-xs sm:text-sm font-display font-bold uppercase text-white tracking-wide flex items-center gap-2">
                           <span>In-Stands Highlights Story Broadcaster</span>
                           <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#00BFFF]/20 text-[#00BFFF] border border-[#00BFFF]/40">
                             2-STEP INSTANT POST
@@ -2712,13 +2712,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                   {/* STEP 1: Direct Native Device Camera Trigger */}
                   {!storyMedia ? (
-                    <div className="bg-black/60 border-2 border-dashed border-white/20 hover:border-[#00BFFF]/60 rounded-2xl p-6 sm:p-8 text-center transition-all group">
+                    <div className="bg-black/60 border-2 border-dashed border-white/20 hover:border-[#00BFFF]/60 rounded-sm p-6 sm:p-8 text-center transition-all group">
                       <div className="max-w-md mx-auto space-y-4">
                         <div className="flex justify-center gap-3">
                           <button
                             type="button"
                             onClick={() => nativeCameraInputRef.current?.click()}
-                            className="flex-1 py-4 px-6 rounded-xl bg-gradient-to-r from-[#00BFFF] to-[#0090D0] hover:from-[#33c9ff] hover:to-[#00BFFF] text-black font-display font-black text-sm uppercase tracking-wider shadow-lg shadow-[#00BFFF]/30 flex items-center justify-center gap-3 cursor-pointer active:scale-95 transition-all"
+                            className="flex-1 py-4 px-6 rounded-sm bg-gradient-to-r from-[#00BFFF] to-[#0090D0] hover:from-[#33c9ff] hover:to-[#00BFFF] text-black font-display font-bold text-sm uppercase tracking-wider shadow-lg/30 flex items-center justify-center gap-3 cursor-pointer active:scale-95 transition-all"
                           >
                             <Camera size={22} className="shrink-0" />
                             <span>Take Photo / Video</span>
@@ -2728,16 +2728,16 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             type="button"
                             onClick={() => galleryInputRef.current?.click()}
                             title="Upload from photo library"
-                            className="px-4 py-4 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 flex items-center justify-center cursor-pointer active:scale-95 transition-all"
+                            className="px-4 py-4 rounded-sm bg-white/10 hover:bg-white/20 text-white border border-white/15 flex items-center justify-center cursor-pointer active:scale-95 transition-all"
                           >
                             <UploadCloud size={20} />
                           </button>
                         </div>
 
                         <div className="flex items-center justify-center gap-4 text-[11px] font-mono text-white/50">
-                          <span className="flex items-center gap-1">📸 Opens Native Rear Camera</span>
+                          <span className="flex items-center gap-1">Opens Native Rear Camera</span>
                           <span>•</span>
-                          <span className="flex items-center gap-1">⚡ Auto-Compacts for Stadium Data</span>
+                          <span className="flex items-center gap-1">Auto-Compacts for Stadium Data</span>
                         </div>
                       </div>
                     </div>
@@ -2746,7 +2746,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     <div className="space-y-4 animate-fadeIn">
                       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
                         {/* Media Preview Thumbnail */}
-                        <div className="md:col-span-4 relative aspect-video md:aspect-[4/3] bg-black rounded-xl overflow-hidden border border-white/20 shadow-inner group">
+                        <div className="md:col-span-4 relative aspect-video md:aspect-[4/3] bg-black rounded-sm overflow-hidden border border-white/20 shadow-inner group">
                           {storyMedia.type === 'video' ? (
                             <video 
                               src={storyMedia.url} 
@@ -2771,7 +2771,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           </button>
 
                           <div className="absolute bottom-2 left-2 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-mono text-emerald-400 font-bold border border-white/10">
-                            ✓ {storyMedia.type === 'video' ? 'Video Ready' : 'Compressed & Ready'}
+                            {storyMedia.type === 'video' ? 'Video Ready' : 'Compressed & Ready'}
                           </div>
                         </div>
 
@@ -2779,12 +2779,12 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         <div className="md:col-span-8 space-y-3">
                           {/* Team Attribution Selector */}
                           <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-mono text-white/60 uppercase font-black">Tag:</span>
+                            <span className="text-[11px] font-mono text-white/60 uppercase font-bold">Tag:</span>
                             <div className="flex gap-1.5 flex-1">
                               <button
                                 type="button"
                                 onClick={() => setStoryTeam('home')}
-                                className={`px-2.5 py-1 rounded text-xs font-display font-black uppercase transition-all cursor-pointer ${
+                                className={`px-2.5 py-1 rounded text-xs font-display font-bold uppercase transition-all cursor-pointer ${
                                   storyTeam === 'home' ? 'bg-emerald-500 text-black shadow-md' : 'bg-white/5 text-white/60 hover:bg-white/10'
                                 }`}
                               >
@@ -2793,7 +2793,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                               <button
                                 type="button"
                                 onClick={() => setStoryTeam('away')}
-                                className={`px-2.5 py-1 rounded text-xs font-display font-black uppercase transition-all cursor-pointer ${
+                                className={`px-2.5 py-1 rounded text-xs font-display font-bold uppercase transition-all cursor-pointer ${
                                   storyTeam === 'away' ? 'bg-purple-500 text-white shadow-md' : 'bg-white/5 text-white/60 hover:bg-white/10'
                                 }`}
                               >
@@ -2802,7 +2802,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                               <button
                                 type="button"
                                 onClick={() => setStoryTeam('neutral')}
-                                className={`px-2.5 py-1 rounded text-xs font-display font-black uppercase transition-all cursor-pointer ${
+                                className={`px-2.5 py-1 rounded text-xs font-display font-bold uppercase transition-all cursor-pointer ${
                                   storyTeam === 'neutral' ? 'bg-[#00BFFF] text-black shadow-md' : 'bg-white/5 text-white/60 hover:bg-white/10'
                                 }`}
                               >
@@ -2819,7 +2819,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                               onChange={(e) => setStoryCaption(e.target.value)}
                               placeholder="Write a quick caption (e.g. 45-yard bomb to the endzone!)..."
                               autoFocus
-                              className="w-full bg-black border border-white/25 rounded-xl px-4 py-3 text-sm text-white focus:border-[#00BFFF] focus:ring-1 focus:ring-[#00BFFF] outline-none shadow-inner"
+                              className="w-full bg-black border border-white/25 rounded-sm px-4 py-3 text-sm text-white focus:border-[#00BFFF] focus:ring-1 focus:ring-[#00BFFF] outline-none shadow-inner"
                             />
                           </div>
 
@@ -2838,7 +2838,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             <button
                               type="button"
                               onClick={() => setStoryMedia(null)}
-                              className="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 font-display font-black text-xs uppercase cursor-pointer"
+                              className="px-4 py-3 rounded-sm bg-white/5 hover:bg-white/10 text-white/70 font-display font-bold text-xs uppercase cursor-pointer"
                             >
                               Retake
                             </button>
@@ -2847,7 +2847,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                               type="button"
                               onClick={handlePublishStory}
                               disabled={isPostingStory}
-                              className="flex-1 py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-display font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all disabled:opacity-50"
+                              className="flex-1 py-3 px-6 rounded-sm bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-display font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all disabled:opacity-50"
                             >
                               <Sparkles size={16} />
                               <span>{isPostingStory ? `Posting Story ${uploadProgress ? `(${uploadProgress}%)` : '...'}` : 'Post Story to Live Stream'}</span>
@@ -2872,14 +2872,14 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 {/* ========================================================================= */}
                 {/* 6. REAL-TIME MEDIA & HIGHLIGHTS MANAGER (FULL EDIT & DELETE CONTROL) */}
                 {/* ========================================================================= */}
-                <div className="bg-[#141414] p-4 sm:p-5 rounded-xl border border-white/15 shadow-2xl">
+                <div className="bg-[#141414] p-4 sm:p-5 rounded-sm border border-white/15 shadow-2xl">
                   <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-white/10">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-[#00BFFF]/20 border border-[#00BFFF]/40 flex items-center justify-center text-[#00BFFF]">
                         <Film size={16} />
                       </div>
                       <div>
-                        <h4 className="text-xs sm:text-sm font-display font-black uppercase text-white tracking-wide flex items-center gap-2">
+                        <h4 className="text-xs sm:text-sm font-display font-bold uppercase text-white tracking-wide flex items-center gap-2">
                           <span>Live Game Highlights & Media Manager</span>
                           <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white/80">
                             {activeGame.socialClips?.length || 0} ITEMS
@@ -2893,7 +2893,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   </div>
 
                   {(!activeGame.socialClips || activeGame.socialClips.length === 0) ? (
-                    <div className="bg-black/40 border border-white/10 rounded-xl p-6 text-center">
+                    <div className="bg-black/40 border border-white/10 rounded-sm p-6 text-center">
                       <Camera size={28} className="text-white/20 mx-auto mb-2" />
                       <p className="text-xs font-display uppercase font-bold text-white/60">No Highlights Posted For This Game Yet</p>
                       <p className="text-[11px] text-white/40 mt-1">Use the Broadcaster above to snap sideline photos or post video clips.</p>
@@ -2908,7 +2908,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         return (
                           <div 
                             key={clip.id} 
-                            className="bg-black/60 border border-white/15 hover:border-[#00BFFF]/50 rounded-xl overflow-hidden flex flex-col justify-between transition-all group"
+                            className="bg-black/60 border border-white/15 hover:border-[#00BFFF]/50 rounded-sm overflow-hidden flex flex-col justify-between transition-all group"
                           >
                             <div className="relative aspect-video bg-black overflow-hidden">
                               {clip.type === 'video' ? (
@@ -2932,7 +2932,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                               )}
                               
                               <div className="absolute top-2 left-2 flex items-center gap-1">
-                                <span className={`text-[9px] font-mono font-black uppercase px-2 py-0.5 rounded shadow ${
+                                <span className={`text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded shadow ${
                                   isHome ? 'bg-emerald-600 text-black' : isAway ? 'bg-purple-600 text-white' : 'bg-[#00BFFF] text-black'
                                 }`}>
                                   {teamLabel}
@@ -2951,7 +2951,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                             <div className="p-3 flex-1 flex flex-col justify-between space-y-2">
                               <div>
-                                <h5 className="text-xs font-display font-black uppercase text-white truncate group-hover:text-[#00BFFF] transition-colors">
+                                <h5 className="text-xs font-display font-bold uppercase text-white truncate group-hover:text-[#00BFFF] transition-colors">
                                   {clip.title}
                                 </h5>
                                 {clip.caption && (
@@ -2966,7 +2966,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                                 <button
                                   type="button"
                                   onClick={() => handleOpenEditClip(clip)}
-                                  className="flex-1 py-1.5 px-2.5 rounded-lg bg-white/10 hover:bg-[#00BFFF] hover:text-black text-white text-[11px] font-display font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                                  className="flex-1 py-1.5 px-2.5 rounded-lg bg-white/10 hover:bg-[#00BFFF] hover:text-black text-white text-[11px] font-display font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                                   title="Edit title, caption & team attribution"
                                 >
                                   <Edit3 size={13} />
@@ -2976,7 +2976,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteClip(clip.id, clip.mediaUrl || clip.url)}
-                                  className="py-1.5 px-2.5 rounded-lg bg-red-950/50 hover:bg-red-600 text-red-300 hover:text-white border border-red-800/40 text-[11px] font-display font-black uppercase flex items-center justify-center gap-1 transition-all cursor-pointer"
+                                  className="py-1.5 px-2.5 rounded-lg bg-red-950/50 hover:bg-red-600 text-red-300 hover:text-white border border-red-800/40 text-[11px] font-display font-bold uppercase flex items-center justify-center gap-1 transition-all cursor-pointer"
                                   title="Delete highlight and remove storage file"
                                 >
                                   <Trash2 size={13} />
@@ -2999,7 +2999,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
         {/* ========================================================================= */}
         {/* MAIN PUBLIC SCOREBOARD DISPLAY (Broadcast Grade) */}
         {/* ========================================================================= */}
-        <div className="bg-gradient-to-b from-[#141414] to-[#0d0d0d] border border-white/15 rounded-2xl p-6 sm:p-10 shadow-2xl mb-8 relative overflow-hidden">
+        <div className="bg-gradient-to-b from-[#141414] to-[#0d0d0d] border border-white/15 rounded-sm p-6 sm:p-10 shadow-2xl mb-8 relative overflow-hidden">
           
           {/* Subtle Ambient Background Gradients */}
           <div className="absolute top-0 left-0 w-1/3 h-full bg-emerald-900/10 blur-3xl pointer-events-none" />
@@ -3008,7 +3008,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
           {/* Matchup Header Details */}
           <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/10 pb-6 mb-8">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00BFFF]/10 border border-[#00BFFF]/30 rounded-full text-[#00BFFF] text-xs font-display font-black tracking-widest uppercase mb-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00BFFF]/10 border border-[#00BFFF]/30 rounded-full text-[#00BFFF] text-xs font-display font-bold tracking-widest uppercase mb-2">
                 <Flame size={14} /> {activeGame.sport} • {activeGame.title}
               </div>
               <h2 className="text-sm sm:text-base font-display font-bold text-white/60 flex items-center gap-2">
@@ -3019,15 +3019,15 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
             </div>
 
             {/* Quarter & Game Clock Badge */}
-            <div className="bg-black/80 border border-white/15 px-5 py-2.5 rounded-xl flex items-center gap-4 shadow-inner">
+            <div className="bg-black/80 border border-white/15 px-5 py-2.5 rounded-sm flex items-center gap-4 shadow-inner">
               <div className="text-right">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-white/50 block">PERIOD</span>
-                <span className="text-base sm:text-lg font-display font-black text-white uppercase">{activeGame.quarter}</span>
+                <span className="text-base sm:text-lg font-display font-bold text-white uppercase">{activeGame.quarter}</span>
               </div>
               <div className="h-8 w-px bg-white/15" />
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-white/50 block">GAME CLOCK</span>
-                <span className="text-base sm:text-lg font-mono font-black text-[#00BFFF] flex items-center gap-1.5">
+                <span className="text-base sm:text-lg font-mono font-bold text-[#00BFFF] flex items-center gap-1.5">
                   <Clock size={16} /> {activeGame.clock}
                 </span>
               </div>
@@ -3038,7 +3038,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
           <div className="grid grid-cols-1 md:grid-cols-11 gap-6 items-center">
             
             {/* Team 1: HOME (Left) */}
-            <div className="md:col-span-4 bg-[#181818]/95 border-2 border-white/20 rounded-xl p-6 sm:p-8 flex items-center justify-between relative group hover:border-[#00BFFF]/60 transition-all shadow-xl overflow-hidden min-h-[140px]">
+            <div className="md:col-span-4 bg-[#181818]/95 border-2 border-white/20 rounded-sm p-6 sm:p-8 flex items-center justify-between relative group hover:border-[#00BFFF]/60 transition-all shadow-xl overflow-hidden min-h-[140px]">
               {/* Mascot Logo in the Background */}
               <div 
                 className="absolute inset-y-0 left-0 w-3/4 pointer-events-none opacity-20 group-hover:opacity-30 transition-opacity duration-300 bg-no-repeat bg-contain bg-left-center mix-blend-screen"
@@ -3050,7 +3050,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               />
 
               {activeGame.possession === 'home' && (
-                <div className="absolute -top-3 left-6 bg-[#00BFFF] text-black font-display font-black text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-md shadow-[#00BFFF]/30 z-10">
+                <div className="absolute -top-3 left-6 bg-[#00BFFF] text-black font-display font-bold text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-md/30 z-10">
                   <Zap size={12} /> POSSESSION
                 </div>
               )}
@@ -3066,7 +3066,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     <span className="text-xs font-mono text-emerald-400 font-bold">HOME</span>
                     <span className="text-xs text-white/40">({activeGame.homeTeam.record})</span>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-display font-black uppercase text-white tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                  <h3 className="text-2xl sm:text-3xl font-display font-bold uppercase text-white tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                     {activeGame.homeTeam.name}
                   </h3>
                   <span className="text-xs text-white/70 font-sans font-medium">{activeGame.homeTeam.mascot}</span>
@@ -3074,30 +3074,30 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               </div>
               
               <div className="text-center pl-4 border-l border-white/10 relative z-10">
-                <span className="text-5xl sm:text-7xl font-display font-black text-white tracking-tighter drop-shadow-[0_4px_16px_rgba(255,255,255,0.2)]">
+                <span className="text-5xl sm:text-7xl font-display font-bold text-white tracking-tighter drop-shadow-[0_4px_16px_rgba(255,255,255,0.2)]">
                   {activeGame.homeTeam.score}
                 </span>
               </div>
             </div>
 
             {/* Middle Game Situation / Down & Distance (Center) */}
-            <div className="md:col-span-3 text-center bg-black/60 border border-white/10 rounded-xl p-4 sm:p-5 flex flex-col justify-center">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#00BFFF] font-black block mb-1">
+            <div className="md:col-span-3 text-center bg-black/60 border border-white/10 rounded-sm p-4 sm:p-5 flex flex-col justify-center">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#00BFFF] font-bold block mb-1">
                 CURRENT SITUATION
               </span>
-              <div className="text-xl sm:text-2xl font-display font-black text-white uppercase tracking-tight mb-2">
+              <div className="text-xl sm:text-2xl font-display font-bold text-white uppercase tracking-tight mb-2">
                 {activeGame.down} & {activeGame.distance}
               </div>
               <div className="text-xs font-mono text-white/70 bg-white/5 py-1 px-2.5 rounded border border-white/5 inline-block mx-auto mb-2">
                 BALL ON <span className="text-white font-bold">{activeGame.ballOn}</span>
               </div>
-              <div className="text-[11px] font-sans text-white/50 italic line-clamp-1">
+              <div className="text-[11px] font-sans text-white/50 line-clamp-1">
                 {activeGame.possession === 'home' ? `${activeGame.homeTeam.shortName} offense` : `${activeGame.awayTeam.shortName} offense`}
               </div>
             </div>
 
             {/* Team 2: AWAY (Right) */}
-            <div className="md:col-span-4 bg-[#181818]/95 border-2 border-white/20 rounded-xl p-6 sm:p-8 flex items-center justify-between relative group hover:border-[#00BFFF]/60 transition-all shadow-xl overflow-hidden min-h-[140px]">
+            <div className="md:col-span-4 bg-[#181818]/95 border-2 border-white/20 rounded-sm p-6 sm:p-8 flex items-center justify-between relative group hover:border-[#00BFFF]/60 transition-all shadow-xl overflow-hidden min-h-[140px]">
               {/* Mascot Logo in the Background */}
               <div 
                 className="absolute inset-y-0 right-0 w-3/4 pointer-events-none opacity-20 group-hover:opacity-30 transition-opacity duration-300 bg-no-repeat bg-contain bg-right-center mix-blend-screen"
@@ -3109,13 +3109,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               />
 
               {activeGame.possession === 'away' && (
-                <div className="absolute -top-3 right-6 bg-[#00BFFF] text-black font-display font-black text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-md shadow-[#00BFFF]/30 z-10">
+                <div className="absolute -top-3 right-6 bg-[#00BFFF] text-black font-display font-bold text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-md/30 z-10">
                   <Zap size={12} /> POSSESSION
                 </div>
               )}
               
               <div className="text-center pr-4 border-r border-white/10 order-2 md:order-1 relative z-10">
-                <span className="text-5xl sm:text-7xl font-display font-black text-white tracking-tighter drop-shadow-[0_4px_16px_rgba(255,255,255,0.2)]">
+                <span className="text-5xl sm:text-7xl font-display font-bold text-white tracking-tighter drop-shadow-[0_4px_16px_rgba(255,255,255,0.2)]">
                   {activeGame.awayTeam.score}
                 </span>
               </div>
@@ -3131,7 +3131,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     <span className="text-xs text-white/40">({activeGame.awayTeam.record})</span>
                     <span className="text-xs font-mono text-amber-400 font-bold">AWAY</span>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-display font-black uppercase text-white tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                  <h3 className="text-2xl sm:text-3xl font-display font-bold uppercase text-white tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                     {activeGame.awayTeam.name}
                   </h3>
                   <span className="text-xs text-white/70 font-sans font-medium">{activeGame.awayTeam.mascot}</span>
@@ -3146,13 +3146,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
         {/* ========================================================================= */}
         {/* TABBED INTERFACE: LIVE HIGHLIGHTS / BOX SCORE / STATS */}
         {/* ========================================================================= */}
-        <div className="bg-[#121212] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
+        <div className="bg-[#121212] border border-white/10 rounded-sm overflow-hidden shadow-2xl">
           
           {/* Tab Navigation */}
           <div className="flex border-b border-white/10 bg-[#161616]">
             <button
               onClick={() => setActiveTab('highlights')}
-              className={`flex-1 py-4 text-xs sm:text-sm font-display font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              className={`flex-1 py-4 text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeTab === 'highlights' 
                   ? 'bg-[#121212] text-[#00BFFF] border-b-2 border-[#00BFFF]' 
                   : 'text-white/50 hover:text-white hover:bg-white/5'
@@ -3166,7 +3166,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
             </button>
             <button
               onClick={() => setActiveTab('boxscore')}
-              className={`flex-1 py-4 text-xs sm:text-sm font-display font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              className={`flex-1 py-4 text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeTab === 'boxscore' 
                   ? 'bg-[#121212] text-[#00BFFF] border-b-2 border-[#00BFFF]' 
                   : 'text-white/50 hover:text-white hover:bg-white/5'
@@ -3176,7 +3176,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
             </button>
             <button
               onClick={() => setActiveTab('stats')}
-              className={`flex-1 py-4 text-xs sm:text-sm font-display font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              className={`flex-1 py-4 text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeTab === 'stats' 
                   ? 'bg-[#121212] text-[#00BFFF] border-b-2 border-[#00BFFF]' 
                   : 'text-white/50 hover:text-white hover:bg-white/5'
@@ -3194,7 +3194,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               <div>
                 <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
                   <div>
-                    <h4 className="text-xs font-mono font-black uppercase tracking-widest text-[#00BFFF] flex items-center gap-2 mb-1">
+                    <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-[#00BFFF] flex items-center gap-2 mb-1">
                       <Film size={14} /> REAL-TIME SIDELINE HIGHLIGHTS & REELS
                     </h4>
                     <p className="text-white/50 text-xs font-sans">
@@ -3206,7 +3206,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   <div className="flex items-center gap-1.5 bg-black/60 p-1 rounded-lg border border-white/10">
                     <button
                       onClick={() => setClipFilter('all')}
-                      className={`px-3 py-1 rounded text-xs font-display font-black uppercase transition-all cursor-pointer ${
+                      className={`px-3 py-1 rounded text-xs font-display font-bold uppercase transition-all cursor-pointer ${
                         clipFilter === 'all' ? 'bg-[#00BFFF] text-black' : 'text-white/50 hover:text-white'
                       }`}
                     >
@@ -3214,7 +3214,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     </button>
                     <button
                       onClick={() => setClipFilter('home')}
-                      className={`px-3 py-1 rounded text-xs font-display font-black uppercase transition-all cursor-pointer ${
+                      className={`px-3 py-1 rounded text-xs font-display font-bold uppercase transition-all cursor-pointer ${
                         clipFilter === 'home' ? 'bg-[#00BFFF] text-black' : 'text-white/50 hover:text-white'
                       }`}
                     >
@@ -3222,7 +3222,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     </button>
                     <button
                       onClick={() => setClipFilter('away')}
-                      className={`px-3 py-1 rounded text-xs font-display font-black uppercase transition-all cursor-pointer ${
+                      className={`px-3 py-1 rounded text-xs font-display font-bold uppercase transition-all cursor-pointer ${
                         clipFilter === 'away' ? 'bg-[#00BFFF] text-black' : 'text-white/50 hover:text-white'
                       }`}
                     >
@@ -3232,9 +3232,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 </div>
 
                 {filteredClips.length === 0 ? (
-                  <div className="text-center py-16 bg-white/[0.02] border border-dashed border-white/10 rounded-xl">
+                  <div className="text-center py-16 bg-white/[0.02] border border-dashed border-white/10 rounded-sm">
                     <Video size={36} className="text-white/20 mx-auto mb-3" />
-                    <h5 className="font-display font-black uppercase text-sm text-white/60 mb-1">No highlights uploaded for this filter yet</h5>
+                    <h5 className="font-display font-bold uppercase text-sm text-white/60 mb-1">No highlights uploaded for this filter yet</h5>
                     <p className="text-xs text-white/40 max-w-sm mx-auto">
                       Sideline staff will post live video clips, photos, and social reels during game action.
                     </p>
@@ -3249,7 +3249,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                       return (
                         <div 
                           key={clip.id}
-                          className="bg-[#181818] border border-white/10 hover:border-[#00BFFF]/40 rounded-xl overflow-hidden shadow-xl transition-all flex flex-col group"
+                          className="bg-[#181818] border border-white/10 hover:border-[#00BFFF]/40 rounded-sm overflow-hidden shadow-xl transition-all flex flex-col group"
                         >
                           {/* Media Preview Area */}
                           <div className="relative aspect-video bg-black overflow-hidden cursor-pointer" onClick={() => setPreviewMediaModal(clip)}>
@@ -3263,7 +3263,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             {/* Play Button Overlay for Videos */}
                             {clip.type === 'video' && (
                               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <div className="w-12 h-12 rounded-full bg-[#00BFFF]/90 text-black flex items-center justify-center shadow-lg shadow-[#00BFFF]/50 group-hover:scale-110 transition-transform">
+                                <div className="w-12 h-12 rounded-full bg-[#00BFFF]/90 text-black flex items-center justify-center shadow-lg/50 group-hover:scale-110 transition-transform">
                                   <Play size={20} className="fill-black ml-0.5" />
                                 </div>
                               </div>
@@ -3271,7 +3271,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                             {/* Top Badges */}
                             <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10">
-                              <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded font-black tracking-wider shadow ${
+                              <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded font-bold tracking-wider shadow ${
                                 isHome ? 'bg-red-600 text-white' : isAway ? 'bg-purple-600 text-white' : 'bg-[#00BFFF] text-black'
                               }`}>
                                 {teamTag}
@@ -3282,12 +3282,12 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                             </div>
 
                             <div className="absolute top-3 right-3 z-10">
-                              <span className="text-[10px] font-display font-black uppercase tracking-wider px-2 py-0.5 rounded bg-black/80 text-white/90 border border-white/20 flex items-center gap-1">
+                              <span className="text-[10px] font-display font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-black/80 text-white/90 border border-white/20 flex items-center gap-1">
                                 {clip.platform === 'x' && '𝕏 Post'}
-                                {clip.platform === 'instagram' && '📸 IG Reel'}
-                                {clip.platform === 'tiktok' && '🎵 TikTok'}
-                                {clip.platform === 'youtube' && '▶️ YT Short'}
-                                {clip.platform === 'upload' && '⚡ 4K Sideline'}
+                                {clip.platform === 'instagram' && 'IG Reel'}
+                                {clip.platform === 'tiktok' && 'TikTok'}
+                                {clip.platform === 'youtube' && '▶YT Short'}
+                                {clip.platform === 'upload' && '4K Sideline'}
                               </span>
                             </div>
                           </div>
@@ -3295,7 +3295,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                           {/* Info Area */}
                           <div className="p-4 flex-1 flex flex-col justify-between">
                             <div>
-                              <h5 className="font-display font-black uppercase text-sm text-white tracking-wide mb-1.5 group-hover:text-[#00BFFF] transition-colors line-clamp-2">
+                              <h5 className="font-display font-bold uppercase text-sm text-white tracking-wide mb-1.5 group-hover:text-[#00BFFF] transition-colors line-clamp-2">
                                 {clip.title}
                               </h5>
                               <p className="text-white/60 text-xs font-sans line-clamp-2 mb-3">
@@ -3382,7 +3382,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
             {/* 2. BOX SCORE BREAKDOWN */}
             {activeTab === 'boxscore' && (
               <div>
-                <h4 className="text-xs font-mono font-black uppercase tracking-widest text-white/50 mb-6">
+                <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-white/50 mb-6">
                   QUARTER-BY-QUARTER SCORING TABLE
                 </h4>
                 
@@ -3390,18 +3390,18 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   <table className="w-full text-left font-mono text-sm border-collapse">
                     <thead>
                       <tr className="border-b border-white/10 text-white/50 text-xs">
-                        <th className="py-3 px-4 font-black">TEAM</th>
+                        <th className="py-3 px-4 font-bold">TEAM</th>
                         <th className="py-3 px-4 text-center">Q1</th>
                         <th className="py-3 px-4 text-center">Q2</th>
                         <th className="py-3 px-4 text-center">Q3</th>
                         <th className="py-3 px-4 text-center">Q4</th>
                         <th className="py-3 px-4 text-center">OT</th>
-                        <th className="py-3 px-4 text-center font-black text-white">TOTAL</th>
+                        <th className="py-3 px-4 text-center font-bold text-white">TOTAL</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr className="border-b border-white/5 bg-white/5">
-                        <td className="py-4 px-4 font-display font-black text-white flex items-center gap-3">
+                        <td className="py-4 px-4 font-display font-bold text-white flex items-center gap-3">
                           <img 
                             src={activeGame.homeTeam.logoUrl} 
                             alt={activeGame.homeTeam.name}
@@ -3414,10 +3414,10 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         <td className="py-4 px-4 text-center text-white/80">{activeGame.homeTeam.qScores[2]}</td>
                         <td className="py-4 px-4 text-center text-white/80">{activeGame.homeTeam.qScores[3]}</td>
                         <td className="py-4 px-4 text-center text-white/80">{activeGame.homeTeam.qScores[4]}</td>
-                        <td className="py-4 px-4 text-center font-display font-black text-xl text-white">{activeGame.homeTeam.score}</td>
+                        <td className="py-4 px-4 text-center font-display font-bold text-xl text-white">{activeGame.homeTeam.score}</td>
                       </tr>
                       <tr className="border-b border-white/5 bg-black/40">
-                        <td className="py-4 px-4 font-display font-black text-white flex items-center gap-3">
+                        <td className="py-4 px-4 font-display font-bold text-white flex items-center gap-3">
                           <img 
                             src={activeGame.awayTeam.logoUrl} 
                             alt={activeGame.awayTeam.name}
@@ -3430,7 +3430,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         <td className="py-4 px-4 text-center text-white/80">{activeGame.awayTeam.qScores[2]}</td>
                         <td className="py-4 px-4 text-center text-white/80">{activeGame.awayTeam.qScores[3]}</td>
                         <td className="py-4 px-4 text-center text-white/80">{activeGame.awayTeam.qScores[4]}</td>
-                        <td className="py-4 px-4 text-center font-display font-black text-xl text-white">{activeGame.awayTeam.score}</td>
+                        <td className="py-4 px-4 text-center font-display font-bold text-xl text-white">{activeGame.awayTeam.score}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -3441,7 +3441,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
             {/* 3. TEAM STAT COMPARISON */}
             {activeTab === 'stats' && (
               <div>
-                <h4 className="text-xs font-mono font-black uppercase tracking-widest text-white/50 mb-6">
+                <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-white/50 mb-6">
                   IN-GAME METRIC COMPARISON
                 </h4>
 
@@ -3451,7 +3451,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   <div>
                     <div className="flex justify-between text-xs font-mono mb-1.5">
                       <span className="text-emerald-400 font-bold">{activeGame.homeTeam.stats.passingYds} YDS</span>
-                      <span className="text-white/60 uppercase font-black">Passing Yards</span>
+                      <span className="text-white/60 uppercase font-bold">Passing Yards</span>
                       <span className="text-amber-400 font-bold">{activeGame.awayTeam.stats.passingYds} YDS</span>
                     </div>
                     <div className="h-2 bg-white/10 rounded-full flex overflow-hidden">
@@ -3470,7 +3470,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   <div>
                     <div className="flex justify-between text-xs font-mono mb-1.5">
                       <span className="text-emerald-400 font-bold">{activeGame.homeTeam.stats.rushingYds} YDS</span>
-                      <span className="text-white/60 uppercase font-black">Rushing Yards</span>
+                      <span className="text-white/60 uppercase font-bold">Rushing Yards</span>
                       <span className="text-amber-400 font-bold">{activeGame.awayTeam.stats.rushingYds} YDS</span>
                     </div>
                     <div className="h-2 bg-white/10 rounded-full flex overflow-hidden">
@@ -3489,7 +3489,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   <div>
                     <div className="flex justify-between text-xs font-mono mb-1.5">
                       <span className="text-emerald-400 font-bold">{activeGame.homeTeam.stats.firstDowns}</span>
-                      <span className="text-white/60 uppercase font-black">1st Downs</span>
+                      <span className="text-white/60 uppercase font-bold">1st Downs</span>
                       <span className="text-amber-400 font-bold">{activeGame.awayTeam.stats.firstDowns}</span>
                     </div>
                     <div className="h-2 bg-white/10 rounded-full flex overflow-hidden">
@@ -3507,14 +3507,14 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   {/* Turnovers */}
                   <div className="pt-2 border-t border-white/5 flex justify-between items-center text-xs font-mono">
                     <span className="text-emerald-400 font-bold">{activeGame.homeTeam.stats.turnovers}</span>
-                    <span className="text-white/60 uppercase font-black">Turnovers</span>
+                    <span className="text-white/60 uppercase font-bold">Turnovers</span>
                     <span className="text-amber-400 font-bold">{activeGame.awayTeam.stats.turnovers}</span>
                   </div>
 
                   {/* Penalties */}
                   <div className="pt-2 border-t border-white/5 flex justify-between items-center text-xs font-mono">
                     <span className="text-emerald-400 font-bold">{activeGame.homeTeam.stats.penalties}</span>
-                    <span className="text-white/60 uppercase font-black">Penalties (No.-Yds)</span>
+                    <span className="text-white/60 uppercase font-bold">Penalties (No.-Yds)</span>
                     <span className="text-amber-400 font-bold">{activeGame.awayTeam.stats.penalties}</span>
                   </div>
 
@@ -3542,7 +3542,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#141414] border border-white/20 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl relative"
+              className="bg-[#141414] border border-white/20 rounded-sm max-w-3xl w-full overflow-hidden shadow-2xl relative"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -3567,7 +3567,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   </span>
                   <span className="text-xs font-mono text-white/50">{previewMediaModal.author}</span>
                 </div>
-                <h4 className="font-display font-black uppercase text-lg text-white mb-2">
+                <h4 className="font-display font-bold uppercase text-lg text-white mb-2">
                   {previewMediaModal.title}
                 </h4>
                 <p className="text-white/70 text-sm font-sans mb-4">
@@ -3577,7 +3577,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                 <div className="flex items-center justify-between pt-4 border-t border-white/10">
                   <button
                     onClick={() => handleLikeClip(previewMediaModal.id)}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded bg-white/5 hover:bg-white/10 text-white font-display font-black text-xs uppercase cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded bg-white/5 hover:bg-white/10 text-white font-display font-bold text-xs uppercase cursor-pointer"
                   >
                     <Heart size={15} className={likedClips[previewMediaModal.id] ? 'fill-red-400 text-red-400' : ''} />
                     <span>{previewMediaModal.likes} LIKES</span>
@@ -3588,7 +3588,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                       href={previewMediaModal.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-1.5 px-5 py-2 rounded bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-xs uppercase transition-all"
+                      className="flex items-center gap-1.5 px-5 py-2 rounded bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-bold text-xs uppercase transition-all"
                     >
                       <span>VIEW ON {previewMediaModal.platform.toUpperCase()}</span>
                       <ExternalLink size={14} />
@@ -3616,13 +3616,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#141414] border border-white/20 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative"
+              className="bg-[#141414] border border-white/20 rounded-sm max-w-sm w-full p-6 text-center shadow-2xl relative"
             >
               <div className="w-12 h-12 rounded-full bg-[#00BFFF]/10 border border-[#00BFFF]/30 text-[#00BFFF] flex items-center justify-center mx-auto mb-4">
                 <Lock size={20} />
               </div>
               
-              <h3 className="font-display font-black text-lg uppercase text-white tracking-wide mb-1">
+              <h3 className="font-display font-bold text-lg uppercase text-white tracking-wide mb-1">
                 Sideline Operator Access
               </h3>
               <p className="text-white/50 text-xs font-sans mb-5">
@@ -3664,13 +3664,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                       setEnteredPin('');
                       setPinError(false);
                     }}
-                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 text-white font-display font-black text-xs uppercase rounded cursor-pointer"
+                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 text-white font-display font-bold text-xs uppercase rounded cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 py-2.5 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-xs uppercase rounded cursor-pointer font-black"
+                    className="flex-1 py-2.5 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-bold text-xs uppercase rounded cursor-pointer font-bold"
                   >
                     Sign in with Google
                   </button>
@@ -3697,7 +3697,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#141414] border border-[#00BFFF]/40 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl relative overflow-hidden"
+              className="bg-[#141414] border border-[#00BFFF]/40 rounded-sm max-w-lg w-full p-5 sm:p-6 shadow-2xl relative overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -3707,7 +3707,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     <Edit3 size={16} />
                   </div>
                   <div>
-                    <h3 className="font-display font-black text-base uppercase text-white tracking-wide">
+                    <h3 className="font-display font-bold text-base uppercase text-white tracking-wide">
                       Edit Highlight Details
                     </h3>
                     <p className="text-[11px] font-sans text-white/50">
@@ -3730,7 +3730,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               <form onSubmit={handleSaveClipEdit} className="space-y-4">
                 {/* Media Preview */}
                 {editingClip.mediaUrl && (
-                  <div className="relative aspect-video rounded-xl overflow-hidden bg-black border border-white/10 max-h-40">
+                  <div className="relative aspect-video rounded-sm overflow-hidden bg-black border border-white/10 max-h-40">
                     {editingClip.type === 'video' ? (
                       <video 
                         src={editingClip.mediaUrl} 
@@ -3751,7 +3751,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
                 {/* Title */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-white/60 font-black block mb-1">
+                  <label className="text-[11px] font-mono uppercase text-white/60 font-bold block mb-1">
                     Highlight Title
                   </label>
                   <input
@@ -3760,13 +3760,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     onChange={(e) => setEditingClip({ ...editingClip, title: e.target.value })}
                     required
                     placeholder="e.g. 45-Yard Touchdown Run"
-                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-xl px-3.5 py-2.5 text-sm text-white outline-none"
+                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-sm px-3.5 py-2.5 text-sm text-white outline-none"
                   />
                 </div>
 
                 {/* Caption */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-white/60 font-black block mb-1">
+                  <label className="text-[11px] font-mono uppercase text-white/60 font-bold block mb-1">
                     Caption & Description
                   </label>
                   <textarea
@@ -3774,20 +3774,20 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     onChange={(e) => setEditingClip({ ...editingClip, caption: e.target.value })}
                     rows={3}
                     placeholder="Add details, play context, or player tags..."
-                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none resize-none"
+                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-sm px-3.5 py-2.5 text-xs text-white outline-none resize-none"
                   />
                 </div>
 
                 {/* Team Tag Attribution */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-white/60 font-black block mb-1.5">
+                  <label className="text-[11px] font-mono uppercase text-white/60 font-bold block mb-1.5">
                     Team Attribution
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     <button
                       type="button"
                       onClick={() => setEditingClip({ ...editingClip, team: 'home' })}
-                      className={`py-2 px-2.5 rounded-lg text-xs font-display font-black uppercase transition-all cursor-pointer truncate ${
+                      className={`py-2 px-2.5 rounded-lg text-xs font-display font-bold uppercase transition-all cursor-pointer truncate ${
                         editingClip.team === 'home'
                           ? 'bg-emerald-500 text-black shadow-md'
                           : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10'
@@ -3798,7 +3798,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     <button
                       type="button"
                       onClick={() => setEditingClip({ ...editingClip, team: 'away' })}
-                      className={`py-2 px-2.5 rounded-lg text-xs font-display font-black uppercase transition-all cursor-pointer truncate ${
+                      className={`py-2 px-2.5 rounded-lg text-xs font-display font-bold uppercase transition-all cursor-pointer truncate ${
                         editingClip.team === 'away'
                           ? 'bg-purple-500 text-white shadow-md'
                           : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10'
@@ -3809,7 +3809,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     <button
                       type="button"
                       onClick={() => setEditingClip({ ...editingClip, team: 'neutral' })}
-                      className={`py-2 px-2.5 rounded-lg text-xs font-display font-black uppercase transition-all cursor-pointer truncate ${
+                      className={`py-2 px-2.5 rounded-lg text-xs font-display font-bold uppercase transition-all cursor-pointer truncate ${
                         editingClip.team === 'neutral'
                           ? 'bg-[#00BFFF] text-black shadow-md'
                           : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10'
@@ -3826,7 +3826,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     type="button"
                     onClick={() => !isSavingEdit && setEditingClip(null)}
                     disabled={isSavingEdit}
-                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 text-white font-display font-black text-xs uppercase rounded-xl transition-all cursor-pointer disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 text-white font-display font-bold text-xs uppercase rounded-sm transition-all cursor-pointer disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -3834,7 +3834,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                   <button
                     type="submit"
                     disabled={isSavingEdit}
-                    className="flex-1 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-display font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-display font-bold text-xs uppercase tracking-wider rounded-sm shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
                   >
                     <Save size={15} />
                     <span>{isSavingEdit ? 'Saving to Live Feed...' : 'Save Changes'}</span>

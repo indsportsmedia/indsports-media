@@ -173,12 +173,12 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
   return (
     <div className="pt-28 pb-20 px-6 max-w-7xl mx-auto min-h-screen">
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 bg-gradient-to-b from-white/5 to-transparent p-6 sm:p-8 rounded-2xl border border-white/10">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 bg-gradient-to-b from-white/5 to-transparent p-6 sm:p-8 rounded-sm border border-white/10">
         <div className="text-center md:text-left max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00BFFF]/10 border border-[#00BFFF]/30 rounded-full text-[#00BFFF] text-xs font-bold uppercase tracking-widest mb-3">
             <Camera size={14} /> IND Sports Media Field Photography
           </div>
-          <h1 className="text-3xl sm:text-5xl font-display font-black uppercase text-white tracking-tight mb-3">
+          <h1 className="text-3xl sm:text-5xl font-display font-bold uppercase text-white tracking-tight mb-3">
             Sideline & Game <span className="text-[#00BFFF]">Photos</span>
           </h1>
           <p className="text-white/60 font-sans text-sm sm:text-base leading-relaxed">
@@ -196,7 +196,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
             onClick={() => setSelectedSport(sport)}
             className={`px-4 py-2 rounded-sm font-display text-xs uppercase tracking-widest font-bold transition-all cursor-pointer border ${
               selectedSport === sport
-                ? 'bg-[#00BFFF] text-black border-[#00BFFF] shadow-[0_0_15px_rgba(0,191,255,0.4)]'
+                ? 'bg-[#00BFFF] text-black border-[#00BFFF]'
                 : 'bg-white/5 text-white/70 border-white/10 hover:border-[#00BFFF]/40 hover:text-white'
             }`}
           >
@@ -232,7 +232,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
               
               {/* Badges */}
               <div className="absolute top-3 left-3 flex items-center gap-2">
-                <span className="bg-black/80 backdrop-blur-md px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-wider text-[#00BFFF] border border-[#00BFFF]/30">
+                <span className="bg-black/80 backdrop-blur-md px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider text-[#00BFFF] border border-[#00BFFF]/30">
                   {photo.sport}
                 </span>
               </div>
@@ -261,7 +261,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
 
               {/* Hover View Button */}
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <span className="bg-[#00BFFF] text-black px-4 py-2 rounded font-black font-display text-xs uppercase tracking-widest flex items-center gap-2 shadow-2xl scale-95 group-hover:scale-100 transition-transform">
+                <span className="bg-[#00BFFF] text-black px-4 py-2 rounded font-bold font-display text-xs uppercase tracking-widest flex items-center gap-2 shadow-2xl scale-95 group-hover:scale-100 transition-transform">
                   <Eye size={16} /> View High-Res
                 </span>
               </div>
@@ -286,7 +286,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
       </div>
 
       {filteredPhotos.length === 0 && (
-        <div className="text-center py-20 bg-white/5 border border-white/10 rounded-xl p-8">
+        <div className="text-center py-20 bg-white/5 border border-white/10 rounded-sm p-8">
           <Camera size={48} className="mx-auto text-[#00BFFF] mb-4 opacity-60" />
           <h3 className="text-xl font-bold font-display text-white uppercase mb-2">No Photos Found</h3>
           <p className="text-white/60 text-sm max-w-md mx-auto">
@@ -307,7 +307,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
             {/* Top Bar */}
             <div className="flex items-center justify-between text-white max-w-7xl mx-auto w-full">
               <div className="flex items-center gap-3">
-                <span className="bg-[#00BFFF] text-black px-2.5 py-0.5 rounded font-black text-xs uppercase tracking-wider">
+                <span className="bg-[#00BFFF] text-black px-2.5 py-0.5 rounded font-bold text-xs uppercase tracking-wider">
                   {filteredPhotos[activeLightboxIndex].sport}
                 </span>
                 <span className="text-white/60 text-xs font-mono">
@@ -321,7 +321,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
                     <button
                       type="button"
                       onClick={() => handleOpenEditPhoto(filteredPhotos[activeLightboxIndex])}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-[#00BFFF] hover:text-black text-white rounded text-xs font-display font-black uppercase transition-colors cursor-pointer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-[#00BFFF] hover:text-black text-white rounded text-xs font-display font-bold uppercase transition-colors cursor-pointer"
                     >
                       <Edit3 size={14} />
                       <span>Edit Details</span>
@@ -330,7 +330,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
                     <button
                       type="button"
                       onClick={() => handleDeletePhoto(filteredPhotos[activeLightboxIndex])}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-red-950/60 hover:bg-red-600 text-red-300 hover:text-white rounded text-xs font-display font-black uppercase transition-colors cursor-pointer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-red-950/60 hover:bg-red-600 text-red-300 hover:text-white rounded text-xs font-display font-bold uppercase transition-colors cursor-pointer"
                     >
                       <Trash2 size={14} />
                       <span>Delete</span>
@@ -376,7 +376,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
 
             {/* Bottom Caption */}
             <div className="max-w-4xl mx-auto w-full text-center bg-white/5 border border-white/10 rounded-lg p-4 backdrop-blur-md">
-              <h4 className="text-white font-display font-black text-lg sm:text-xl">
+              <h4 className="text-white font-display font-bold text-lg sm:text-xl">
                 {filteredPhotos[activeLightboxIndex].title}
               </h4>
               <p className="text-[#00BFFF] text-xs font-semibold mt-1">
@@ -408,7 +408,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#141414] border border-[#00BFFF]/40 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl relative overflow-hidden"
+              className="bg-[#141414] border border-[#00BFFF]/40 rounded-sm max-w-lg w-full p-5 sm:p-6 shadow-2xl relative overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between gap-3 pb-3 mb-4 border-b border-white/10">
@@ -417,7 +417,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
                     <Edit3 size={16} />
                   </div>
                   <div>
-                    <h3 className="font-display font-black text-base uppercase text-white tracking-wide">
+                    <h3 className="font-display font-bold text-base uppercase text-white tracking-wide">
                       Edit Photo Details
                     </h3>
                     <p className="text-[11px] font-sans text-white/50">
@@ -438,7 +438,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
 
               <form onSubmit={handleSavePhotoEdit} className="space-y-4">
                 {/* Photo Thumbnail */}
-                <div className="relative aspect-video rounded-xl overflow-hidden bg-black border border-white/10 max-h-36">
+                <div className="relative aspect-video rounded-sm overflow-hidden bg-black border border-white/10 max-h-36">
                   <img
                     src={editingPhoto.src}
                     alt={editingPhoto.title}
@@ -448,7 +448,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
 
                 {/* Title */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-white/60 font-black block mb-1">
+                  <label className="text-[11px] font-mono uppercase text-white/60 font-bold block mb-1">
                     Photo Title
                   </label>
                   <input
@@ -456,33 +456,33 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
                     value={editingPhoto.title}
                     onChange={(e) => setEditingPhoto({ ...editingPhoto, title: e.target.value })}
                     required
-                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-xl px-3.5 py-2.5 text-sm text-white outline-none"
+                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-sm px-3.5 py-2.5 text-sm text-white outline-none"
                   />
                 </div>
 
                 {/* Matchup / Event */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-white/60 font-black block mb-1">
+                  <label className="text-[11px] font-mono uppercase text-white/60 font-bold block mb-1">
                     Matchup / Description
                   </label>
                   <input
                     type="text"
                     value={editingPhoto.match}
                     onChange={(e) => setEditingPhoto({ ...editingPhoto, match: e.target.value })}
-                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
+                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-sm px-3.5 py-2.5 text-xs text-white outline-none"
                   />
                 </div>
 
                 {/* Sport & Photographer Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[11px] font-mono uppercase text-white/60 font-black block mb-1">
+                    <label className="text-[11px] font-mono uppercase text-white/60 font-bold block mb-1">
                       Sport Category
                     </label>
                     <select
                       value={editingPhoto.sport}
                       onChange={(e) => setEditingPhoto({ ...editingPhoto, sport: e.target.value as any })}
-                      className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
+                      className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-sm px-3.5 py-2.5 text-xs text-white outline-none"
                     >
                       {['Football', 'Basketball', 'Volleyball', 'Wrestling', 'Flag Football'].map(s => (
                         <option key={s} value={s}>{s}</option>
@@ -491,21 +491,21 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-mono uppercase text-white/60 font-black block mb-1">
+                    <label className="text-[11px] font-mono uppercase text-white/60 font-bold block mb-1">
                       Photographer
                     </label>
                     <input
                       type="text"
                       value={editingPhoto.photographer}
                       onChange={(e) => setEditingPhoto({ ...editingPhoto, photographer: e.target.value })}
-                      className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
+                      className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-sm px-3.5 py-2.5 text-xs text-white outline-none"
                     />
                   </div>
                 </div>
 
                 {/* Tags */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-white/60 font-black block mb-1">
+                  <label className="text-[11px] font-mono uppercase text-white/60 font-bold block mb-1">
                     Tags (Comma Separated)
                   </label>
                   <input
@@ -513,7 +513,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
                     value={editingPhoto.tags}
                     onChange={(e) => setEditingPhoto({ ...editingPhoto, tags: e.target.value })}
                     placeholder="Varsity, Sideline, Touchdown, Rivalry"
-                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
+                    className="w-full bg-black border border-white/20 focus:border-[#00BFFF] rounded-sm px-3.5 py-2.5 text-xs text-white outline-none"
                   />
                 </div>
 
@@ -523,7 +523,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
                     type="button"
                     onClick={() => !isSavingPhoto && setEditingPhoto(null)}
                     disabled={isSavingPhoto}
-                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 text-white font-display font-black text-xs uppercase rounded-xl transition-all cursor-pointer disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 text-white font-display font-bold text-xs uppercase rounded-sm transition-all cursor-pointer disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -531,7 +531,7 @@ export const PhotosGallery: React.FC<{ initialSport?: string; onBackToHome: () =
                   <button
                     type="submit"
                     disabled={isSavingPhoto}
-                    className="flex-1 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-display font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-display font-bold text-xs uppercase tracking-wider rounded-sm shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
                   >
                     <Save size={15} />
                     <span>{isSavingPhoto ? 'Saving...' : 'Save Changes'}</span>

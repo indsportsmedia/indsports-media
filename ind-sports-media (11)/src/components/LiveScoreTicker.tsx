@@ -46,7 +46,7 @@ export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToSc
         <div className="flex items-center gap-2.5 shrink-0">
           <div 
             onClick={() => onNavigateToScoreboard()} 
-            className="flex items-center gap-1.5 px-3 py-1 bg-red-600/20 border border-red-500/60 rounded-full text-red-400 text-xs font-black font-display uppercase tracking-wider shadow-[0_0_12px_rgba(239,68,68,0.35)] animate-pulse cursor-pointer hover:bg-red-600/30 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1 bg-red-600/20 border border-red-500/60 rounded-full text-red-400 text-xs font-bold font-display uppercase tracking-wider shadow-[0_0_12px_rgba(239,68,68,0.35)] animate-pulse cursor-pointer hover:bg-red-600/30 transition-colors"
           >
             <Radio size={13} className="text-red-500" />
             <span>Sectionals Tonight &amp; Tournaments</span>
@@ -85,7 +85,7 @@ export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToSc
                   isSectional
                     ? 'border-red-500/40 hover:border-red-400 shadow-[0_0_12px_rgba(239,68,68,0.2)]'
                     : isVolleyball
-                    ? 'border-[#00BFFF]/40 hover:border-[#00BFFF] shadow-[0_0_12px_rgba(0,191,255,0.2)]'
+                    ? 'border-[#00BFFF]/40 hover:border-[#00BFFF]'
                     : 'border-white/10 hover:border-white/30'
                 } rounded-md p-2.5 min-w-[220px] sm:min-w-[260px] cursor-pointer transition-all duration-200 group hover:scale-[1.02]`}
               >
@@ -96,7 +96,7 @@ export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToSc
                   </span>
                   <div className="flex items-center gap-1">
                     {isLive && game.clock !== '00:00' && game.quarter !== 'Final' ? (
-                      <span className="text-red-400 font-black flex items-center gap-1">
+                      <span className="text-red-400 font-bold flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                         {game.clock.includes(':') ? `${game.quarter} • ${game.clock}` : game.statusText}
                       </span>
@@ -124,7 +124,7 @@ export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToSc
                         <span className="w-1.5 h-1.5 rounded-full bg-[#00BFFF] animate-ping" title="Possession" />
                       )}
                     </div>
-                    <span className={`font-display font-black text-xs tabular-nums ${(isLive && game.awayTeam.score > game.homeTeam.score) || awayWon ? 'text-[#00BFFF]' : 'text-white/90'}`}>
+                    <span className={`font-display font-bold text-xs tabular-nums ${(isLive && game.awayTeam.score > game.homeTeam.score) || awayWon ? 'text-[#00BFFF]' : 'text-white/90'}`}>
                       {game.awayTeam.score}
                     </span>
                   </div>
@@ -145,7 +145,7 @@ export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToSc
                         <span className="w-1.5 h-1.5 rounded-full bg-[#00BFFF] animate-ping" title="Possession" />
                       )}
                     </div>
-                    <span className={`font-display font-black text-xs tabular-nums ${(isLive && game.homeTeam.score > game.awayTeam.score) || homeWon ? 'text-[#00BFFF]' : 'text-white/90'}`}>
+                    <span className={`font-display font-bold text-xs tabular-nums ${(isLive && game.homeTeam.score > game.awayTeam.score) || homeWon ? 'text-[#00BFFF]' : 'text-white/90'}`}>
                       {game.homeTeam.score}
                     </span>
                   </div>

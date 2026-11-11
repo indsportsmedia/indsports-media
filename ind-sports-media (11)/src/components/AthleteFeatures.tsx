@@ -131,7 +131,7 @@ export const AthleteFeatures: React.FC<{ onBookReel?: () => void }> = ({ onBookR
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00BFFF]/10 border border-[#00BFFF]/30 rounded-full text-[#00BFFF] text-xs font-bold uppercase tracking-widest mb-4">
           <Star size={14} /> IND Sports Media Spotlight
         </div>
-        <h1 className="text-4xl sm:text-5xl font-display font-black uppercase text-white tracking-tight mb-4">
+        <h1 className="text-4xl sm:text-5xl font-display font-bold uppercase text-white tracking-tight mb-4">
           Athlete <span className="text-[#00BFFF]">Features</span>
         </h1>
         <p className="text-white/60 font-sans text-base leading-relaxed">
@@ -140,7 +140,7 @@ export const AthleteFeatures: React.FC<{ onBookReel?: () => void }> = ({ onBookR
       </div>
 
       {/* Featured Spotlight Showcase */}
-      <div className="bg-[#111111] border border-white/10 rounded-xl overflow-hidden shadow-2xl mb-14">
+      <div className="bg-[#111111] border border-white/10 rounded-sm overflow-hidden shadow-2xl mb-14">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
           {/* Athlete Media Column */}
           <div className="lg:col-span-5 relative aspect-square lg:aspect-auto">
@@ -152,10 +152,10 @@ export const AthleteFeatures: React.FC<{ onBookReel?: () => void }> = ({ onBookR
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-black/20 lg:to-[#111111]" />
             <div className="absolute bottom-6 left-6 right-6">
-              <span className="bg-[#00BFFF] text-black font-black text-xs uppercase px-3 py-1 rounded inline-block mb-2">
+              <span className="bg-[#00BFFF] text-black font-bold text-xs uppercase px-3 py-1 rounded inline-block mb-2">
                 {selectedAthlete.sport}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-display font-black text-white uppercase">
+              <h2 className="text-2xl sm:text-3xl font-display font-bold text-white uppercase">
                 {selectedAthlete.name}
               </h2>
               <p className="text-white/70 text-sm font-semibold flex items-center gap-2 mt-1">
@@ -171,28 +171,28 @@ export const AthleteFeatures: React.FC<{ onBookReel?: () => void }> = ({ onBookR
                 <Award size={16} /> {selectedAthlete.status}
               </div>
               
-              <h3 className="text-xl sm:text-2xl font-display font-black text-white mb-4">
+              <h3 className="text-xl sm:text-2xl font-display font-bold text-white mb-4">
                 "{selectedAthlete.featuredStory}"
               </h3>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 {selectedAthlete.stats.map(s => (
                   <div key={s.label} className="bg-black/60 border border-white/10 rounded p-3 text-center">
-                    <div className="text-[#00BFFF] font-display font-black text-xl">{s.value}</div>
+                    <div className="text-[#00BFFF] font-display font-bold text-xl">{s.value}</div>
                     <div className="text-white/40 text-[10px] uppercase font-bold tracking-wider">{s.label}</div>
                   </div>
                 ))}
               </div>
 
               <div className="bg-white/5 border-l-2 border-[#00BFFF] p-4 rounded-r mb-6">
-                <div className="text-xs uppercase font-black text-white/50 mb-1">IND Media Performance Breakdown</div>
+                <div className="text-xs uppercase font-bold text-white/50 mb-1">IND Media Performance Breakdown</div>
                 <p className="text-white/80 text-sm leading-relaxed font-sans">
                   {selectedAthlete.scoutSummary}
                 </p>
               </div>
 
               <div>
-                <div className="text-xs uppercase font-black text-white/40 mb-2">Athletic Honors & Recognition</div>
+                <div className="text-xs uppercase font-bold text-white/40 mb-2">Athletic Honors & Recognition</div>
                 <div className="flex flex-wrap gap-2">
                   {selectedAthlete.offers.map(offer => (
                     <span key={offer} className="bg-white/10 text-white font-bold text-xs px-3 py-1 rounded border border-white/10">
@@ -210,7 +210,7 @@ export const AthleteFeatures: React.FC<{ onBookReel?: () => void }> = ({ onBookR
 
               <button
                 onClick={onBookReel}
-                className="bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-xs uppercase tracking-widest px-6 py-3 rounded-sm transition-all shadow-lg shadow-[#00BFFF]/20 cursor-pointer"
+                className="bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-bold text-xs uppercase tracking-widest px-6 py-3 rounded-sm transition-all shadow-lg/20 cursor-pointer"
               >
                 Request Custom Athlete Reel
               </button>
@@ -220,7 +220,7 @@ export const AthleteFeatures: React.FC<{ onBookReel?: () => void }> = ({ onBookR
       </div>
 
       {/* Roster of Featured Athletes */}
-      <h3 className="text-2xl font-display font-black uppercase text-white mb-6 flex items-center gap-2">
+      <h3 className="text-2xl font-display font-bold uppercase text-white mb-6 flex items-center gap-2">
         <TrendingUp className="text-[#00BFFF]" /> More Athlete Spotlights
       </h3>
 
@@ -231,7 +231,7 @@ export const AthleteFeatures: React.FC<{ onBookReel?: () => void }> = ({ onBookR
             onClick={() => setSelectedAthlete(athlete)}
             className={`p-4 rounded-lg cursor-pointer border transition-all duration-300 ${
               selectedAthlete.id === athlete.id
-                ? 'bg-[#00BFFF]/10 border-[#00BFFF] shadow-[0_0_15px_rgba(0,191,255,0.2)]'
+                ? 'bg-[#00BFFF]/10 border-[#00BFFF]'
                 : 'bg-[#111111] border-white/10 hover:border-white/30'
             }`}
           >
@@ -241,7 +241,7 @@ export const AthleteFeatures: React.FC<{ onBookReel?: () => void }> = ({ onBookR
               referrerPolicy="no-referrer"
               className="w-full aspect-square object-cover rounded mb-3"
             />
-            <div className="text-[10px] font-black uppercase tracking-wider text-[#00BFFF] mb-1">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[#00BFFF] mb-1">
               {athlete.sport} • {athlete.position}
             </div>
             <h4 className="text-white font-display font-bold text-sm line-clamp-1">

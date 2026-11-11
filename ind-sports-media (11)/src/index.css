@@ -2,13 +2,13 @@
 
 /*
   IND Sports Media type + color system
-  - Barlow Condensed: headlines, scores, nav (broadcast feel)
+  - Oswald: headlines, scores, nav (condensed TV-sports feel)
   - Barlow: body copy and UI
   - Colors: true black, IND blue #00BFFF, white. No glows or gradients.
 */
 @theme {
   --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Barlow Condensed", "Barlow", sans-serif;
+  --font-display: "Oswald", "Arial Narrow", sans-serif;
   --color-electric-cyan: #00BFFF;
   --color-electric-cyan-hover: #33CCFF;
   --color-electric-cyan-dark: #0082B3;
@@ -27,8 +27,10 @@
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
-    letter-spacing: -0.005em;
+    letter-spacing: 0;
   }
+  /* Oswald tops out at 700; keep heavy classes from faux-bolding. */
+  .font-display { font-synthesis: none; }
   :focus-visible {
     outline: 2px solid #00BFFF;
     outline-offset: 2px;

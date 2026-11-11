@@ -355,14 +355,14 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
         {/* ========================================================================= */}
         {/* 1. HEADER & TOURNAMENT ALERT BANNER */}
         {/* ========================================================================= */}
-        <div className="bg-[#121212]/95 border border-[#00BFFF]/30 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl mb-8 relative overflow-hidden">
+        <div className="bg-[#121212]/95 border border-[#00BFFF]/30 rounded-sm p-6 sm:p-8 shadow-2xl backdrop-blur-xl mb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-[#00BFFF]/20 via-transparent to-transparent pointer-events-none" />
           
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
               {/* Badge Row */}
               <div className="flex items-center gap-2.5 flex-wrap mb-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-600/20 border border-red-500/50 rounded-full text-red-400 text-xs font-black font-display uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-600/20 border border-red-500/50 rounded-full text-red-400 text-xs font-bold font-display uppercase tracking-widest animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.3)]">
                   <Radio size={13} className="text-red-500" />
                   IHSAA Postseason Tournament Central
                 </span>
@@ -377,7 +377,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
               </div>
 
               {/* Headline */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black font-display uppercase tracking-tight text-white">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-display uppercase tracking-tight text-white">
                 TOURNAMENT <span className="text-[#00BFFF]">KICKOFF HUB</span>
               </h1>
               <p className="text-white/70 font-sans text-sm sm:text-base mt-2 max-w-3xl leading-relaxed">
@@ -390,7 +390,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
               {onNavigateToLiveScoreboard && !isScoreboardEmbedded && (
                 <button
                   onClick={onNavigateToLiveScoreboard}
-                  className="px-5 py-3 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(0,191,255,0.4)] flex items-center gap-2 group cursor-pointer"
+                  className="px-5 py-3 bg-[#00BFFF] hover:bg-[#00A3D9] text-black font-display font-bold text-xs uppercase tracking-widest rounded-sm transition-all flex items-center gap-2 group cursor-pointer"
                 >
                   <Activity size={16} />
                   <span>Launch Live Scoreboard</span>
@@ -400,7 +400,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
 
               <button
                 onClick={handleShareTournament}
-                className="px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 text-white font-display font-bold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+                className="px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 text-white font-display font-bold text-xs uppercase tracking-wider rounded-sm transition-all flex items-center gap-2 cursor-pointer"
               >
                 <Share2 size={15} className="text-[#00BFFF]" />
                 <span>{copiedLink ? 'Link Copied!' : 'Share Hub'}</span>
@@ -440,14 +440,14 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-3 mb-6">
           <button
             onClick={() => setActiveFilter('football')}
-            className={`px-5 py-3 rounded-xl text-xs sm:text-sm font-display font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2.5 whitespace-nowrap ${
+            className={`px-5 py-3 rounded-sm text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2.5 whitespace-nowrap ${
               activeFilter === 'football'
                 ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)] scale-100 ring-2 ring-red-400'
                 : 'bg-[#151515] hover:bg-[#1a1a1a] text-white/70 hover:text-white border border-white/10'
             }`}
           >
             <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            <span>🏈 Tonight&apos;s Football Sectionals (7:00 PM)</span>
+            <span>Tonight&apos;s Football Sectionals (7:00 PM)</span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/40 font-bold">
               3 Games
             </span>
@@ -455,14 +455,14 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
 
           <button
             onClick={() => setActiveFilter('volleyball')}
-            className={`px-5 py-3 rounded-xl text-xs sm:text-sm font-display font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2.5 whitespace-nowrap ${
+            className={`px-5 py-3 rounded-sm text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2.5 whitespace-nowrap ${
               activeFilter === 'volleyball'
-                ? 'bg-[#00BFFF] text-black shadow-[0_0_20px_rgba(0,191,255,0.4)] scale-100 ring-2 ring-[#00BFFF]'
+                ? 'bg-[#00BFFF] text-black scale-100 ring-2 ring-[#00BFFF]'
                 : 'bg-[#151515] hover:bg-[#1a1a1a] text-white/70 hover:text-white border border-white/10'
             }`}
           >
             <Trophy size={14} />
-            <span>🏐 Saturday Volleyball Tournaments</span>
+            <span>Saturday Volleyball Tournaments</span>
             <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${activeFilter === 'volleyball' ? 'bg-black/30 text-black' : 'bg-white/10 text-white/70'}`}>
               2 Sites • 6 Matches
             </span>
@@ -470,14 +470,14 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
 
           <button
             onClick={() => setActiveFilter('bracket')}
-            className={`px-5 py-3 rounded-xl text-xs sm:text-sm font-display font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2.5 whitespace-nowrap ${
+            className={`px-5 py-3 rounded-sm text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2.5 whitespace-nowrap ${
               activeFilter === 'bracket'
                 ? 'bg-amber-400 text-black shadow-[0_0_20px_rgba(251,191,36,0.4)] scale-100 ring-2 ring-amber-300'
                 : 'bg-[#151515] hover:bg-[#1a1a1a] text-white/70 hover:text-white border border-white/10'
             }`}
           >
             <Sparkles size={14} />
-            <span>📊 Interactive Tournament Bracket View</span>
+            <span>Interactive Tournament Bracket View</span>
           </button>
         </div>
 
@@ -494,7 +494,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-red-500 animate-ping" />
-                <h2 className="text-xl sm:text-2xl font-black font-display uppercase tracking-tight text-white">
+                <h2 className="text-xl sm:text-2xl font-bold font-display uppercase tracking-tight text-white">
                   Sectionals Round 1 • Friday Night Primetime
                 </h2>
               </div>
@@ -507,7 +507,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
               {TOURNAMENT_FOOTBALL_MATCHUPS.map((matchup) => (
                 <div
                   key={matchup.id}
-                  className="bg-[#141414] border border-white/10 hover:border-[#00BFFF]/60 rounded-2xl p-5 sm:p-6 shadow-2xl relative flex flex-col justify-between transition-all duration-300 group hover:-translate-y-1"
+                  className="bg-[#141414] border border-white/10 hover:border-[#00BFFF]/60 rounded-sm p-5 sm:p-6 shadow-2xl relative flex flex-col justify-between transition-all duration-300 group hover:-translate-y-1"
                 >
                   {/* Card Header */}
                   <div>
@@ -528,20 +528,20 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                     </div>
 
                     {/* Matchup Board */}
-                    <div className="space-y-3 bg-black/50 p-4 rounded-xl border border-white/5">
+                    <div className="space-y-3 bg-black/50 p-4 rounded-sm border border-white/5">
                       
                       {/* Away Team */}
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <div 
-                            className="w-9 h-9 rounded-lg flex items-center justify-center font-display font-black text-sm uppercase shadow-md shrink-0"
+                            className="w-9 h-9 rounded-lg flex items-center justify-center font-display font-bold text-sm uppercase shadow-md shrink-0"
                             style={{ backgroundColor: matchup.awayTeam.color, color: matchup.awayTeam.textColor }}
                           >
                             {matchup.awayTeam.shortName.charAt(0)}
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-display font-black text-base text-white">
+                              <span className="font-display font-bold text-base text-white">
                                 {matchup.awayTeam.name}
                               </span>
                               <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/10 text-white/60">
@@ -558,7 +558,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                       {/* VS Divider */}
                       <div className="flex items-center justify-center my-1 relative">
                         <div className="h-px w-full bg-white/10" />
-                        <span className="absolute bg-[#1a1a1a] px-3 text-[10px] font-mono text-white/40 uppercase font-black">
+                        <span className="absolute bg-[#1a1a1a] px-3 text-[10px] font-mono text-white/40 uppercase font-bold">
                           AT
                         </span>
                       </div>
@@ -567,14 +567,14 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <div 
-                            className="w-9 h-9 rounded-lg flex items-center justify-center font-display font-black text-sm uppercase shadow-md shrink-0"
+                            className="w-9 h-9 rounded-lg flex items-center justify-center font-display font-bold text-sm uppercase shadow-md shrink-0"
                             style={{ backgroundColor: matchup.homeTeam.color, color: matchup.homeTeam.textColor }}
                           >
                             {matchup.homeTeam.shortName.charAt(0)}
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-display font-black text-base text-white">
+                              <span className="font-display font-bold text-base text-white">
                                 {matchup.homeTeam.name}
                               </span>
                               <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#00BFFF]/20 text-[#00BFFF] font-bold">
@@ -591,7 +591,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                     </div>
 
                     {/* Matchup Note */}
-                    <p className="text-white/60 text-xs font-sans mt-3.5 leading-relaxed italic">
+                    <p className="text-white/60 text-xs font-sans mt-3.5 leading-relaxed ">
                       &quot;{matchup.highlightNote}&quot;
                     </p>
                   </div>
@@ -610,7 +610,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                           onNavigateToLiveScoreboard();
                         }
                       }}
-                      className="px-4 py-2 bg-[#00BFFF]/10 hover:bg-[#00BFFF] border border-[#00BFFF]/40 hover:border-[#00BFFF] text-[#00BFFF] hover:text-black font-display font-black text-xs uppercase tracking-wider rounded-lg transition-all flex items-center gap-1.5 cursor-pointer"
+                      className="px-4 py-2 bg-[#00BFFF]/10 hover:bg-[#00BFFF] border border-[#00BFFF]/40 hover:border-[#00BFFF] text-[#00BFFF] hover:text-black font-display font-bold text-xs uppercase tracking-wider rounded-lg transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>Track Live</span>
                       <ArrowRight size={13} />
@@ -633,7 +633,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
             className="space-y-6"
           >
             {/* Site Switcher */}
-            <div className="flex items-center justify-between flex-wrap gap-3 bg-[#141414] p-3 rounded-2xl border border-white/10">
+            <div className="flex items-center justify-between flex-wrap gap-3 bg-[#141414] p-3 rounded-sm border border-white/10">
               <span className="text-xs font-mono text-white/60 font-bold uppercase pl-2 flex items-center gap-1.5">
                 <MapPin size={14} className="text-[#00BFFF]" />
                 Select Tournament Location:
@@ -645,9 +645,9 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                     <button
                       key={site.id}
                       onClick={() => setSelectedVbSite(site.id)}
-                      className={`px-4 py-2 rounded-xl text-xs font-display font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
+                      className={`px-4 py-2 rounded-sm text-xs font-display font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
                         isSelected
-                          ? 'bg-[#00BFFF] text-black shadow-lg shadow-[#00BFFF]/20'
+                          ? 'bg-[#00BFFF] text-black shadow-lg/20'
                           : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white'
                       }`}
                     >
@@ -660,7 +660,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
             </div>
 
             {/* Site Details Card */}
-            <div className="bg-[#121212] border border-[#00BFFF]/30 rounded-2xl p-5 sm:p-6 shadow-xl">
+            <div className="bg-[#121212] border border-[#00BFFF]/30 rounded-sm p-5 sm:p-6 shadow-xl">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4 mb-6">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
@@ -671,7 +671,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                       Tomorrow • Oct 31
                     </span>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-display font-black uppercase text-white tracking-tight">
+                  <h3 className="text-2xl sm:text-3xl font-display font-bold uppercase text-white tracking-tight">
                     {activeSiteData.siteName}
                   </h3>
                   <p className="text-white/60 font-sans text-xs sm:text-sm mt-1 flex items-center gap-1.5">
@@ -692,7 +692,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                 {activeSiteData.matches.map((match, idx) => (
                   <div
                     key={match.id}
-                    className={`rounded-2xl p-5 border flex flex-col justify-between relative transition-all duration-300 ${
+                    className={`rounded-sm p-5 border flex flex-col justify-between relative transition-all duration-300 ${
                       match.isChampionship
                         ? 'bg-gradient-to-b from-amber-950/30 via-[#181818] to-black border-amber-500/50 shadow-[0_0_25px_rgba(245,158,11,0.2)] md:col-span-1'
                         : 'bg-[#161616] border-white/10 hover:border-white/20'
@@ -701,7 +701,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                     {/* Top Match Tag */}
                     <div>
                       <div className="flex items-center justify-between text-xs font-mono mb-4 border-b border-white/10 pb-2.5">
-                        <span className={`px-2.5 py-0.5 rounded font-black uppercase tracking-wider flex items-center gap-1 ${
+                        <span className={`px-2.5 py-0.5 rounded font-bold uppercase tracking-wider flex items-center gap-1 ${
                           match.isChampionship 
                             ? 'bg-amber-400 text-black font-extrabold' 
                             : 'bg-[#00BFFF]/20 text-[#00BFFF]'
@@ -720,18 +720,18 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                       </div>
 
                       {/* Teams */}
-                      <div className="space-y-3 bg-black/40 p-3.5 rounded-xl border border-white/5">
+                      <div className="space-y-3 bg-black/40 p-3.5 rounded-sm border border-white/5">
                         {/* Team 1 */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2.5">
                             <div 
-                              className="w-7 h-7 rounded-md flex items-center justify-center font-display font-black text-xs uppercase"
+                              className="w-7 h-7 rounded-md flex items-center justify-center font-display font-bold text-xs uppercase"
                               style={{ backgroundColor: match.team1.color, color: match.team1.textColor }}
                             >
                               {match.team1.shortName.charAt(0)}
                             </div>
                             <div>
-                              <span className="font-display font-black text-sm text-white block">
+                              <span className="font-display font-bold text-sm text-white block">
                                 {match.team1.name}
                               </span>
                               {match.team1.record && (
@@ -752,13 +752,13 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2.5">
                             <div 
-                              className="w-7 h-7 rounded-md flex items-center justify-center font-display font-black text-xs uppercase"
+                              className="w-7 h-7 rounded-md flex items-center justify-center font-display font-bold text-xs uppercase"
                               style={{ backgroundColor: match.team2.color, color: match.team2.textColor }}
                             >
                               {match.team2.shortName.charAt(0)}
                             </div>
                             <div>
-                              <span className="font-display font-black text-sm text-white block">
+                              <span className="font-display font-bold text-sm text-white block">
                                 {match.team2.name}
                               </span>
                               {match.team2.record && (
@@ -782,7 +782,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                         Best of 5 Sets
                       </span>
                       <span className={`font-bold ${match.isChampionship ? 'text-amber-400' : 'text-[#00BFFF]'}`}>
-                        {match.isChampionship ? '🏆 Trophy Match' : 'Semifinal'}
+                        {match.isChampionship ? 'Trophy Match' : 'Semifinal'}
                       </span>
                     </div>
                   </div>
@@ -806,13 +806,13 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               
               {/* Bracket 1: Huntington North Site */}
-              <div className="bg-[#131313] border border-white/15 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+              <div className="bg-[#131313] border border-white/15 rounded-sm p-6 shadow-2xl relative overflow-hidden">
                 <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
                   <div>
                     <span className="text-[10px] font-mono text-[#00BFFF] uppercase font-bold tracking-wider">
                       Tournament Bracket A
                     </span>
-                    <h3 className="text-xl font-display font-black text-white uppercase">
+                    <h3 className="text-xl font-display font-bold text-white uppercase">
                       Huntington North Site
                     </h3>
                   </div>
@@ -831,7 +831,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                     </span>
 
                     {/* M1 */}
-                    <div className="bg-black/60 p-3.5 rounded-xl border border-white/10 relative">
+                    <div className="bg-black/60 p-3.5 rounded-sm border border-white/10 relative">
                       <div className="flex items-center justify-between text-[10px] font-mono text-white/40 mb-2">
                         <span className="text-[#00BFFF] font-bold">MATCH 1 • 10:00 AM</span>
                         <span>Court 1</span>
@@ -849,7 +849,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                     </div>
 
                     {/* M2 */}
-                    <div className="bg-black/60 p-3.5 rounded-xl border border-white/10 relative">
+                    <div className="bg-black/60 p-3.5 rounded-sm border border-white/10 relative">
                       <div className="flex items-center justify-between text-[10px] font-mono text-white/40 mb-2">
                         <span className="text-[#00BFFF] font-bold">MATCH 2 • 12:00 PM</span>
                         <span>Court 1</span>
@@ -874,14 +874,14 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                   </div>
 
                   {/* Championship */}
-                  <div className="bg-gradient-to-r from-amber-950/40 via-[#1a1a1a] to-amber-950/40 p-4 rounded-xl border border-amber-500/40 shadow-xl">
+                  <div className="bg-gradient-to-r from-amber-950/40 via-[#1a1a1a] to-amber-950/40 p-4 rounded-sm border border-amber-500/40 shadow-xl">
                     <div className="flex items-center justify-between text-[11px] font-mono mb-2">
-                      <span className="px-2 py-0.5 rounded bg-amber-400 text-black font-black uppercase flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded bg-amber-400 text-black font-bold uppercase flex items-center gap-1">
                         <Trophy size={11} /> CHAMPIONSHIP • 7:00 PM
                       </span>
                       <span className="text-amber-400 font-bold">Huntington North Trophy</span>
                     </div>
-                    <div className="space-y-2 text-sm font-display font-black pt-1">
+                    <div className="space-y-2 text-sm font-display font-bold pt-1">
                       <div className="flex items-center justify-between text-white">
                         <span className="flex items-center gap-1.5">
                           <CheckCircle2 size={13} className="text-[#00BFFF]" />
@@ -902,13 +902,13 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
               </div>
 
               {/* Bracket 2: Jennings County Site */}
-              <div className="bg-[#131313] border border-white/15 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+              <div className="bg-[#131313] border border-white/15 rounded-sm p-6 shadow-2xl relative overflow-hidden">
                 <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
                   <div>
                     <span className="text-[10px] font-mono text-amber-400 uppercase font-bold tracking-wider">
                       Tournament Bracket B
                     </span>
-                    <h3 className="text-xl font-display font-black text-white uppercase">
+                    <h3 className="text-xl font-display font-bold text-white uppercase">
                       Jennings County Site
                     </h3>
                   </div>
@@ -927,7 +927,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                     </span>
 
                     {/* M1 */}
-                    <div className="bg-black/60 p-3.5 rounded-xl border border-white/10 relative">
+                    <div className="bg-black/60 p-3.5 rounded-sm border border-white/10 relative">
                       <div className="flex items-center justify-between text-[10px] font-mono text-white/40 mb-2">
                         <span className="text-amber-400 font-bold">MATCH 1 • 10:30 AM</span>
                         <span>Main Gym</span>
@@ -945,7 +945,7 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                     </div>
 
                     {/* M2 */}
-                    <div className="bg-black/60 p-3.5 rounded-xl border border-white/10 relative">
+                    <div className="bg-black/60 p-3.5 rounded-sm border border-white/10 relative">
                       <div className="flex items-center justify-between text-[10px] font-mono text-white/40 mb-2">
                         <span className="text-amber-400 font-bold">MATCH 2 • 12:30 PM</span>
                         <span>Main Gym</span>
@@ -970,14 +970,14 @@ export const TournamentCentral: React.FC<TournamentCentralProps> = ({
                   </div>
 
                   {/* Championship */}
-                  <div className="bg-gradient-to-r from-amber-950/40 via-[#1a1a1a] to-amber-950/40 p-4 rounded-xl border border-amber-500/40 shadow-xl">
+                  <div className="bg-gradient-to-r from-amber-950/40 via-[#1a1a1a] to-amber-950/40 p-4 rounded-sm border border-amber-500/40 shadow-xl">
                     <div className="flex items-center justify-between text-[11px] font-mono mb-2">
-                      <span className="px-2 py-0.5 rounded bg-amber-400 text-black font-black uppercase flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded bg-amber-400 text-black font-bold uppercase flex items-center gap-1">
                         <Trophy size={11} /> CHAMPIONSHIP • 6:30 PM
                       </span>
                       <span className="text-amber-400 font-bold">Jennings County Trophy</span>
                     </div>
-                    <div className="space-y-2 text-sm font-display font-black pt-1">
+                    <div className="space-y-2 text-sm font-display font-bold pt-1">
                       <div className="flex items-center justify-between text-white">
                         <span className="flex items-center gap-1.5">
                           <CheckCircle2 size={13} className="text-amber-400" />
