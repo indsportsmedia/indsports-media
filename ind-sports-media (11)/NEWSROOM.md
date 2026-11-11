@@ -40,6 +40,14 @@ Open **/score** on your phone (or tap **Scorekeeper** in the Newsroom). Sign in 
   end of each quarter, halftime, final; volleyball = first serve, each set result, final.
   **Undo** also deletes the auto-post. The story page shows a live score box at the top.
   Photos and notes still go in through the Newsroom **Live** tab as usual.
+- **Managing games** (in /score):
+  - **New game:** set a real **Start time**. The site shows "Tonight 7:00 PM", "Tomorrow", etc. automatically.
+  - **Edit teams, time and venue:** open the game, tap the edit row at the top.
+  - **Archive / Delete:** buttons under every game in the list. Archived games leave the homepage,
+    ticker and scoreboard but can be brought back with "Show archived".
+  - **Archive N finished:** clears all Final games at once (e.g. Monday morning).
+  - **Out of date:** a game whose start time passed 6+ hours ago and never went live is hidden from
+    fans automatically and flagged here; "Archive N out of date" clears them.
 - **End game** marks it Final. Archive or delete old and sample games from the game's screen.
 
 ## School logos

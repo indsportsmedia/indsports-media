@@ -100,4 +100,6 @@ export interface GameState {
   /** Live story this game auto-posts to */
   articleSlug?: string;
   autoPost?: boolean;
+  /** Start time (ISO). Used to sort games and hide out-of-date ones. */
+  startsAt?: string;
 }
