@@ -57,6 +57,7 @@ import {
 import { useStaff, signInStaff, signOutStaff } from '../lib/staff';
 import TeamLogo from './TeamLogo';
 import { displayClock } from '../lib/scorekeeper';
+import { subscribeToUpdates, formatTime, type LiveUpdate } from '../lib/articles';
 import type { PlayEvent, SocialClip, GameState } from '../types';
 
 export type { PlayEvent, SocialClip, GameState };
@@ -1055,6 +1056,11 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
   const [isPostingStory, setIsPostingStory] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [clipFilter, setClipFilter] = useState<'all' | 'home' | 'away'>('all');
+  const [storyUpdates, setStoryUpdates] = useState<LiveUpdate[]>([]);
+  useEffect(() => {
+    if (!activeGame?.articleSlug) { setStoryUpdates([]); return; }
+    return subscribeToUpdates(activeGame.articleSlug, setStoryUpdates);
+  }, [activeGame?.articleSlug]);
   const [previewMediaModal, setPreviewMediaModal] = useState<SocialClip | null>(null);
   const [likedClips, setLikedClips] = useState<Record<string, boolean>>({});
 
@@ -1552,7 +1558,30 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
   };
 
   // Filtered clips
-  const currentClips = activeGame.socialClips || [];
+  // Photos and videos posted to this game's live story (Newsroom → Live) show
+  // here automatically, newest first, ahead of any older uploaded clips.
+  const storyClips: SocialClip[] = storyUpdates
+    .filter((u) => u.mediaUrl)
+    .map((u) => {
+      const t = (u.text || '').toLowerCase();
+      const homeHit = t.includes((activeGame.homeTeam.shortName || '').toLowerCase());
+      const awayHit = t.includes((activeGame.awayTeam.shortName || '').toLowerCase());
+      return {
+        id: `story-${u.id}`,
+        platform: 'upload' as const,
+        type: u.mediaType === 'video' ? ('video' as const) : ('photo' as const),
+        title: u.text ? u.text.split('\n')[0].slice(0, 90) : activeGame.title,
+        author: u.authorName,
+        mediaUrl: u.mediaUrl,
+        thumbnailUrl: u.mediaType === 'video' ? undefined : u.mediaUrl,
+        caption: u.text || '',
+        time: formatTime(u.createdAt),
+        team: homeHit && !awayHit ? ('home' as const) : awayHit && !homeHit ? ('away' as const) : ('neutral' as const),
+        likes: 0,
+        createdAt: u.createdAt?.toDate?.().toISOString?.() || new Date().toISOString(),
+      };
+    });
+  const currentClips = [...storyClips, ...(activeGame.socialClips || [])];
   const filteredClips = currentClips.filter(c => {
     if (clipFilter === 'home') return c.team === 'home';
     if (clipFilter === 'away') return c.team === 'away';
@@ -1814,11 +1843,22 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                         >
                           {/* Media Preview Area */}
                           <div className="relative aspect-video bg-black overflow-hidden cursor-pointer" onClick={() => setPreviewMediaModal(clip)}>
-                            <img 
-                              src={clip.mediaUrl || 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80'} 
-                              alt={clip.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                            />
+                            {clip.type === 'video' && clip.mediaUrl && !clip.thumbnailUrl ? (
+                              <video
+                                src={`${clip.mediaUrl}#t=0.5`}
+                                muted
+                                playsInline
+                                preload="metadata"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <img
+                                src={clip.thumbnailUrl || clip.mediaUrl || '/logo.png'}
+                                alt={clip.title}
+                                loading="lazy"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                            )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
                             {/* Play Button Overlay for Videos */}
@@ -1848,7 +1888,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                                 {clip.platform === 'instagram' && 'IG Reel'}
                                 {clip.platform === 'tiktok' && 'TikTok'}
                                 {clip.platform === 'youtube' && '▶YT Short'}
-                                {clip.platform === 'upload' && '4K Sideline'}
+                                {clip.platform === 'upload' && 'Sideline'}
                               </span>
                             </div>
                           </div>
@@ -2628,11 +2668,21 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               </button>
 
               <div className="aspect-video bg-black relative flex items-center justify-center">
-                <img 
-                  src={previewMediaModal.mediaUrl || 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80'} 
-                  alt={previewMediaModal.title}
-                  className="max-h-full max-w-full object-contain"
-                />
+                {previewMediaModal.type === 'video' && previewMediaModal.mediaUrl ? (
+                  <video
+                    src={previewMediaModal.mediaUrl}
+                    controls
+                    autoPlay
+                    playsInline
+                    className="max-h-full max-w-full object-contain"
+                  />
+                ) : (
+                  <img
+                    src={previewMediaModal.mediaUrl || '/logo.png'}
+                    alt={previewMediaModal.title}
+                    className="max-h-full max-w-full object-contain"
+                  />
+                )}
               </div>
 
               <div className="p-6">
