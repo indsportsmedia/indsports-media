@@ -56,6 +56,7 @@ import {
 } from '../lib/firebase';
 import { useStaff, signInStaff, signOutStaff } from '../lib/staff';
 import TeamLogo from './TeamLogo';
+import { displayClock } from '../lib/scorekeeper';
 import type { PlayEvent, SocialClip, GameState } from '../types';
 
 export type { PlayEvent, SocialClip, GameState };
@@ -999,9 +1000,7 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const savedIds = new Set(parsed.map((g: GameState) => g.id));
-          const missing = DEFAULT_GAMES_LIST.filter(g => !savedIds.has(g.id));
-          return [...parsed, ...missing];
+          return parsed;
         }
       }
     } catch {
@@ -1022,6 +1021,14 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
 
   // Currently active game
   const activeGame = games.find(g => g.id === selectedGameId) || games[0] || DEFAULT_GAMES_LIST[0];
+
+  // Basketball clock counts down on each viewer's screen (set by /score).
+  const [, setClockTick] = useState(0);
+  useEffect(() => {
+    if (!activeGame?.clockRunning) return;
+    const t = setInterval(() => setClockTick((n) => n + 1), 250);
+    return () => clearInterval(t);
+  }, [activeGame?.clockRunning, activeGame?.id]);
 
   // Hidden staff access
   // Staff access: Google sign-in + staff allowlist (see src/lib/staff.ts).
@@ -1109,8 +1116,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               };
             });
             const existingIds = new Set(firestoreGames.map((f: GameState) => f.id));
-            const missing = DEFAULT_GAMES_LIST.filter(d => !existingIds.has(d.id));
-            const combined = [...updated, ...missing];
+            // Deleted games stay deleted (sample games are no longer re-added).
+            void existingIds;
+            const combined = [...updated];
             localStorage.setItem('ind_live_scoreboard_games_v4', JSON.stringify(combined));
             return combined;
           });
@@ -1152,8 +1160,9 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
               };
             });
             const existingIds = new Set(data.games.map((s: GameState) => s.id));
-            const missing = DEFAULT_GAMES_LIST.filter(d => !existingIds.has(d.id));
-            const combined = [...updated, ...missing];
+            // Deleted games stay deleted (sample games are no longer re-added).
+            void existingIds;
+            const combined = [...updated];
             localStorage.setItem('ind_live_scoreboard_games_v4', JSON.stringify(combined));
             return combined;
           });
@@ -1579,6 +1588,12 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
             {/* Sideline Operator Access: visible only to signed-in IND staff */}
             {isAuthorized ? (
               <div className="flex items-center gap-2">
+                <a
+                  href={`/score?game=${encodeURIComponent(activeGame.id)}`}
+                  className="px-4 py-1.5 rounded-md text-xs font-display font-semibold uppercase tracking-wide bg-white text-black"
+                >
+                  Scorekeeper
+                </a>
                 <button
                   onClick={() => setIsAdminOpen(!isAdminOpen)}
                   className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-xs font-display font-bold uppercase tracking-wider transition-all cursor-pointer shadow-lg ${
@@ -2518,7 +2533,13 @@ export default function LiveScoreboard({ onBack, initialGameId }: LiveScoreboard
                     LIVE
                   </span>
                   <p className={`${big ? 'mt-2 text-lg' : 'text-[15px]'} font-display font-semibold uppercase text-white`}>{activeGame.quarter}</p>
-                  <p className={`${big ? 'text-2xl' : 'text-[15px]'} font-display text-ind tabular`}>{activeGame.clock}</p>
+                  {/volley/i.test(activeGame.sport) ? (
+                    <p className={`${big ? 'text-base' : 'text-[14px]'} text-white/75 tabular`}>
+                      Sets {activeGame.awaySetsWon || 0}-{activeGame.homeSetsWon || 0}
+                    </p>
+                  ) : /basket/i.test(activeGame.sport) || /:/.test(activeGame.clock || '') ? (
+                    <p className={`${big ? 'text-2xl' : 'text-[15px]'} font-display text-ind tabular`}>{displayClock(activeGame)}</p>
+                  ) : null}
                 </div>
               ) : (
                 <p className={`font-display font-semibold uppercase text-white ${big ? 'text-xl text-center' : 'text-[15px]'}`}>

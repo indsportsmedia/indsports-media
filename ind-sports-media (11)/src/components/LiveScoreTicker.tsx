@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TeamLogo from './TeamLogo';
+import { displayClock } from '../lib/scorekeeper';
 import type { GameState } from '../types';
 import { subscribeToGames } from '../lib/firebase';
 import { DEFAULT_GAMES_LIST } from './LiveScoreboard';
@@ -33,6 +34,14 @@ export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToSc
     return () => unsubscribe();
   }, []);
 
+  const [, setTick] = useState(0);
+  const anyClock = games.some((g) => g.clockRunning);
+  useEffect(() => {
+    if (!anyClock) return;
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, [anyClock]);
+
   const active = (games.length > 0 ? games : DEFAULT_GAMES_LIST).filter((g) => !g.isArchived);
   const list = (active.length > 0 ? active : DEFAULT_GAMES_LIST)
     .slice()
@@ -41,7 +50,10 @@ export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToSc
   const status = (g: GameState) => {
     const final = !g.isLive && /final/i.test(`${g.statusText} ${g.quarter}`);
     if (final) return { text: 'Final', live: false };
-    if (g.isLive && g.clock && g.clock.includes(':') && !/pre/i.test(g.quarter)) return { text: `${g.quarter} ${g.clock}`, live: true };
+    if (g.isLive && /volley/i.test(g.sport)) return { text: `${g.quarter}  Sets ${g.awaySetsWon || 0}-${g.homeSetsWon || 0}`, live: true };
+    const clk = displayClock(g);
+    if (g.isLive && clk && !/pre|half/i.test(g.quarter)) return { text: `${g.quarter} ${clk}`, live: true };
+    if (g.isLive) return { text: g.quarter || 'Live', live: true };
     return { text: g.statusText || g.quarter || 'Upcoming', live: g.isLive };
   };
 

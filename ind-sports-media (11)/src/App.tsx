@@ -104,6 +104,13 @@ export default function App() {
   const sportsDropdownRef = useRef<HTMLDivElement>(null);
   const aboutDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Deep link to a game: indsports.media/?scores={gameId}
+  useEffect(() => {
+    const g = new URLSearchParams(window.location.search).get('scores');
+    if (g) navigateToLiveScoreboard(g);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     document.title = currentView === 'partners' ? 'Partner with IND Sports Media' : 'IND Sports Media';
   }, [currentView]);

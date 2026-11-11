@@ -483,29 +483,10 @@ export async function deletePhotoFromFirestore(photoId: string, storageUrl?: str
 /**
  * Seed initial default games or ensure Week 2 matchups exist and past games are archived.
  */
-export async function seedInitialGamesIfEmpty(initialGames: GameState[]): Promise<void> {
-  try {
-    const gamesCol = collection(db, 'games');
-    const snap = await getDocs(gamesCol);
-    if (snap.empty) {
-      for (const g of initialGames) {
-        await syncGameToFirestore(g);
-      }
-    } else {
-      // Ensure the three Week 2 games exist and Lawrence North vs Brownsburg is archived
-      const existingIds = new Set(snap.docs.map(d => d.id));
-      for (const g of initialGames) {
-        if (!existingIds.has(g.id)) {
-          await syncGameToFirestore(g);
-        } else if (g.id === 'lawrence-north-vs-brownsburg-2026' || g.id === 'southside-fw-vs-marion-giants-2026') {
-          // Keep archived status in sync
-          await syncGameToFirestore(g);
-        }
-      }
-    }
-  } catch (err) {
-    console.warn('Could not auto-seed games in Firestore:', err);
-  }
+export async function seedInitialGamesIfEmpty(_initialGames: GameState[]): Promise<void> {
+  // Turned off: this used to re-create the AI-generated sample games every time
+  // staff opened the scoreboard, so deleted games kept coming back.
+  // Create real games from /score instead.
 }
 
 /**

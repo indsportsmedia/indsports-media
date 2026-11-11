@@ -16,6 +16,26 @@
 Sharing: on a phone, the blue **Share** button opens your phone's share sheet
 (Instagram, TikTok, Messages, etc.). **IG caption** copies a ready-to-paste caption with the link.
 
+## Keeping score (indsports.media/score)
+
+Open **/score** on your phone (or tap **Scorekeeper** in the Newsroom). Sign in with Google.
+
+- **New game:** pick Football, Basketball or Volleyball, choose both schools from your Schools list
+  (logos fill in), add venue and time. Tap **Start game (go live)** at kickoff.
+- **Football:** TD / PAT / 2-PT / FG / Safety buttons for each team, quarter, ball, down and distance,
+  ball on, red zone. No game clock to babysit; fans see the quarter.
+- **Basketball:** +1 / +2 / +3, team fouls, and a clock you only Start and Stop. Every fan's screen
+  counts down on its own. Changing quarters resets to 8:00 (OT 4:00).
+- **Volleyball:** tap the big number to add a point. When a set is won (25, win by 2; set 5 to 15)
+  an **End set** button appears. The match goes Final automatically at 3 sets.
+- **Undo** reverses your last tap, as many times as you need.
+- **No signal?** Keep tapping. The top bar says "No signal, saving on phone" and everything sends
+  when signal returns. Keep the page open until it says **Saved**.
+- **Two phones:** one person can keep score on /score while another posts photos in the Newsroom
+  or the scoreboard's Sideline Console. Score taps only change the score, so they can't erase
+  each other. (Avoid changing the score in the old Sideline Console during a game.)
+- **End game** marks it Final. Archive or delete old and sample games from the game's screen.
+
 ## School logos
 
 Newsroom → **Schools** → type the school name exactly as it appears on the scoreboard

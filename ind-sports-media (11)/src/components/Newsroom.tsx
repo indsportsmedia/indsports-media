@@ -583,6 +583,7 @@ export default function Newsroom() {
             <span className="font-display font-bold uppercase text-white text-sm tracking-wider">Newsroom</span>
           </a>
           <div className="flex items-center gap-3">
+            <a href="/score" className="text-[#00BFFF] text-xs font-bold uppercase tracking-wide border border-[#00BFFF]/50 rounded px-2.5 py-1.5">Scorekeeper</a>
             <span className="text-white/40 text-xs hidden sm:block">{staff.name}</span>
             <button onClick={() => signOutStaff()} className="text-white/40 hover:text-white p-1 cursor-pointer" title="Sign out">
               <LogOut size={16} />
