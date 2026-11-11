@@ -175,8 +175,13 @@ export default function App() {
     setIsMenuOpen(false);
     setIsSportsDropdownOpen(false);
     setIsAboutDropdownOpen(false);
+    if (currentView === 'partners') {
+      // Already here: jump to the inquiry form so the tap visibly does something.
+      document.getElementById('partner-form')?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
     setCurrentView('partners');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
   const navigateToAthleteFeatures = () => {
