@@ -4,7 +4,6 @@ import { IndLogo } from './components/IndLogo';
 import LiveScoreboard from './components/LiveScoreboard';
 import RecruitmentReels from './components/RecruitmentReels';
 import ServiceDetailPage from './components/ServiceDetailPage';
-import CreatorApplicationModal from './components/CreatorApplicationModal';
 import PhotosGallery from './components/PhotosGallery';
 import AthleteFeatures from './components/AthleteFeatures';
 import ArticlesSection from './components/ArticlesSection';
@@ -298,7 +297,6 @@ export default function App() {
                 <div className="absolute left-0 top-full w-56 bg-black border border-rule border-t-0 py-1 shadow-xl font-sans font-medium text-[15px]">
                   <button onClick={() => { setIsAboutDropdownOpen(false); setIsAdvertiseOpen(true); }} className="block w-full text-left px-4 py-2 text-white/80 hover:text-white hover:bg-panel cursor-pointer">Advertise with us</button>
                   <button onClick={() => { setIsAboutDropdownOpen(false); setIsMediaCredsOpen(true); }} className="block w-full text-left px-4 py-2 text-white/80 hover:text-white hover:bg-panel cursor-pointer">Media credentials</button>
-                  <button onClick={() => { setIsAboutDropdownOpen(false); setIsApplyModalOpen(true); }} className="block w-full text-left px-4 py-2 text-white/80 hover:text-white hover:bg-panel cursor-pointer">Join the crew</button>
                   <button onClick={() => { setIsAboutDropdownOpen(false); setIsContactOpen(true); }} className="block w-full text-left px-4 py-2 text-white/80 hover:text-white hover:bg-panel cursor-pointer">Contact</button>
                 </div>
               )}
@@ -350,7 +348,6 @@ export default function App() {
               <div className="flex flex-col gap-1 pt-4 pb-5 font-sans font-medium text-base text-white/70">
                 <button onClick={() => { setIsMenuOpen(false); setIsAdvertiseOpen(true); }} className="text-left py-1.5 cursor-pointer">Advertise with us</button>
                 <button onClick={() => { setIsMenuOpen(false); setIsMediaCredsOpen(true); }} className="text-left py-1.5 cursor-pointer">Media credentials</button>
-                <button onClick={() => { setIsMenuOpen(false); setIsApplyModalOpen(true); }} className="text-left py-1.5 cursor-pointer">Join the crew</button>
                 <button onClick={() => { setIsMenuOpen(false); setIsContactOpen(true); }} className="text-left py-1.5 cursor-pointer">Contact</button>
               </div>
               <button onClick={navigateToPartners} className="w-full mb-5 bg-ind text-black font-display font-bold text-xl py-3 rounded-sm cursor-pointer">Partner with us</button>
@@ -452,7 +449,6 @@ export default function App() {
               <li><button onClick={navigateToPartners} className="hover:text-white cursor-pointer">For schools</button></li>
               <li><button onClick={() => setIsAdvertiseOpen(true)} className="hover:text-white cursor-pointer">Advertise</button></li>
               <li><button onClick={() => setIsMediaCredsOpen(true)} className="hover:text-white cursor-pointer">Media credentials</button></li>
-              <li><button onClick={() => setIsApplyModalOpen(true)} className="hover:text-white cursor-pointer">Join the crew</button></li>
             </ul>
           </div>
           <div className="col-span-2 md:col-span-4">
@@ -473,10 +469,6 @@ export default function App() {
         </div>
       </footer>
       {/* Modals */}
-      <CreatorApplicationModal 
-        isOpen={isApplyModalOpen}
-        onClose={() => setIsApplyModalOpen(false)}
-      />
 
       <MediaCredentialsModal 
         isOpen={isMediaCredsOpen}
