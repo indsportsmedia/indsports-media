@@ -1,38 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import TeamLogo from './TeamLogo';
+import { useLiveGames } from '../lib/gamesStore';
 import { displayClock } from '../lib/scorekeeper';
 import type { GameState } from '../types';
-import { subscribeToGames } from '../lib/firebase';
-import { DEFAULT_GAMES_LIST } from './LiveScoreboard';
 
 interface LiveScoreTickerProps {
   onNavigateToScoreboard: (gameId?: string) => void;
+  /** Game open on the scoreboard page right now (highlighted). */
+  activeGameId?: string;
 }
 
-export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToScoreboard }) => {
-  const [games, setGames] = useState<GameState[]>(() => {
-    try {
-      const saved = localStorage.getItem('ind_live_scoreboard_games_v3');
-      if (saved) return JSON.parse(saved);
-    } catch {
-      // fallback
-    }
-    return DEFAULT_GAMES_LIST;
-  });
-
-  useEffect(() => {
-    const unsubscribe = subscribeToGames(
-      (liveGames) => {
-        if (liveGames && liveGames.length > 0) {
-          setGames(liveGames);
-        }
-      },
-      (err) => {
-        console.warn('Live ticker subscription error:', err);
-      }
-    );
-    return () => unsubscribe();
-  }, []);
+export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToScoreboard, activeGameId }) => {
+  // Same live feed as the scoreboard page, so scores always match.
+  const { games, loaded } = useLiveGames();
 
   const [, setTick] = useState(0);
   const anyClock = games.some((g) => g.clockRunning);
@@ -42,10 +22,9 @@ export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToSc
     return () => clearInterval(t);
   }, [anyClock]);
 
-  const active = (games.length > 0 ? games : DEFAULT_GAMES_LIST).filter((g) => !g.isArchived);
-  const list = (active.length > 0 ? active : DEFAULT_GAMES_LIST)
-    .slice()
-    .sort((a, b) => Number(b.isLive) - Number(a.isLive));
+  const list = games
+    .filter((g) => !g.isArchived)
+    .sort((a, b) => Number(b.isLive) - Number(a.isLive) || (b.updatedAt || '').localeCompare(a.updatedAt || ''));
 
   const status = (g: GameState) => {
     const final = !g.isLive && /final/i.test(`${g.statusText} ${g.quarter}`);
@@ -68,6 +47,9 @@ export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToSc
           <span className="text-ind text-[12px] mt-1 leading-none">All games</span>
         </button>
         <div className="flex items-stretch overflow-x-auto no-scrollbar overscroll-x-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
+          {loaded && list.length === 0 && (
+            <span className="self-center px-4 text-mute text-[13px]">No games scheduled right now.</span>
+          )}
           {list.map((g) => {
             const st = status(g);
             const final = st.text === 'Final';
@@ -86,7 +68,10 @@ export const LiveScoreTicker: React.FC<LiveScoreTickerProps> = ({ onNavigateToSc
               <button
                 key={g.id}
                 onClick={() => onNavigateToScoreboard(g.id)}
-                className="shrink-0 w-[172px] flex flex-col justify-center gap-1.5 px-3 border-r border-rule hover:bg-panel cursor-pointer text-left"
+                aria-current={g.id === activeGameId ? 'true' : undefined}
+                className={`shrink-0 w-[172px] flex flex-col justify-center gap-1.5 px-3 border-r border-rule hover:bg-panel cursor-pointer text-left ${
+                  g.id === activeGameId ? 'bg-panel shadow-[inset_0_-3px_0_#00BFFF]' : ''
+                }`}
               >
                 <span className={`text-[11px] font-semibold leading-none truncate ${st.live ? 'text-[#FF4D5E]' : 'text-mute'}`}>
                   {st.live && <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#E4002B] mr-1 align-middle" aria-hidden />}

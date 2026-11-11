@@ -6,7 +6,7 @@
   - Images/icons on this site: show the saved copy, refresh it in the background.
   - Never touches Firebase, Google sign-in, forms (POST) or other sites.
 */
-const VERSION = 'ind-v1';
+const VERSION = 'ind-v2';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon-192.png', '/logo.png'];
 
 self.addEventListener('install', (e) => {

@@ -323,7 +323,10 @@ export default function App() {
 
         {/* Score ticker stays pinned under the nav on every page */}
         <div className="border-t border-rule">
-          <LiveScoreTicker onNavigateToScoreboard={(gameId) => navigateToLiveScoreboard(gameId)} />
+          <LiveScoreTicker
+            onNavigateToScoreboard={(gameId) => navigateToLiveScoreboard(gameId)}
+            activeGameId={currentView === 'live-scoreboard' ? selectedScoreboardGameId : undefined}
+          />
         </div>
 
         {isMenuOpen && (
@@ -362,6 +365,7 @@ export default function App() {
         <LiveScoreboard 
           onBack={navigateToHome}
           initialGameId={selectedScoreboardGameId}
+          onGameChange={setSelectedScoreboardGameId}
         />
       ) : currentView === 'photos' ? (
         <PhotosGallery 
