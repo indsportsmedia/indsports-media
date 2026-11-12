@@ -50,6 +50,30 @@ export default async (request: Request, context: Context) => {
     html = setMeta(html, 'og:url', url);
     html = setMeta(html, 'twitter:card', 'summary_large_image');
 
+    // Structured data: tells Google this page is a news story (helps with Top Stories / news results).
+    const ts = (k: string) => (f[k]?.timestampValue as string | undefined) || undefined;
+    const published = ts('publishedAt') || ts('createdAt');
+    const jsonLd: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': 'NewsArticle',
+      headline: str('title').slice(0, 110),
+      description,
+      image: [image],
+      mainEntityOfPage: url,
+      articleSection: str('sport') || undefined,
+      datePublished: published,
+      dateModified: ts('updatedAt') || published,
+      author: str('authorName') ? [{ '@type': 'Person', name: str('authorName') }] : undefined,
+      publisher: {
+        '@type': 'NewsMediaOrganization',
+        name: 'IND Sports Media',
+        url: SITE,
+        logo: { '@type': 'ImageObject', url: `${SITE}/logo.png` },
+      },
+    };
+    const ld = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
+    html = html.replace('</head>', `    <script type="application/ld+json">${ld}</script>\n  </head>`);
+
     const headers = new Headers(response.headers);
     headers.delete('content-length');
     // Short cache so headline edits show up on new shares quickly.
