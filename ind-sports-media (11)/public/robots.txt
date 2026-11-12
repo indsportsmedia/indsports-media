@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+# Crew-only tools, not public pages
+Disallow: /newsroom
+Disallow: /score
+
+Sitemap: https://indsports.media/sitemap.xml
